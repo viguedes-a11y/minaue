@@ -1,0 +1,1389 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Central de Postagens — Minaue</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    :root {
+      --green: #1D9E75;
+      --green-hover: #178a64;
+      --green-light: #e8f7f2;
+      --text: #111827;
+      --text-muted: #6b7280;
+      --border: #e5e7eb;
+      --bg: #ffffff;
+      --bg-secondary: #f9fafb;
+
+      --instagram: #8B5CF6;
+      --instagram-bg: #ede9fe;
+      --instagram-text: #5b21b6;
+
+      --tiktok: #EF4444;
+      --tiktok-bg: #fee2e2;
+      --tiktok-text: #991b1b;
+
+      --pinterest: #F97316;
+      --pinterest-bg: #ffedd5;
+      --pinterest-text: #9a3412;
+
+      --youtube: #EAB308;
+      --youtube-bg: #fef9c3;
+      --youtube-text: #713f12;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      font-size: 14px;
+      line-height: 1.5;
+      padding-top: 64px;
+    }
+
+    /* ---- Header ---- */
+    .header {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: 64px;
+      background: white;
+      border-bottom: 1px solid var(--border);
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      padding: 0 24px;
+    }
+
+    .header-inner {
+      width: 100%;
+      max-width: 960px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      gap: 24px;
+    }
+
+    .logo {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--green);
+      letter-spacing: -0.3px;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 4px;
+      flex: 1;
+    }
+
+    .tab {
+      padding: 6px 16px;
+      border: none;
+      background: none;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-muted);
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .tab:hover { color: var(--text); background: var(--bg-secondary); }
+    .tab.active { color: var(--green); background: var(--green-light); }
+
+    .settings-btn {
+      background: none;
+      border: none;
+      font-size: 18px;
+      cursor: pointer;
+      padding: 6px 8px;
+      border-radius: 6px;
+      color: var(--text-muted);
+      transition: background 0.15s;
+      line-height: 1;
+    }
+    .settings-btn:hover { background: var(--bg-secondary); color: var(--text); }
+
+    /* ---- Tab content ---- */
+    .tab-content {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 28px 24px 110px;
+    }
+
+    .hidden { display: none !important; }
+
+    /* ---- Calendar ---- */
+    .cal-nav {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .cal-nav-btn {
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 6px 14px;
+      cursor: pointer;
+      font-size: 16px;
+      color: var(--text-muted);
+      transition: all 0.15s;
+      font-family: inherit;
+    }
+    .cal-nav-btn:hover { border-color: var(--green); color: var(--green); }
+
+    #cal-month-label {
+      font-size: 18px;
+      font-weight: 600;
+      text-transform: capitalize;
+      min-width: 180px;
+    }
+
+    .cal-weekdays {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      margin-bottom: 4px;
+    }
+
+    .cal-weekdays div {
+      text-align: center;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-muted);
+      padding: 4px 0;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .cal-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .cal-day {
+      background: white;
+      min-height: 96px;
+      padding: 8px 6px 6px;
+      transition: background 0.1s;
+    }
+
+    .cal-day:hover { background: #fafafa; }
+    .cal-day.other-month { background: var(--bg-secondary); }
+    .cal-day.today .day-num {
+      color: var(--green);
+      font-weight: 700;
+    }
+
+    .day-num {
+      font-size: 12px;
+      font-weight: 400;
+      color: var(--text-muted);
+      margin-bottom: 5px;
+      display: block;
+    }
+
+    .cal-day.other-month .day-num { opacity: 0.35; }
+
+    .chip {
+      display: flex;
+      align-items: center;
+      gap: 3px;
+      padding: 2px 7px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 500;
+      cursor: pointer;
+      margin-bottom: 3px;
+      border: 1.5px solid transparent;
+      transition: opacity 0.15s;
+      overflow: hidden;
+      white-space: nowrap;
+    }
+
+    .chip:hover { opacity: 0.75; }
+
+    .chip[data-platform="instagram"] { background: var(--instagram-bg); color: var(--instagram-text); border-color: var(--instagram); }
+    .chip[data-platform="tiktok"]    { background: var(--tiktok-bg);    color: var(--tiktok-text);    border-color: var(--tiktok);    }
+    .chip[data-platform="pinterest"] { background: var(--pinterest-bg); color: var(--pinterest-text); border-color: var(--pinterest); }
+    .chip[data-platform="youtube"]   { background: var(--youtube-bg);   color: var(--youtube-text);   border-color: var(--youtube);   }
+
+    .chip.story { background: transparent !important; border-style: dashed; }
+
+    /* ---- Form ---- */
+    .post-form { display: flex; flex-direction: column; gap: 28px; }
+
+    .form-section { display: flex; flex-direction: column; gap: 14px; }
+
+    .section-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+    }
+
+    .field { display: flex; flex-direction: column; gap: 6px; }
+
+    .field label {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .field input[type="url"],
+    .field input[type="datetime-local"],
+    .field textarea {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 12px;
+      font-family: inherit;
+      font-size: 14px;
+      color: var(--text);
+      transition: border-color 0.15s, box-shadow 0.15s;
+      background: white;
+      outline: none;
+      width: 100%;
+    }
+
+    .field input:focus,
+    .field textarea:focus {
+      border-color: var(--green);
+      box-shadow: 0 0 0 3px rgba(29, 158, 117, 0.12);
+    }
+
+    .field textarea { resize: vertical; min-height: 84px; }
+
+    /* Platform toggles */
+    .platform-toggles { display: flex; gap: 8px; flex-wrap: wrap; }
+
+    .platform-btn {
+      padding: 8px 18px;
+      border-radius: 999px;
+      border: 2px solid var(--border);
+      background: white;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-muted);
+      transition: all 0.15s;
+    }
+
+    .platform-btn:hover { border-color: #9ca3af; color: var(--text); }
+
+    .platform-btn.active[data-platform="instagram"] { border-color: var(--instagram); background: var(--instagram-bg); color: var(--instagram-text); }
+    .platform-btn.active[data-platform="tiktok"]    { border-color: var(--tiktok);    background: var(--tiktok-bg);    color: var(--tiktok-text);    }
+    .platform-btn.active[data-platform="pinterest"] { border-color: var(--pinterest); background: var(--pinterest-bg); color: var(--pinterest-text); }
+    .platform-btn.active[data-platform="youtube"]   { border-color: var(--youtube);   background: var(--youtube-bg);   color: var(--youtube-text);   }
+
+    /* Type radios */
+    .type-options { display: flex; gap: 8px; flex-wrap: wrap; }
+
+    .type-radio { position: relative; }
+    .type-radio input { position: absolute; opacity: 0; width: 0; height: 0; }
+
+    .type-radio label {
+      display: inline-block;
+      padding: 6px 16px;
+      border: 2px solid var(--border);
+      border-radius: 999px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-muted);
+      transition: all 0.15s;
+    }
+
+    .type-radio label:hover { border-color: #9ca3af; color: var(--text); }
+    .type-radio input:checked + label { border-color: var(--green); background: var(--green-light); color: var(--green); }
+
+    /* Grid 2 columns */
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    @media (max-width: 600px) { .grid-2 { grid-template-columns: 1fr; } }
+
+    /* Auto badge */
+    .auto-badge {
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--green);
+      background: var(--green-light);
+      padding: 2px 7px;
+      border-radius: 4px;
+      letter-spacing: 0.2px;
+    }
+
+    /* Divider */
+    .divider { border: none; border-top: 1px solid var(--border); }
+
+    /* Editing banner */
+    .editing-banner {
+      background: var(--green-light);
+      border: 1px solid rgba(29,158,117,0.3);
+      border-radius: 8px;
+      padding: 10px 16px;
+      font-size: 13px;
+      color: var(--green);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .editing-banner strong { font-weight: 600; }
+
+    .editing-banner button {
+      background: none;
+      border: none;
+      color: var(--green);
+      font-family: inherit;
+      font-size: 13px;
+      cursor: pointer;
+      text-decoration: underline;
+      padding: 0;
+    }
+
+    /* Message area */
+    .form-message {
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 500;
+    }
+    .form-message.error   { background: #fee2e2; color: #991b1b; }
+    .form-message.success { background: var(--green-light); color: var(--green); }
+
+    /* ---- Form footer ---- */
+    .form-footer {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      background: white;
+      border-top: 1px solid var(--border);
+      padding: 14px 24px;
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      gap: 10px;
+      z-index: 90;
+    }
+
+    .btn {
+      padding: 10px 22px;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s;
+      border: none;
+      line-height: 1;
+    }
+
+    .btn-secondary { background: var(--bg-secondary); color: var(--text); border: 1px solid var(--border); }
+    .btn-secondary:hover { background: var(--border); }
+
+    .btn-primary { background: var(--green); color: white; }
+    .btn-primary:hover { background: var(--green-hover); }
+    .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
+
+    /* ---- Modal ---- */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.35);
+      z-index: 200;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal {
+      background: white;
+      border-radius: 12px;
+      padding: 28px;
+      width: 420px;
+      max-width: calc(100vw - 32px);
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.18);
+    }
+
+    .modal h3 { font-size: 16px; font-weight: 600; }
+
+    .modal .hint {
+      font-size: 12px;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    .modal-footer { display: flex; gap: 8px; justify-content: flex-end; }
+
+    .modal { max-height: 90vh; overflow-y: auto; }
+
+    .settings-section-title {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-muted);
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .profile-map-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .profile-map-row span { font-size: 14px; min-width: 120px; }
+    .profile-map-row select {
+      flex: 1;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 8px 10px;
+      font-family: inherit;
+      font-size: 13px;
+      outline: none;
+      background: white;
+    }
+    .profile-map-row select:focus { border-color: var(--green); }
+
+    .fetch-profiles-btn {
+      width: 100%;
+      padding: 9px;
+      border: 1px dashed var(--border);
+      border-radius: 8px;
+      background: none;
+      font-family: inherit;
+      font-size: 13px;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .fetch-profiles-btn:hover { border-color: var(--green); color: var(--green); }
+
+    /* Cover upload */
+    .cover-upload-area {
+      border: 2px dashed var(--border);
+      border-radius: 10px;
+      padding: 20px;
+      display: flex;
+      gap: 20px;
+      align-items: flex-start;
+      cursor: pointer;
+      transition: border-color 0.15s;
+    }
+    .cover-upload-area:hover { border-color: var(--green); }
+    .cover-upload-area.has-image { border-style: solid; border-color: var(--green); }
+
+    .cover-preview {
+      width: 90px;
+      height: 120px;
+      border-radius: 8px;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      overflow: hidden;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      color: var(--text-muted);
+    }
+    .cover-preview img { width: 100%; height: 100%; object-fit: cover; }
+
+    .cover-upload-info { flex: 1; }
+    .cover-upload-info p { font-size: 14px; font-weight: 500; color: var(--text); margin-bottom: 4px; }
+    .cover-upload-info small { font-size: 12px; color: var(--text-muted); line-height: 1.5; display: block; }
+
+    .cover-actions { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+    .cover-btn {
+      font-size: 12px;
+      font-weight: 500;
+      padding: 5px 12px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: white;
+      cursor: pointer;
+      font-family: inherit;
+      transition: all 0.15s;
+    }
+    .cover-btn:hover { border-color: var(--green); color: var(--green); }
+    .cover-btn.remove { color: #ef4444; border-color: #fca5a5; }
+    .cover-btn.remove:hover { background: #fee2e2; }
+
+    .tiktok-cover-note {
+      display: none;
+      background: var(--tiktok-bg);
+      color: var(--tiktok-text);
+      border: 1px solid var(--tiktok);
+      border-radius: 8px;
+      padding: 8px 12px;
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    /* Empty state */
+    .empty-state {
+      text-align: center;
+      padding: 64px 24px;
+      color: var(--text-muted);
+    }
+
+    .empty-state p { font-size: 15px; margin-bottom: 8px; }
+    .empty-state small { font-size: 13px; }
+  </style>
+</head>
+<body>
+
+<!-- ---- Header ---- -->
+<header class="header">
+  <div class="header-inner">
+    <span class="logo">minaue</span>
+    <nav class="tabs">
+      <button class="tab active" id="tab-btn-calendar" onclick="switchTab('calendar')">Calendário</button>
+      <button class="tab" id="tab-btn-new-post" onclick="switchTab('new-post')">Novo Post</button>
+    </nav>
+    <button class="settings-btn" onclick="openSettings()" title="Configurações da API">⚙</button>
+  </div>
+</header>
+
+<!-- ---- Calendário ---- -->
+<main id="tab-calendar" class="tab-content">
+  <div class="cal-nav">
+    <button class="cal-nav-btn" onclick="prevMonth()">&#8592;</button>
+    <span id="cal-month-label"></span>
+    <button class="cal-nav-btn" onclick="nextMonth()">&#8594;</button>
+  </div>
+  <div class="cal-weekdays">
+    <div>Dom</div><div>Seg</div><div>Ter</div><div>Qua</div><div>Qui</div><div>Sex</div><div>Sáb</div>
+  </div>
+  <div class="cal-grid" id="cal-grid"></div>
+</main>
+
+<!-- ---- Novo Post ---- -->
+<main id="tab-new-post" class="tab-content hidden">
+
+  <div id="editing-banner" class="editing-banner hidden" style="margin-bottom:20px">
+    <span><strong>Editando post</strong> — faça as alterações e salve.</span>
+    <button onclick="resetForm()">+ Novo post</button>
+  </div>
+
+  <form class="post-form" id="post-form" onsubmit="return false">
+
+    <!-- Plataformas -->
+    <div class="form-section">
+      <span class="section-label">Plataformas</span>
+      <div class="platform-toggles">
+        <button type="button" class="platform-btn" data-platform="instagram" onclick="togglePlatform('instagram')">📷 Instagram</button>
+        <button type="button" class="platform-btn" data-platform="tiktok"    onclick="togglePlatform('tiktok')">🎵 TikTok</button>
+        <button type="button" class="platform-btn" data-platform="pinterest" onclick="togglePlatform('pinterest')">📌 Pinterest</button>
+        <button type="button" class="platform-btn" data-platform="youtube"   onclick="togglePlatform('youtube')">▶ YouTube Shorts</button>
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <!-- Tipo -->
+    <div class="form-section">
+      <span class="section-label">Tipo de conteúdo</span>
+      <div class="type-options">
+        <div class="type-radio">
+          <input type="radio" name="postType" id="type-feed" value="feed" checked>
+          <label for="type-feed">Feed / Reel / Short</label>
+        </div>
+        <div class="type-radio" id="story-option" style="display:none">
+          <input type="radio" name="postType" id="type-story" value="story">
+          <label for="type-story">Story</label>
+        </div>
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <!-- Detalhes -->
+    <div class="form-section">
+      <span class="section-label">Detalhes</span>
+      <div class="grid-2">
+        <div class="field">
+          <label for="video-link">Link do vídeo (Google Drive)</label>
+          <input type="url" id="video-link" placeholder="https://drive.google.com/...">
+        </div>
+        <div class="field">
+          <label for="scheduled-at">Data e horário</label>
+          <input type="datetime-local" id="scheduled-at">
+        </div>
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <!-- Capa do vídeo -->
+    <div class="form-section">
+      <span class="section-label">Capa do vídeo</span>
+
+      <div class="tiktok-cover-note" id="tiktok-cover-note">
+        🎵 <strong>TikTok:</strong> não aceita capa personalizada — use o primeiro ou último frame do vídeo como a seção da mandala. A capa abaixo será aplicada nas outras plataformas.
+      </div>
+
+      <input type="file" id="cover-input" accept="image/*" style="display:none" onchange="handleCoverUpload(event)">
+
+      <div class="cover-upload-area" id="cover-upload-area" onclick="document.getElementById('cover-input').click()">
+        <div class="cover-preview" id="cover-preview">🖼</div>
+        <div class="cover-upload-info">
+          <p>Imagem de capa</p>
+          <small>Proporção ideal: 3:4 (1080×1440px)<br>Formatos: JPG, PNG<br>Esta imagem aparecerá no grid do perfil</small>
+          <div class="cover-actions" onclick="event.stopPropagation()">
+            <button class="cover-btn" onclick="document.getElementById('cover-input').click()">Escolher imagem</button>
+            <button class="cover-btn remove hidden" id="cover-remove-btn" onclick="removeCover()">Remover</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <!-- Legendas -->
+    <div class="form-section">
+      <span class="section-label">Legendas</span>
+
+      <div class="field">
+        <label>🇧🇷 Legenda em português</label>
+        <textarea id="caption-pt" rows="4" placeholder="Escreva sua legenda aqui…"></textarea>
+      </div>
+
+      <div class="field">
+        <label>🇺🇸 Legenda em inglês <span class="auto-badge">gerada automaticamente</span></label>
+        <textarea id="caption-en" rows="4" placeholder="Gerada ao clicar em 'Gerar legendas e agendar'…"></textarea>
+      </div>
+
+      <div class="field">
+        <label>🇪🇸 Legenda em espanhol <span class="auto-badge">gerada automaticamente</span></label>
+        <textarea id="caption-es" rows="4" placeholder="Gerada ao clicar em 'Gerar legendas e agendar'…"></textarea>
+      </div>
+    </div>
+
+    <!-- Hashtags (conditional) -->
+    <div class="form-section" id="hashtags-section" style="display:none">
+      <hr class="divider" style="margin-bottom:0">
+      <span class="section-label">Hashtags <span class="auto-badge">geradas automaticamente</span></span>
+
+      <div class="field" id="hashtags-instagram" style="display:none">
+        <label>📷 Hashtags Instagram</label>
+        <textarea id="hashtag-instagram" rows="3" placeholder="Geradas ao clicar em 'Gerar legendas e agendar'…"></textarea>
+      </div>
+
+      <div class="field" id="hashtags-tiktok" style="display:none">
+        <label>🎵 Hashtags TikTok</label>
+        <textarea id="hashtag-tiktok" rows="3" placeholder="Geradas ao clicar em 'Gerar legendas e agendar'…"></textarea>
+      </div>
+
+      <div class="field" id="hashtags-pinterest" style="display:none">
+        <label>📌 Hashtags Pinterest</label>
+        <textarea id="hashtag-pinterest" rows="3" placeholder="Geradas ao clicar em 'Gerar legendas e agendar'…"></textarea>
+      </div>
+
+      <div class="field" id="hashtags-youtube" style="display:none">
+        <label>▶ Hashtags YouTube</label>
+        <textarea id="hashtag-youtube" rows="3" placeholder="Geradas ao clicar em 'Gerar legendas e agendar'…"></textarea>
+      </div>
+    </div>
+
+    <!-- Message -->
+    <div id="form-message" class="form-message hidden"></div>
+
+  </form>
+</main>
+
+<!-- ---- Footer fixo (formulário) ---- -->
+<div class="form-footer hidden" id="form-footer">
+  <button class="btn btn-secondary" onclick="saveDraft()">Salvar rascunho</button>
+  <button class="btn btn-primary" id="generate-btn" onclick="generateAndSchedule()">Gerar legendas e agendar</button>
+</div>
+
+<!-- ---- Modal de configurações ---- -->
+<div class="modal-overlay hidden" id="settings-modal">
+  <div class="modal">
+    <h3>⚙ Configurações</h3>
+
+    <div class="settings-section-title">Claude API — geração de legendas</div>
+    <div class="field">
+      <label for="api-key-input">Claude API Key</label>
+      <input type="password" id="api-key-input" placeholder="sk-ant-…">
+    </div>
+    <p class="hint">Gera legendas em inglês/espanhol e hashtags por plataforma.</p>
+
+    <div class="settings-section-title">Publer — publicação automática</div>
+    <div class="field">
+      <label for="publer-key-input">Publer API Key</label>
+      <input type="password" id="publer-key-input" placeholder="Cole sua API key do Publer…">
+    </div>
+    <p class="hint">Encontre em: Publer → Settings → Integrations → API Key</p>
+
+    <button class="fetch-profiles-btn" id="fetch-profiles-btn" onclick="fetchPublerProfiles()">
+      🔄 Buscar minhas contas conectadas no Publer
+    </button>
+
+    <div id="profile-mapping" class="hidden">
+      <div class="settings-section-title">Mapear plataformas</div>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <div class="profile-map-row">
+          <span>📷 Instagram</span>
+          <select id="map-instagram"><option value="">— selecione —</option></select>
+        </div>
+        <div class="profile-map-row">
+          <span>🎵 TikTok</span>
+          <select id="map-tiktok"><option value="">— selecione —</option></select>
+        </div>
+        <div class="profile-map-row">
+          <span>📌 Pinterest</span>
+          <select id="map-pinterest"><option value="">— selecione —</option></select>
+        </div>
+        <div class="profile-map-row">
+          <span>▶ YouTube</span>
+          <select id="map-youtube"><option value="">— selecione —</option></select>
+        </div>
+      </div>
+    </div>
+
+    <div class="settings-section-title">Supabase — banco de dados na nuvem</div>
+    <div class="field">
+      <label for="supabase-url-input">Project URL</label>
+      <input type="text" id="supabase-url-input" placeholder="https://xxxx.supabase.co">
+    </div>
+    <div class="field">
+      <label for="supabase-key-input">Anon Key</label>
+      <input type="password" id="supabase-key-input" placeholder="eyJhbGci…">
+    </div>
+    <p class="hint">Seus posts ficam salvos na nuvem e acessíveis em qualquer dispositivo. Encontre em: Supabase → Project Settings → API.</p>
+
+    <div id="settings-msg" class="hint hidden" style="color:#ef4444"></div>
+
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeSettings()">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveSettings()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ---- Estado global ----
+  let currentTab = 'calendar';
+  let calYear = new Date().getFullYear();
+  let calMonth = new Date().getMonth();
+  let activePlatforms = [];
+  let currentEditingId = null;
+  let currentCoverBase64 = null;
+  let _supabaseClient = null;
+
+  // ---- Supabase ----
+  function getSupabaseClient() {
+    const url = localStorage.getItem('minaue_supabase_url');
+    const key = localStorage.getItem('minaue_supabase_key');
+    if (!url || !key) return null;
+    if (!_supabaseClient) _supabaseClient = supabase.createClient(url, key);
+    return _supabaseClient;
+  }
+
+  function resetSupabaseClient() { _supabaseClient = null; }
+
+  function postToDb(post) {
+    return {
+      id: post.id,
+      video_link: post.videoLink || null,
+      type: post.type || 'feed',
+      platforms: post.platforms || [],
+      scheduled_at: post.scheduledAt || null,
+      cover: post.cover || null,
+      captions: post.captions || {},
+      hashtags: post.hashtags || {},
+      status: post.status || 'draft'
+    };
+  }
+
+  function dbToPost(row) {
+    return {
+      id: row.id,
+      videoLink: row.video_link,
+      type: row.type,
+      platforms: row.platforms || [],
+      scheduledAt: row.scheduled_at,
+      cover: row.cover,
+      captions: row.captions || {},
+      hashtags: row.hashtags || {},
+      status: row.status
+    };
+  }
+
+  // ---- Persistência (Supabase com fallback para localStorage) ----
+  async function getPosts() {
+    const client = getSupabaseClient();
+    if (client) {
+      try {
+        const { data, error } = await client.from('posts').select('*').order('scheduled_at', { ascending: true });
+        if (!error && data) return data.map(dbToPost);
+      } catch (e) { /* cai para localStorage */ }
+    }
+    try { return JSON.parse(localStorage.getItem('minaue_posts') || '[]'); }
+    catch { return []; }
+  }
+
+  async function savePost(post) {
+    const client = getSupabaseClient();
+    if (client) {
+      const { error } = await client.from('posts').upsert(postToDb(post));
+      if (!error) return;
+    }
+    try {
+      const posts = JSON.parse(localStorage.getItem('minaue_posts') || '[]');
+      const idx = posts.findIndex(p => p.id === post.id);
+      if (idx !== -1) posts[idx] = post; else posts.push(post);
+      localStorage.setItem('minaue_posts', JSON.stringify(posts));
+    } catch(e) {}
+  }
+
+  function getApiKey() { return localStorage.getItem('minaue_api_key') || ''; }
+
+  function uid() {
+    if (crypto.randomUUID) return crypto.randomUUID();
+    return Date.now().toString(36) + Math.random().toString(36).slice(2);
+  }
+
+  // ---- Navegação entre abas ----
+  function switchTab(tab) {
+    currentTab = tab;
+
+    document.getElementById('tab-calendar').classList.toggle('hidden', tab !== 'calendar');
+    document.getElementById('tab-new-post').classList.toggle('hidden', tab !== 'new-post');
+    document.getElementById('form-footer').classList.toggle('hidden', tab !== 'new-post');
+    document.getElementById('tab-btn-calendar').classList.toggle('active', tab === 'calendar');
+    document.getElementById('tab-btn-new-post').classList.toggle('active', tab === 'new-post');
+
+    if (tab === 'calendar') renderCalendar();
+    if (tab === 'new-post' && !currentEditingId) resetForm();
+  }
+
+  // ---- Plataformas ----
+  function togglePlatform(platform) {
+    const btn = document.querySelector(`.platform-btn[data-platform="${platform}"]`);
+    const idx = activePlatforms.indexOf(platform);
+
+    if (idx === -1) {
+      activePlatforms.push(platform);
+      btn.classList.add('active');
+    } else {
+      activePlatforms.splice(idx, 1);
+      btn.classList.remove('active');
+    }
+
+    updateStoryOption();
+    updateHashtagSections();
+  }
+
+  function setActivePlatforms(platforms) {
+    activePlatforms = [];
+    document.querySelectorAll('.platform-btn').forEach(b => b.classList.remove('active'));
+    (platforms || []).forEach(p => {
+      activePlatforms.push(p);
+      const btn = document.querySelector(`.platform-btn[data-platform="${p}"]`);
+      if (btn) btn.classList.add('active');
+    });
+    updateStoryOption();
+    updateHashtagSections();
+  }
+
+  function updateStoryOption() {
+    const hasInstagram = activePlatforms.includes('instagram');
+    document.getElementById('story-option').style.display = hasInstagram ? '' : 'none';
+    if (!hasInstagram) document.getElementById('type-feed').checked = true;
+    const note = document.getElementById('tiktok-cover-note');
+    note.style.display = activePlatforms.includes('tiktok') ? '' : 'none';
+  }
+
+  function updateHashtagSections() {
+    const platforms = ['instagram', 'tiktok', 'pinterest', 'youtube'];
+    let anyActive = false;
+
+    platforms.forEach(p => {
+      const el = document.getElementById(`hashtags-${p}`);
+      const active = activePlatforms.includes(p);
+      if (el) el.style.display = active ? '' : 'none';
+      if (active) anyActive = true;
+    });
+
+    document.getElementById('hashtags-section').style.display = anyActive ? '' : 'none';
+  }
+
+  // ---- Dados do formulário ----
+  function getFormData() {
+    const typeEl = document.querySelector('input[name="postType"]:checked');
+    return {
+      videoLink:   document.getElementById('video-link').value.trim(),
+      type:        typeEl ? typeEl.value : 'feed',
+      platforms:   [...activePlatforms],
+      scheduledAt: document.getElementById('scheduled-at').value,
+      cover:       currentCoverBase64,
+      captions: {
+        pt: document.getElementById('caption-pt').value,
+        en: document.getElementById('caption-en').value,
+        es: document.getElementById('caption-es').value,
+      },
+      hashtags: {
+        instagram: document.getElementById('hashtag-instagram').value,
+        tiktok:    document.getElementById('hashtag-tiktok').value,
+        pinterest: document.getElementById('hashtag-pinterest').value,
+        youtube:   document.getElementById('hashtag-youtube').value,
+      }
+    };
+  }
+
+  // ---- Salvar rascunho ----
+  async function saveDraft() {
+    if (!document.getElementById('scheduled-at').value) {
+      showMsg('Informe a data e horário antes de salvar.', 'error');
+      return;
+    }
+    const data = getFormData();
+    if (!currentEditingId) {
+      currentEditingId = uid();
+      document.getElementById('editing-banner').classList.remove('hidden');
+    }
+    await savePost({ id: currentEditingId, ...data, status: 'draft' });
+    showMsg('Rascunho salvo!', 'success');
+  }
+
+  // ---- Gerar legendas e agendar ----
+  async function generateAndSchedule() {
+    const apiKey = getApiKey();
+    if (!apiKey) { openSettings(); return; }
+
+    const captionPt = document.getElementById('caption-pt').value.trim();
+    if (!captionPt) { showMsg('Escreva a legenda em português antes de gerar.', 'error'); return; }
+    if (!document.getElementById('scheduled-at').value) { showMsg('Informe a data e horário de agendamento.', 'error'); return; }
+
+    const btn = document.getElementById('generate-btn');
+    btn.disabled = true;
+    btn.textContent = 'Gerando…';
+    clearMsg();
+
+    try {
+      const platformNames = {
+        instagram: 'Instagram', tiktok: 'TikTok', pinterest: 'Pinterest', youtube: 'YouTube Shorts'
+      };
+      const platformsList = activePlatforms.map(p => platformNames[p]).join(', ') || 'todas as plataformas';
+
+      const userPrompt = `Legenda original em português:\n"${captionPt}"\n\nPlataformas: ${platformsList}\n\nGere:\n1. Tradução adaptada para inglês (mesmo tom, não literal, sem clichês)\n2. Tradução adaptada para espanhol (mesmo tom, não literal, sem clichês)\n3. Hashtags para Instagram (20-25 tags, mix de grandes e de nicho: mandala art, watercolor, arte, desenho)\n4. Hashtags para TikTok (10-15 tags, priorizando alcance: misture pt/en/es)\n5. Hashtags para Pinterest (10 tags descritivas, boas para SEO de imagem)\n6. Hashtags para YouTube Shorts (5-8 tags relevantes)\n\nResponda APENAS com JSON válido, sem markdown, sem explicação:\n{"en":"...","es":"...","hashtags":{"instagram":"...","tiktok":"...","pinterest":"...","youtube":"..."}}`;
+
+      const res = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': apiKey,
+          'anthropic-version': '2023-06-01',
+          'anthropic-dangerous-direct-browser-access': 'true'
+        },
+        body: JSON.stringify({
+          model: 'claude-haiku-4-5-20251001',
+          max_tokens: 1600,
+          system: 'Você é assistente de conteúdo do Minaue.art, negócio de arte de mandalas da Vivi. Tom: direto, humano, com profundidade. Sem clichês espirituais ("gratiluz", "energia do universo"), sem frases espelhadas curtas estilo IA genérica. Emocionalmente sutil, nunca exagerado. Responda sempre com JSON puro, sem markdown.',
+          messages: [{ role: 'user', content: userPrompt }]
+        })
+      });
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error?.message || `Erro HTTP ${res.status}`);
+      }
+
+      const result = await res.json();
+      const rawText = result.content?.[0]?.text || '';
+
+      const jsonMatch = rawText.match(/\{[\s\S]*\}/);
+      if (!jsonMatch) throw new Error('Resposta inesperada da API. Tente novamente.');
+
+      const parsed = JSON.parse(jsonMatch[0]);
+
+      if (parsed.en) document.getElementById('caption-en').value = parsed.en;
+      if (parsed.es) document.getElementById('caption-es').value = parsed.es;
+      if (parsed.hashtags) {
+        ['instagram','tiktok','pinterest','youtube'].forEach(p => {
+          if (parsed.hashtags[p]) document.getElementById(`hashtag-${p}`).value = parsed.hashtags[p];
+        });
+      }
+
+      // Salvar como agendado
+      const data = getFormData();
+      if (!currentEditingId) {
+        currentEditingId = uid();
+        document.getElementById('editing-banner').classList.remove('hidden');
+      }
+      await savePost({ id: currentEditingId, ...data, status: 'scheduled' });
+
+      // Publicar no Publer
+      btn.textContent = 'Agendando no Publer…';
+      try {
+        await scheduleWithPubler(getFormData());
+        showMsg('Legendas geradas e post agendado em todas as plataformas!', 'success');
+      } catch (publerErr) {
+        showMsg(`Legendas geradas e salvas ✓ — mas erro no Publer: ${publerErr.message}`, 'error');
+      }
+
+    } catch (err) {
+      showMsg('Erro: ' + err.message, 'error');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Gerar legendas e agendar';
+    }
+  }
+
+  // ---- Editar post (a partir do calendário) ----
+  async function editPost(id) {
+    const posts = await getPosts();
+    const post = posts.find(p => p.id === id);
+    if (!post) return;
+
+    currentEditingId = id;
+
+    document.getElementById('video-link').value  = post.videoLink || '';
+    document.getElementById('scheduled-at').value = post.scheduledAt || '';
+    document.getElementById('caption-pt').value   = post.captions?.pt || '';
+    document.getElementById('caption-en').value   = post.captions?.en || '';
+    document.getElementById('caption-es').value   = post.captions?.es || '';
+    document.getElementById('hashtag-instagram').value = post.hashtags?.instagram || '';
+    document.getElementById('hashtag-tiktok').value    = post.hashtags?.tiktok    || '';
+    document.getElementById('hashtag-pinterest').value = post.hashtags?.pinterest || '';
+    document.getElementById('hashtag-youtube').value   = post.hashtags?.youtube   || '';
+
+    const typeInput = document.getElementById(`type-${post.type}`);
+    if (typeInput) typeInput.checked = true;
+    else document.getElementById('type-feed').checked = true;
+
+    setActivePlatforms(post.platforms || []);
+    loadCover(post.cover || null);
+    document.getElementById('editing-banner').classList.remove('hidden');
+
+    switchTab('new-post');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  // ---- Resetar formulário ----
+  function resetForm() {
+    currentEditingId = null;
+    document.getElementById('video-link').value = '';
+    document.getElementById('scheduled-at').value = '';
+    document.getElementById('caption-pt').value = '';
+    document.getElementById('caption-en').value = '';
+    document.getElementById('caption-es').value = '';
+    document.getElementById('hashtag-instagram').value = '';
+    document.getElementById('hashtag-tiktok').value    = '';
+    document.getElementById('hashtag-pinterest').value = '';
+    document.getElementById('hashtag-youtube').value   = '';
+    document.getElementById('type-feed').checked = true;
+    document.getElementById('editing-banner').classList.add('hidden');
+    setActivePlatforms([]);
+    loadCover(null);
+    clearMsg();
+  }
+
+  // ---- Capa do vídeo ----
+  function handleCoverUpload(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    if (file.size > 3 * 1024 * 1024) {
+      showMsg('Imagem muito grande — use uma imagem até 3MB.', 'error');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (e) => loadCover(e.target.result);
+    reader.readAsDataURL(file);
+    event.target.value = '';
+  }
+
+  function loadCover(base64) {
+    currentCoverBase64 = base64;
+    const preview = document.getElementById('cover-preview');
+    const area    = document.getElementById('cover-upload-area');
+    const removeBtn = document.getElementById('cover-remove-btn');
+
+    if (base64) {
+      preview.innerHTML = `<img src="${base64}" alt="Capa">`;
+      area.classList.add('has-image');
+      removeBtn.classList.remove('hidden');
+    } else {
+      preview.innerHTML = '🖼';
+      area.classList.remove('has-image');
+      removeBtn.classList.add('hidden');
+    }
+  }
+
+  function removeCover() {
+    loadCover(null);
+  }
+
+  // ---- Mensagens ----
+  function showMsg(text, type) {
+    const el = document.getElementById('form-message');
+    el.className = 'form-message ' + type;
+    el.textContent = text;
+    el.classList.remove('hidden');
+    if (type === 'success') setTimeout(clearMsg, 5000);
+  }
+
+  function clearMsg() {
+    document.getElementById('form-message').classList.add('hidden');
+  }
+
+  // ---- Calendário ----
+  const MONTHS = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho',
+    'Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+
+  const PLATFORM_ICON = { instagram:'📷', tiktok:'🎵', pinterest:'📌', youtube:'▶' };
+
+  function prevMonth() {
+    calMonth--;
+    if (calMonth < 0) { calMonth = 11; calYear--; }
+    renderCalendar();
+  }
+
+  function nextMonth() {
+    calMonth++;
+    if (calMonth > 11) { calMonth = 0; calYear++; }
+    renderCalendar();
+  }
+
+  async function renderCalendar() {
+    document.getElementById('cal-month-label').textContent = `${MONTHS[calMonth]} ${calYear}`;
+
+    const grid = document.getElementById('cal-grid');
+    grid.innerHTML = '';
+
+    const posts  = await getPosts();
+    const today  = new Date();
+    const firstDayOfWeek = new Date(calYear, calMonth, 1).getDay();
+    const daysInMonth    = new Date(calYear, calMonth + 1, 0).getDate();
+    const daysInPrevMonth = new Date(calYear, calMonth, 0).getDate();
+
+    const cells = [];
+
+    // Dias do mês anterior (padding)
+    for (let i = firstDayOfWeek - 1; i >= 0; i--) {
+      cells.push({ day: daysInPrevMonth - i, other: true });
+    }
+
+    // Dias do mês atual
+    for (let d = 1; d <= daysInMonth; d++) {
+      cells.push({ day: d, other: false });
+    }
+
+    // Dias do próximo mês (padding para completar semanas)
+    let next = 1;
+    while (cells.length % 7 !== 0) cells.push({ day: next++, other: true });
+
+    cells.forEach(cell => {
+      const div = document.createElement('div');
+      div.className = 'cal-day' + (cell.other ? ' other-month' : '');
+
+      const isToday = !cell.other &&
+        cell.day === today.getDate() &&
+        calMonth === today.getMonth() &&
+        calYear  === today.getFullYear();
+
+      if (isToday) div.classList.add('today');
+
+      const num = document.createElement('span');
+      num.className = 'day-num';
+      num.textContent = cell.day;
+      div.appendChild(num);
+
+      if (!cell.other) {
+        const dayStr = `${calYear}-${String(calMonth + 1).padStart(2,'0')}-${String(cell.day).padStart(2,'0')}`;
+        const dayPosts = posts.filter(p => p.scheduledAt && p.scheduledAt.startsWith(dayStr));
+
+        dayPosts.forEach(post => {
+          const timeStr = post.scheduledAt.slice(11, 16);
+          (post.platforms || []).forEach(platform => {
+            const chip = document.createElement('div');
+            chip.className = 'chip' + (post.type === 'story' ? ' story' : '');
+            chip.dataset.platform = platform;
+            chip.title = `${platform} · ${post.type} · ${timeStr}${post.status === 'draft' ? ' (rascunho)' : ''}`;
+            chip.innerHTML = `${PLATFORM_ICON[platform] || ''} ${timeStr}`;
+            chip.onclick = () => editPost(post.id);
+            div.appendChild(chip);
+          });
+        });
+      }
+
+      grid.appendChild(div);
+    });
+  }
+
+  // ---- Publer utils ----
+  function getPublerKey() { return localStorage.getItem('minaue_publer_key') || ''; }
+
+  function getProfileMapping() {
+    try { return JSON.parse(localStorage.getItem('minaue_profile_map') || '{}'); }
+    catch { return {}; }
+  }
+
+  function convertGDriveUrl(url) {
+    const match = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
+    if (match) return `https://drive.google.com/uc?export=download&id=${match[1]}`;
+    return url;
+  }
+
+  async function fetchPublerProfiles() {
+    const key = document.getElementById('publer-key-input').value.trim() || getPublerKey();
+    if (!key) { showSettingsMsg('Cole a Publer API Key antes de buscar.'); return; }
+
+    const btn = document.getElementById('fetch-profiles-btn');
+    btn.textContent = '⏳ Buscando…';
+    btn.disabled = true;
+    hideSettingsMsg();
+
+    try {
+      const res = await fetch('https://app.publer.com/api/v1/profiles', {
+        headers: { 'Authorization': `Bearer ${key}`, 'Content-Type': 'application/json' }
+      });
+      if (!res.ok) throw new Error(`Erro ${res.status} — verifique sua API key.`);
+      const data = await res.json();
+      const profiles = data.profiles || data || [];
+
+      const selects = { instagram: 'map-instagram', tiktok: 'map-tiktok', pinterest: 'map-pinterest', youtube: 'map-youtube' };
+      const saved = getProfileMapping();
+
+      Object.entries(selects).forEach(([platform, selectId]) => {
+        const sel = document.getElementById(selectId);
+        sel.innerHTML = '<option value="">— selecione —</option>';
+        profiles.forEach(p => {
+          const opt = document.createElement('option');
+          opt.value = p.id;
+          opt.textContent = `${p.label || p.name || p.profile_name} (${p.type || p.social_network || ''})`;
+          if (saved[platform] === String(p.id)) opt.selected = true;
+          sel.appendChild(opt);
+        });
+      });
+
+      document.getElementById('profile-mapping').classList.remove('hidden');
+      btn.textContent = '✅ Contas carregadas';
+    } catch (err) {
+      showSettingsMsg(err.message);
+      btn.textContent = '🔄 Buscar minhas contas conectadas no Publer';
+    } finally {
+      btn.disabled = false;
+    }
+  }
+
+  function showSettingsMsg(msg) {
+    const el = document.getElementById('settings-msg');
+    el.textContent = msg;
+    el.classList.remove('hidden');
+  }
+  function hideSettingsMsg() { document.getElementById('settings-msg').classList.add('hidden'); }
+
+  async function scheduleWithPubler(postData) {
+    const key = getPublerKey();
+    const mapping = getProfileMapping();
+    if (!key) throw new Error('Publer API key não configurada — abra ⚙ e salve sua key.');
+
+    const videoUrl = postData.videoLink ? convertGDriveUrl(postData.videoLink) : null;
+    const errors = [];
+
+    for (const platform of postData.platforms) {
+      const profileId = mapping[platform];
+      if (!profileId) { errors.push(`${platform}: sem perfil mapeado nas configurações`); continue; }
+
+      const hashtags = postData.hashtags[platform] || '';
+      const caption  = postData.captions.pt + (hashtags ? `\n\n${hashtags}` : '');
+
+      const body = {
+        post: {
+          profile_ids: [profileId],
+          text: caption,
+          scheduled_at: new Date(postData.scheduledAt).toISOString(),
+          ...(videoUrl ? { media_urls: [videoUrl] } : {})
+        }
+      };
+
+      const res = await fetch('https://app.publer.com/api/v1/posts', {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${key}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      });
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        errors.push(`${platform}: ${err.error || err.message || `Erro ${res.status}`}`);
+      }
+    }
+
+    if (errors.length) throw new Error(errors.join(' | '));
+  }
+
+  // ---- Modal de configurações ----
+  function openSettings() {
+    document.getElementById('api-key-input').value = getApiKey();
+    document.getElementById('publer-key-input').value = getPublerKey();
+    document.getElementById('supabase-url-input').value = localStorage.getItem('minaue_supabase_url') || '';
+    document.getElementById('supabase-key-input').value = localStorage.getItem('minaue_supabase_key') || '';
+    hideSettingsMsg();
+    if (Object.keys(getProfileMapping()).length > 0) {
+      document.getElementById('profile-mapping').classList.remove('hidden');
+    }
+    document.getElementById('settings-modal').classList.remove('hidden');
+  }
+
+  function closeSettings() {
+    document.getElementById('settings-modal').classList.add('hidden');
+  }
+
+  function saveSettings() {
+    const claudeKey = document.getElementById('api-key-input').value.trim();
+    if (claudeKey) localStorage.setItem('minaue_api_key', claudeKey);
+
+    const publerKey = document.getElementById('publer-key-input').value.trim();
+    if (publerKey) localStorage.setItem('minaue_publer_key', publerKey);
+
+    const supabaseUrl = document.getElementById('supabase-url-input').value.trim();
+    const supabaseKey = document.getElementById('supabase-key-input').value.trim();
+    if (supabaseUrl) localStorage.setItem('minaue_supabase_url', supabaseUrl);
+    if (supabaseKey) localStorage.setItem('minaue_supabase_key', supabaseKey);
+    if (supabaseUrl || supabaseKey) resetSupabaseClient();
+
+    const mapping = {};
+    ['instagram','tiktok','pinterest','youtube'].forEach(p => {
+      const val = document.getElementById(`map-${p}`)?.value;
+      if (val) mapping[p] = val;
+    });
+    if (Object.keys(mapping).length) localStorage.setItem('minaue_profile_map', JSON.stringify(mapping));
+
+    closeSettings();
+  }
+
+  document.getElementById('settings-modal').addEventListener('click', function(e) {
+    if (e.target === this) closeSettings();
+  });
+
+  // ---- Init ----
+  renderCalendar();
+</script>
+
+</body>
+</html>
