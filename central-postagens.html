@@ -793,9 +793,12 @@
   let _supabaseClient = null;
 
   // ---- Supabase ----
+  const SUPABASE_URL = 'https://luksckgvgzbcnlwncdtt.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_m9UVqkRPWFkSb__E4STadA_H8Rh9OUF';
+
   function getSupabaseClient() {
-    const url = localStorage.getItem('minaue_supabase_url');
-    const key = localStorage.getItem('minaue_supabase_key');
+    const url = localStorage.getItem('minaue_supabase_url') || SUPABASE_URL;
+    const key = localStorage.getItem('minaue_supabase_key') || SUPABASE_KEY;
     if (!url || !key) return null;
     if (!_supabaseClient) _supabaseClient = supabase.createClient(url, key);
     return _supabaseClient;
