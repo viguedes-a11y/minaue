@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "WebSearch",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(gh auth *)",
+      "Bash(railway --version)",
+      "Bash(winget --version)",
+      "Bash(npm --version)",
+      "Bash(winget install *)",
+      "Bash(git mv *)"
+    ]
+  }
+}

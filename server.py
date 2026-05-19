@@ -6,4 +6,4 @@ app = FastAPI()
 
 @app.get("/")
 async def root():
-    return FileResponse("central-postagens.html")
+    return FileResponse("index.html")
