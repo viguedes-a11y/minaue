@@ -1124,16 +1124,14 @@
   }
 
   async function uploadToCatbox(base64) {
-    const blob = base64ToBlob(base64);
-    const form = new FormData();
-    form.append('reqtype', 'fileupload');
-    form.append('fileToUpload', blob, 'cover.jpg');
-
-    const res = await fetch('https://catbox.moe/user/api.php', { method: 'POST', body: form });
-    if (!res.ok) throw new Error('Falha no upload da imagem.');
-    const url = await res.text();
-    if (!url.startsWith('https://')) throw new Error('Resposta inválida do servidor de imagens: ' + url);
-    return url.trim();
+    const res = await fetch('/.netlify/functions/upload-image', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ base64 })
+    });
+    const data = await res.json();
+    if (!res.ok || data.error) throw new Error(data.error || 'Falha no upload da imagem.');
+    return data.url;
   }
 
   function base64ToBlob(base64) {
