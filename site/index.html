@@ -17,6 +17,7 @@
       --dark-soft: #243028;
       --cream: #f2ece0;
       --cream-dark: #e8e0d0;
+
       --green: #1D9E75;
       --green-hover: #178a64;
       --green-light: #e8f7f2;
@@ -26,15 +27,19 @@
       --border: #ddd5c4;
       --bg: #f2ece0;
       --bg-secondary: #ebe3d5;
+
       --instagram: #8B5CF6;
       --instagram-bg: #ede9fe;
       --instagram-text: #5b21b6;
+
       --tiktok: #EF4444;
       --tiktok-bg: #fee2e2;
       --tiktok-text: #991b1b;
+
       --pinterest: #F97316;
       --pinterest-bg: #ffedd5;
       --pinterest-text: #9a3412;
+
       --youtube: #EAB308;
       --youtube-bg: #fef9c3;
       --youtube-text: #713f12;
@@ -51,11 +56,13 @@
       padding-top: 64px;
     }
 
+    /* ---- Header ---- */
     .header {
       position: fixed;
       top: 0; left: 0; right: 0;
       height: 64px;
       background: var(--dark);
+      border-bottom: none;
       z-index: 100;
       display: flex;
       align-items: center;
@@ -115,6 +122,7 @@
     }
     .settings-btn:hover { background: rgba(255,255,255,0.08); color: var(--text-light); }
 
+    /* ---- Tab content ---- */
     .tab-content {
       max-width: 960px;
       margin: 0 auto;
@@ -123,7 +131,7 @@
 
     .hidden { display: none !important; }
 
-    /* Calendar */
+    /* ---- Calendar ---- */
     .cal-nav {
       display: flex;
       align-items: center;
@@ -188,7 +196,10 @@
 
     .cal-day:hover { background: var(--bg-secondary); }
     .cal-day.other-month { background: var(--cream-dark); }
-    .cal-day.today .day-num { color: var(--gold); font-weight: 700; }
+    .cal-day.today .day-num {
+      color: var(--gold);
+      font-weight: 700;
+    }
 
     .day-num {
       font-size: 12px;
@@ -217,18 +228,17 @@
     }
 
     .chip:hover { opacity: 0.75; }
+
     .chip[data-platform="instagram"] { background: var(--instagram-bg); color: var(--instagram-text); border-color: var(--instagram); }
     .chip[data-platform="tiktok"]    { background: var(--tiktok-bg);    color: var(--tiktok-text);    border-color: var(--tiktok);    }
     .chip[data-platform="pinterest"] { background: var(--pinterest-bg); color: var(--pinterest-text); border-color: var(--pinterest); }
     .chip[data-platform="youtube"]   { background: var(--youtube-bg);   color: var(--youtube-text);   border-color: var(--youtube);   }
+
     .chip.story { background: transparent !important; border-style: dashed; }
 
-    /* Status badges */
-    .chip.published { opacity: 0.5; }
-    .chip.published::after { content: " ✓"; }
-
-    /* Form */
+    /* ---- Form ---- */
     .post-form { display: flex; flex-direction: column; gap: 28px; }
+
     .form-section { display: flex; flex-direction: column; gap: 14px; }
 
     .section-label {
@@ -251,7 +261,6 @@
     }
 
     .field input[type="url"],
-    .field input[type="text"],
     .field input[type="datetime-local"],
     .field textarea {
       border: 1px solid var(--border);
@@ -266,13 +275,15 @@
       width: 100%;
     }
 
-    .field input:focus, .field textarea:focus {
+    .field input:focus,
+    .field textarea:focus {
       border-color: var(--gold);
       box-shadow: 0 0 0 3px rgba(201, 168, 76, 0.15);
     }
 
     .field textarea { resize: vertical; min-height: 84px; }
 
+    /* Platform toggles */
     .platform-toggles { display: flex; gap: 8px; flex-wrap: wrap; }
 
     .platform-btn {
@@ -289,12 +300,15 @@
     }
 
     .platform-btn:hover { border-color: #9ca3af; color: var(--text); }
+
     .platform-btn.active[data-platform="instagram"] { border-color: var(--instagram); background: var(--instagram-bg); color: var(--instagram-text); }
     .platform-btn.active[data-platform="tiktok"]    { border-color: var(--tiktok);    background: var(--tiktok-bg);    color: var(--tiktok-text);    }
     .platform-btn.active[data-platform="pinterest"] { border-color: var(--pinterest); background: var(--pinterest-bg); color: var(--pinterest-text); }
     .platform-btn.active[data-platform="youtube"]   { border-color: var(--youtube);   background: var(--youtube-bg);   color: var(--youtube-text);   }
 
+    /* Type radios */
     .type-options { display: flex; gap: 8px; flex-wrap: wrap; }
+
     .type-radio { position: relative; }
     .type-radio input { position: absolute; opacity: 0; width: 0; height: 0; }
 
@@ -313,11 +327,25 @@
     .type-radio label:hover { border-color: #9ca3af; color: var(--text); }
     .type-radio input:checked + label { border-color: var(--gold); background: var(--gold-light); color: var(--gold-hover); }
 
+    /* Grid 2 columns */
     .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
     @media (max-width: 600px) { .grid-2 { grid-template-columns: 1fr; } }
 
+    /* Auto badge */
+    .auto-badge {
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--gold-hover);
+      background: var(--gold-light);
+      padding: 2px 7px;
+      border-radius: 4px;
+      letter-spacing: 0.2px;
+    }
+
+    /* Divider */
     .divider { border: none; border-top: 1px solid var(--border); }
 
+    /* Editing banner */
     .editing-banner {
       background: var(--gold-light);
       border: 1px solid rgba(201,168,76,0.35);
@@ -331,6 +359,7 @@
     }
 
     .editing-banner strong { font-weight: 600; }
+
     .editing-banner button {
       background: none;
       border: none;
@@ -342,6 +371,7 @@
       padding: 0;
     }
 
+    /* Message area */
     .form-message {
       padding: 10px 14px;
       border-radius: 8px;
@@ -349,8 +379,128 @@
       font-weight: 500;
     }
     .form-message.error   { background: #fee2e2; color: #991b1b; }
-    .form-message.success { background: var(--green-light); color: var(--green-hover); }
-    .form-message.info    { background: var(--gold-light); color: var(--gold-hover); }
+    .form-message.success { background: var(--gold-light); color: var(--gold-hover); }
+
+    /* ---- Form footer ---- */
+    .form-footer {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      background: var(--dark);
+      border-top: none;
+      padding: 14px 24px;
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      gap: 10px;
+      z-index: 90;
+    }
+
+    .btn {
+      padding: 10px 24px;
+      border-radius: 999px;
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      cursor: pointer;
+      transition: all 0.15s;
+      border: none;
+      line-height: 1;
+      text-transform: uppercase;
+    }
+
+    .btn-secondary { background: rgba(255,255,255,0.1); color: var(--text-light); border: 1px solid rgba(255,255,255,0.2); }
+    .btn-secondary:hover { background: rgba(255,255,255,0.18); }
+
+    .btn-primary { background: var(--gold); color: var(--dark); }
+    .btn-primary:hover { background: var(--gold-hover); }
+    .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
+
+    /* ---- Modal ---- */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.35);
+      z-index: 200;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal {
+      background: var(--cream);
+      border-radius: 12px;
+      padding: 28px;
+      width: 420px;
+      max-width: calc(100vw - 32px);
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.28);
+    }
+
+    .modal h3 {
+      font-family: 'Playfair Display', serif;
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--dark);
+    }
+
+    .modal .hint {
+      font-size: 12px;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    .modal-footer { display: flex; gap: 8px; justify-content: flex-end; }
+    .modal .btn-secondary { background: var(--cream-dark); color: var(--text); border-color: var(--border); }
+    .modal .btn-secondary:hover { background: var(--border); }
+    .modal input[type="text"], .modal input[type="password"] { background: #faf7f2; }
+
+    .modal { max-height: 90vh; overflow-y: auto; }
+
+    .settings-section-title {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-muted);
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .profile-map-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .profile-map-row span { font-size: 14px; min-width: 120px; }
+    .profile-map-row select {
+      flex: 1;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 8px 10px;
+      font-family: inherit;
+      font-size: 13px;
+      outline: none;
+      background: white;
+    }
+    .profile-map-row select { background: #faf7f2; }
+    .profile-map-row select:focus { border-color: var(--gold); }
+
+    .fetch-profiles-btn {
+      width: 100%;
+      padding: 9px;
+      border: 1px dashed var(--border);
+      border-radius: 8px;
+      background: none;
+      font-family: inherit;
+      font-size: 13px;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .fetch-profiles-btn:hover { border-color: var(--gold); color: var(--gold-hover); }
 
     /* Cover upload */
     .cover-upload-area {
@@ -402,192 +552,31 @@
     .cover-btn.remove { color: #ef4444; border-color: #fca5a5; }
     .cover-btn.remove:hover { background: #fee2e2; }
 
-    /* Publish panel */
-    .publish-panel {
-      background: white;
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 20px;
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
-    }
-
-    .publish-panel h4 {
-      font-size: 13px;
-      font-weight: 600;
-      color: var(--text);
-    }
-
-    .publish-actions { display: flex; gap: 8px; flex-wrap: wrap; }
-
-    .publish-btn {
-      padding: 9px 20px;
-      border-radius: 999px;
-      font-family: inherit;
-      font-size: 13px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.15s;
-      border: none;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .publish-btn-instagram {
-      background: var(--instagram-bg);
-      color: var(--instagram-text);
-      border: 2px solid var(--instagram);
-    }
-    .publish-btn-instagram:hover { background: var(--instagram); color: white; }
-    .publish-btn-instagram:disabled { opacity: 0.5; cursor: not-allowed; }
-
-    .reminder-box {
-      background: var(--bg-secondary);
-      border: 1px solid var(--border);
+    .tiktok-cover-note {
+      display: none;
+      background: var(--tiktok-bg);
+      color: var(--tiktok-text);
+      border: 1px solid var(--tiktok);
       border-radius: 8px;
-      padding: 12px 14px;
-      font-size: 13px;
-      color: var(--text-muted);
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    .reminder-box strong { color: var(--text); }
-
-    .copy-caption-btn {
-      align-self: flex-start;
-      padding: 5px 12px;
-      border-radius: 6px;
-      border: 1px solid var(--border);
-      background: white;
-      font-family: inherit;
+      padding: 8px 12px;
       font-size: 12px;
-      font-weight: 500;
-      cursor: pointer;
-      transition: all 0.15s;
-      color: var(--text-muted);
-    }
-    .copy-caption-btn:hover { border-color: var(--gold); color: var(--gold-hover); }
-
-    /* Form footer */
-    .form-footer {
-      position: fixed;
-      bottom: 0; left: 0; right: 0;
-      background: var(--dark);
-      padding: 14px 24px;
-      display: flex;
-      justify-content: flex-end;
-      align-items: center;
-      gap: 10px;
-      z-index: 90;
+      line-height: 1.5;
     }
 
-    .btn {
-      padding: 10px 24px;
-      border-radius: 999px;
-      font-family: inherit;
-      font-size: 13px;
-      font-weight: 600;
-      letter-spacing: 0.5px;
-      cursor: pointer;
-      transition: all 0.15s;
-      border: none;
-      line-height: 1;
-      text-transform: uppercase;
-    }
-
-    .btn-secondary { background: rgba(255,255,255,0.1); color: var(--text-light); border: 1px solid rgba(255,255,255,0.2); }
-    .btn-secondary:hover { background: rgba(255,255,255,0.18); }
-    .btn-primary { background: var(--gold); color: var(--dark); }
-    .btn-primary:hover { background: var(--gold-hover); }
-    .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
-
-    /* Modal */
-    .modal-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.35);
-      z-index: 200;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .modal {
-      background: var(--cream);
-      border-radius: 12px;
-      padding: 28px;
-      width: 460px;
-      max-width: calc(100vw - 32px);
-      display: flex;
-      flex-direction: column;
-      gap: 18px;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.28);
-      max-height: 90vh;
-      overflow-y: auto;
-    }
-
-    .modal h3 {
-      font-family: 'Playfair Display', serif;
-      font-size: 18px;
-      font-weight: 600;
-      color: var(--dark);
-    }
-
-    .modal .hint { font-size: 12px; color: var(--text-muted); line-height: 1.5; }
-    .modal-footer { display: flex; gap: 8px; justify-content: flex-end; }
-    .modal .btn-secondary { background: var(--cream-dark); color: var(--text); border-color: var(--border); }
-    .modal .btn-secondary:hover { background: var(--border); }
-    .modal input[type="text"], .modal input[type="password"] { background: #faf7f2; }
-
-    .settings-section-title {
-      font-size: 11px;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      color: var(--text-muted);
-      padding-bottom: 8px;
-      border-bottom: 1px solid var(--border);
-    }
-
-    .status-dot {
-      display: inline-block;
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      margin-right: 4px;
-    }
-    .status-dot.ok { background: var(--green); }
-    .status-dot.missing { background: #ef4444; }
-
-    /* Progress bar for publishing */
-    .progress-bar {
-      height: 4px;
-      background: var(--border);
-      border-radius: 2px;
-      overflow: hidden;
-    }
-    .progress-bar-fill {
-      height: 100%;
-      background: var(--instagram);
-      border-radius: 2px;
-      transition: width 0.3s;
-    }
-
+    /* Empty state */
     .empty-state {
       text-align: center;
       padding: 64px 24px;
       color: var(--text-muted);
     }
+
     .empty-state p { font-size: 15px; margin-bottom: 8px; }
     .empty-state small { font-size: 13px; }
   </style>
 </head>
 <body>
 
+<!-- ---- Header ---- -->
 <header class="header">
   <div class="header-inner">
     <span class="logo">minaue</span>
@@ -595,11 +584,11 @@
       <button class="tab active" id="tab-btn-calendar" onclick="switchTab('calendar')">Calendário</button>
       <button class="tab" id="tab-btn-new-post" onclick="switchTab('new-post')">Novo Post</button>
     </nav>
-    <button class="settings-btn" onclick="openSettings()" title="Configurações">⚙</button>
+    <button class="settings-btn" onclick="openSettings()" title="Configurações da API">⚙</button>
   </div>
 </header>
 
-<!-- Calendário -->
+<!-- ---- Calendário ---- -->
 <main id="tab-calendar" class="tab-content">
   <div class="cal-nav">
     <button class="cal-nav-btn" onclick="prevMonth()">&#8592;</button>
@@ -612,7 +601,7 @@
   <div class="cal-grid" id="cal-grid"></div>
 </main>
 
-<!-- Novo Post -->
+<!-- ---- Novo Post ---- -->
 <main id="tab-new-post" class="tab-content hidden">
 
   <div id="editing-banner" class="editing-banner hidden" style="margin-bottom:20px">
@@ -669,10 +658,16 @@
 
     <hr class="divider">
 
-    <!-- Capa -->
+    <!-- Capa do vídeo -->
     <div class="form-section">
       <span class="section-label">Capa do vídeo</span>
+
+      <div class="tiktok-cover-note" id="tiktok-cover-note">
+        🎵 <strong>TikTok:</strong> não aceita capa personalizada — use o primeiro ou último frame do vídeo como a seção da mandala. A capa abaixo será aplicada nas outras plataformas.
+      </div>
+
       <input type="file" id="cover-input" accept="image/*" style="display:none" onchange="handleCoverUpload(event)">
+
       <div class="cover-upload-area" id="cover-upload-area" onclick="document.getElementById('cover-input').click()">
         <div class="cover-preview" id="cover-preview">🖼</div>
         <div class="cover-upload-info">
@@ -691,113 +686,65 @@
     <!-- Legendas -->
     <div class="form-section">
       <span class="section-label">Legendas</span>
+
       <div class="field">
         <label>🇧🇷 Legenda em português</label>
         <textarea id="caption-pt" rows="4" placeholder="Escreva sua legenda aqui…"></textarea>
       </div>
+
       <div class="field">
         <label>🇺🇸 Legenda em inglês</label>
         <textarea id="caption-en" rows="4" placeholder="Cole a tradução em inglês…"></textarea>
       </div>
+
       <div class="field">
         <label>🇪🇸 Legenda em espanhol</label>
         <textarea id="caption-es" rows="4" placeholder="Cole a tradução em espanhol…"></textarea>
       </div>
     </div>
 
-    <!-- Hashtags -->
+    <!-- Hashtags (conditional) -->
     <div class="form-section" id="hashtags-section" style="display:none">
       <hr class="divider" style="margin-bottom:0">
       <span class="section-label">Hashtags</span>
+
       <div class="field" id="hashtags-instagram" style="display:none">
         <label>📷 Hashtags Instagram</label>
         <textarea id="hashtag-instagram" rows="3" placeholder="#mandala #arte …"></textarea>
       </div>
+
       <div class="field" id="hashtags-tiktok" style="display:none">
         <label>🎵 Hashtags TikTok</label>
         <textarea id="hashtag-tiktok" rows="3" placeholder="#mandala #fyp …"></textarea>
       </div>
+
       <div class="field" id="hashtags-pinterest" style="display:none">
         <label>📌 Hashtags Pinterest</label>
         <textarea id="hashtag-pinterest" rows="3" placeholder="#mandalaart #watercolor …"></textarea>
       </div>
+
       <div class="field" id="hashtags-youtube" style="display:none">
         <label>▶ Hashtags YouTube</label>
         <textarea id="hashtag-youtube" rows="3" placeholder="#mandala #shorts …"></textarea>
       </div>
     </div>
 
-    <hr class="divider">
-
-    <!-- Publicar -->
-    <div class="form-section" id="publish-section" style="display:none">
-      <span class="section-label">Publicar</span>
-      <div class="publish-panel">
-        <h4>Publicar agora</h4>
-
-        <div id="publish-instagram" style="display:none">
-          <div style="display:flex;flex-direction:column;gap:8px">
-            <div style="font-size:13px;color:var(--text-muted)">Publica direto no Instagram via Graph API.</div>
-            <div class="publish-actions">
-              <button class="publish-btn publish-btn-instagram" id="btn-publish-instagram" onclick="publishToInstagram()">
-                📷 Publicar no Instagram
-              </button>
-            </div>
-            <div class="progress-bar hidden" id="ig-progress">
-              <div class="progress-bar-fill" id="ig-progress-fill" style="width:0%"></div>
-            </div>
-          </div>
-        </div>
-
-        <div id="reminders-box" style="display:none">
-          <div class="reminder-box" id="reminder-tiktok" style="display:none">
-            <strong>🎵 TikTok — hora de postar!</strong>
-            <span style="font-size:12px">Abra o TikTok, cole a legenda abaixo e publique o vídeo manualmente.</span>
-            <button class="copy-caption-btn" onclick="copyCaption('tiktok')">Copiar legenda TikTok</button>
-          </div>
-          <div class="reminder-box" id="reminder-pinterest" style="display:none">
-            <strong>📌 Pinterest — hora de postar!</strong>
-            <span style="font-size:12px">Acesse o Pinterest, cole a legenda abaixo e publique o pin manualmente.</span>
-            <button class="copy-caption-btn" onclick="copyCaption('pinterest')">Copiar legenda Pinterest</button>
-          </div>
-          <div class="reminder-box" id="reminder-youtube" style="display:none">
-            <strong>▶ YouTube Shorts — hora de postar!</strong>
-            <span style="font-size:12px">Acesse o YouTube Studio, cole a legenda abaixo e publique o Short manualmente.</span>
-            <button class="copy-caption-btn" onclick="copyCaption('youtube')">Copiar legenda YouTube</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
+    <!-- Message -->
     <div id="form-message" class="form-message hidden"></div>
 
   </form>
 </main>
 
-<!-- Footer -->
+<!-- ---- Footer fixo (formulário) ---- -->
 <div class="form-footer hidden" id="form-footer">
   <button class="btn btn-secondary" onclick="saveDraft()">Salvar rascunho</button>
-  <button class="btn btn-primary" id="save-btn" onclick="saveScheduled()">Salvar</button>
+  <button class="btn btn-primary" id="generate-btn" onclick="generateAndSchedule()">Agendar</button>
 </div>
 
-<!-- Modal de configurações -->
+<!-- ---- Modal de configurações ---- -->
 <div class="modal-overlay hidden" id="settings-modal">
   <div class="modal">
     <h3>⚙ Configurações</h3>
-
-    <div class="settings-section-title">Instagram — Graph API</div>
-    <div class="field">
-      <label for="ig-token-input">Access Token</label>
-      <input type="password" id="ig-token-input" placeholder="EAATO3F6s…">
-    </div>
-    <div class="field">
-      <label for="ig-userid-input">Instagram User ID</label>
-      <input type="text" id="ig-userid-input" placeholder="17841400256717252">
-    </div>
-    <p class="hint">
-      <span class="status-dot" id="ig-status-dot"></span>
-      <span id="ig-status-text">Configure o token para publicar no Instagram.</span>
-    </p>
 
     <div class="settings-section-title">Claude API — geração de legendas</div>
     <div class="field">
@@ -806,7 +753,40 @@
     </div>
     <p class="hint">Gera legendas em inglês/espanhol e hashtags por plataforma.</p>
 
-    <div class="settings-section-title">Supabase — banco de dados</div>
+    <div class="settings-section-title">Publer — publicação automática</div>
+    <div class="field">
+      <label for="publer-key-input">Publer API Key</label>
+      <input type="password" id="publer-key-input" placeholder="Cole sua API key do Publer…">
+    </div>
+    <p class="hint">Encontre em: Publer → Settings → Integrations → API Key</p>
+
+    <button class="fetch-profiles-btn" id="fetch-profiles-btn" onclick="fetchPublerProfiles()">
+      🔄 Buscar minhas contas conectadas no Publer
+    </button>
+
+    <div id="profile-mapping" class="hidden">
+      <div class="settings-section-title">Mapear plataformas</div>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <div class="profile-map-row">
+          <span>📷 Instagram</span>
+          <select id="map-instagram"><option value="">— selecione —</option></select>
+        </div>
+        <div class="profile-map-row">
+          <span>🎵 TikTok</span>
+          <select id="map-tiktok"><option value="">— selecione —</option></select>
+        </div>
+        <div class="profile-map-row">
+          <span>📌 Pinterest</span>
+          <select id="map-pinterest"><option value="">— selecione —</option></select>
+        </div>
+        <div class="profile-map-row">
+          <span>▶ YouTube</span>
+          <select id="map-youtube"><option value="">— selecione —</option></select>
+        </div>
+      </div>
+    </div>
+
+    <div class="settings-section-title">Supabase — banco de dados na nuvem</div>
     <div class="field">
       <label for="supabase-url-input">Project URL</label>
       <input type="text" id="supabase-url-input" placeholder="https://xxxx.supabase.co">
@@ -815,7 +795,7 @@
       <label for="supabase-key-input">Anon Key</label>
       <input type="password" id="supabase-key-input" placeholder="eyJhbGci…">
     </div>
-    <p class="hint">Seus posts ficam salvos na nuvem e acessíveis em qualquer dispositivo.</p>
+    <p class="hint">Seus posts ficam salvos na nuvem e acessíveis em qualquer dispositivo. Encontre em: Supabase → Project Settings → API.</p>
 
     <div id="settings-msg" class="hint hidden" style="color:#ef4444"></div>
 
@@ -827,7 +807,7 @@
 </div>
 
 <script>
-  // ---- Estado ----
+  // ---- Estado global ----
   let currentTab = 'calendar';
   let calYear = new Date().getFullYear();
   let calMonth = new Date().getMonth();
@@ -836,10 +816,10 @@
   let currentCoverBase64 = null;
   let _supabaseClient = null;
 
+  // ---- Supabase ----
   const SUPABASE_URL = 'https://luksckgvgzbcnlwncdtt.supabase.co';
   const SUPABASE_KEY = 'sb_publishable_m9UVqkRPWFkSb__E4STadA_H8Rh9OUF';
 
-  // ---- Supabase ----
   function getSupabaseClient() {
     const url = localStorage.getItem('minaue_supabase_url') || SUPABASE_URL;
     const key = localStorage.getItem('minaue_supabase_key') || SUPABASE_KEY;
@@ -878,13 +858,14 @@
     };
   }
 
+  // ---- Persistência (Supabase com fallback para localStorage) ----
   async function getPosts() {
     const client = getSupabaseClient();
     if (client) {
       try {
         const { data, error } = await client.from('posts').select('*').order('scheduled_at', { ascending: true });
         if (!error && data) return data.map(dbToPost);
-      } catch(e) {}
+      } catch (e) { /* cai para localStorage */ }
     }
     try { return JSON.parse(localStorage.getItem('minaue_posts') || '[]'); }
     catch { return []; }
@@ -896,7 +877,7 @@
       try {
         const { error } = await client.from('posts').upsert(postToDb(post));
         if (!error) return;
-      } catch(e) {}
+      } catch(e) { /* cai para localStorage */ }
     }
     try {
       const posts = JSON.parse(localStorage.getItem('minaue_posts') || '[]');
@@ -906,22 +887,23 @@
     } catch(e) {}
   }
 
+  function getApiKey() { return localStorage.getItem('minaue_api_key') || ''; }
+
   function uid() {
     if (crypto.randomUUID) return crypto.randomUUID();
     return Date.now().toString(36) + Math.random().toString(36).slice(2);
   }
 
-  function getIgToken()  { return localStorage.getItem('minaue_ig_token') || ''; }
-  function getIgUserId() { return localStorage.getItem('minaue_ig_userid') || ''; }
-
-  // ---- Tabs ----
+  // ---- Navegação entre abas ----
   function switchTab(tab) {
     currentTab = tab;
+
     document.getElementById('tab-calendar').classList.toggle('hidden', tab !== 'calendar');
     document.getElementById('tab-new-post').classList.toggle('hidden', tab !== 'new-post');
     document.getElementById('form-footer').classList.toggle('hidden', tab !== 'new-post');
     document.getElementById('tab-btn-calendar').classList.toggle('active', tab === 'calendar');
     document.getElementById('tab-btn-new-post').classList.toggle('active', tab === 'new-post');
+
     if (tab === 'calendar') renderCalendar();
     if (tab === 'new-post' && !currentEditingId) resetForm();
   }
@@ -930,11 +912,17 @@
   function togglePlatform(platform) {
     const btn = document.querySelector(`.platform-btn[data-platform="${platform}"]`);
     const idx = activePlatforms.indexOf(platform);
-    if (idx === -1) { activePlatforms.push(platform); btn.classList.add('active'); }
-    else { activePlatforms.splice(idx, 1); btn.classList.remove('active'); }
+
+    if (idx === -1) {
+      activePlatforms.push(platform);
+      btn.classList.add('active');
+    } else {
+      activePlatforms.splice(idx, 1);
+      btn.classList.remove('active');
+    }
+
     updateStoryOption();
     updateHashtagSections();
-    updatePublishSection();
   }
 
   function setActivePlatforms(platforms) {
@@ -947,39 +935,28 @@
     });
     updateStoryOption();
     updateHashtagSections();
-    updatePublishSection();
   }
 
   function updateStoryOption() {
     const hasInstagram = activePlatforms.includes('instagram');
     document.getElementById('story-option').style.display = hasInstagram ? '' : 'none';
     if (!hasInstagram) document.getElementById('type-feed').checked = true;
+    const note = document.getElementById('tiktok-cover-note');
+    note.style.display = activePlatforms.includes('tiktok') ? '' : 'none';
   }
 
   function updateHashtagSections() {
     const platforms = ['instagram', 'tiktok', 'pinterest', 'youtube'];
     let anyActive = false;
+
     platforms.forEach(p => {
       const el = document.getElementById(`hashtags-${p}`);
       const active = activePlatforms.includes(p);
       if (el) el.style.display = active ? '' : 'none';
       if (active) anyActive = true;
     });
+
     document.getElementById('hashtags-section').style.display = anyActive ? '' : 'none';
-  }
-
-  function updatePublishSection() {
-    const hasAny = activePlatforms.length > 0;
-    document.getElementById('publish-section').style.display = hasAny ? '' : 'none';
-
-    const hasInstagram = activePlatforms.includes('instagram');
-    document.getElementById('publish-instagram').style.display = hasInstagram ? '' : 'none';
-
-    const hasOthers = ['tiktok', 'pinterest', 'youtube'].some(p => activePlatforms.includes(p));
-    document.getElementById('reminders-box').style.display = hasOthers ? '' : 'none';
-    document.getElementById('reminder-tiktok').style.display    = activePlatforms.includes('tiktok')    ? '' : 'none';
-    document.getElementById('reminder-pinterest').style.display = activePlatforms.includes('pinterest') ? '' : 'none';
-    document.getElementById('reminder-youtube').style.display   = activePlatforms.includes('youtube')   ? '' : 'none';
   }
 
   // ---- Dados do formulário ----
@@ -1005,7 +982,7 @@
     };
   }
 
-  // ---- Salvar ----
+  // ---- Salvar rascunho ----
   async function saveDraft() {
     const data = getFormData();
     if (!currentEditingId) {
@@ -1016,200 +993,51 @@
     showMsg('Rascunho salvo!', 'success');
   }
 
-  async function saveScheduled() {
-    const data = getFormData();
-    if (!currentEditingId) {
-      currentEditingId = uid();
-      document.getElementById('editing-banner').classList.remove('hidden');
-    }
-    await savePost({ id: currentEditingId, ...data, status: data.scheduledAt ? 'scheduled' : 'draft' });
-    showMsg('Post salvo!', 'success');
-    renderCalendar();
-  }
-
-  // ---- Publicar no Instagram ----
-  async function publishToInstagram() {
-    const token  = getIgToken();
-    const userId = getIgUserId();
-
-    if (!token || !userId) {
-      showMsg('Configure o token do Instagram nas ⚙ configurações.', 'error');
+  // ---- Agendar ----
+  async function generateAndSchedule() {
+    if (!document.getElementById('scheduled-at').value) {
+      showMsg('Informe a data e horário antes de agendar.', 'error');
       return;
     }
 
-    const data = getFormData();
-    const caption = buildCaption(data, 'instagram');
-
-    if (!data.videoLink && !currentCoverBase64) {
-      showMsg('Adiciona um link de vídeo (Google Drive) ou uma imagem de capa para publicar.', 'error');
-      return;
-    }
-
-    const btn = document.getElementById('btn-publish-instagram');
+    const btn = document.getElementById('generate-btn');
     btn.disabled = true;
-    btn.textContent = '⏳ Publicando…';
-    showMsg('Iniciando publicação…', 'info');
-
-    const progress = document.getElementById('ig-progress');
-    const fill = document.getElementById('ig-progress-fill');
-    progress.classList.remove('hidden');
+    btn.textContent = 'Agendando…';
+    clearMsg();
 
     try {
-      // Usar imagem de capa se tiver, senão tentar vídeo
-      if (currentCoverBase64) {
-        setProgress(fill, 20);
-        showMsg('Fazendo upload da imagem…', 'info');
-
-        // Upload da imagem para catbox.moe
-        const imageUrl = await uploadToCatbox(currentCoverBase64);
-        setProgress(fill, 50);
-        showMsg('Criando post no Instagram…', 'info');
-
-        // Criar container
-        const containerRes = await fetch(`https://graph.instagram.com/v21.0/${userId}/media`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ image_url: imageUrl, caption, access_token: token })
-        });
-        const container = await containerRes.json();
-        if (container.error) throw new Error(container.error.message);
-        setProgress(fill, 75);
-
-        // Aguardar container ficar pronto
-        await pollContainer(container.id, token);
-        setProgress(fill, 90);
-
-        // Publicar
-        const pubRes = await fetch(`https://graph.instagram.com/v21.0/${userId}/media_publish`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ creation_id: container.id, access_token: token })
-        });
-        const pub = await pubRes.json();
-        if (pub.error) throw new Error(pub.error.message);
-
-        setProgress(fill, 100);
-
-        // Marcar como publicado
-        if (currentEditingId) {
-          const posts = await getPosts();
-          const post = posts.find(p => p.id === currentEditingId);
-          if (post) await savePost({ ...post, status: 'published' });
-        }
-
-        showMsg('✅ Publicado no Instagram com sucesso!', 'success');
-
-        // Buscar permalink
-        const mediaRes = await fetch(`https://graph.instagram.com/v21.0/${pub.id}?fields=permalink&access_token=${token}`);
-        const media = await mediaRes.json();
-        if (media.permalink) {
-          showMsg(`✅ Publicado! Ver post: ${media.permalink}`, 'success');
-        }
-
-      } else {
-        showMsg('Para publicar vídeo, adicione uma imagem de capa primeiro. O Instagram exige uma URL pública para vídeos.', 'error');
+      const data = getFormData();
+      if (!currentEditingId) {
+        currentEditingId = uid();
+        document.getElementById('editing-banner').classList.remove('hidden');
       }
+      await savePost({ id: currentEditingId, ...data, status: 'scheduled' });
 
-    } catch(err) {
-      showMsg('Erro ao publicar: ' + err.message, 'error');
+      btn.textContent = 'Enviando pro Publer…';
+      try {
+        await scheduleWithPubler(data);
+        showMsg('Post agendado no Publer! Ele vai publicar automaticamente no horário.', 'success');
+      } catch (publerErr) {
+        showMsg('Salvo aqui ✓ — mas erro no Publer: ' + publerErr.message, 'error');
+      }
+    } catch (err) {
+      showMsg('Erro ao agendar: ' + err.message, 'error');
     } finally {
       btn.disabled = false;
-      btn.textContent = '📷 Publicar no Instagram';
-      setTimeout(() => { progress.classList.add('hidden'); setProgress(fill, 0); }, 3000);
+      btn.textContent = 'Agendar';
     }
   }
 
-  function setProgress(fill, pct) {
-    fill.style.width = pct + '%';
-  }
 
-  async function uploadToCatbox(base64) {
-    const blob = base64ToBlob(base64);
-    const form = new FormData();
-    form.append('reqtype', 'fileupload');
-    form.append('fileToUpload', blob, 'cover.jpg');
-
-    const res = await fetch('https://catbox.moe/user/api.php', { method: 'POST', body: form });
-    if (!res.ok) throw new Error('Falha no upload da imagem.');
-    const url = await res.text();
-    if (!url.startsWith('https://')) throw new Error('Resposta inválida do servidor de imagens: ' + url);
-    return url.trim();
-  }
-
-  function base64ToBlob(base64) {
-    const parts = base64.split(';base64,');
-    const type = parts[0].split(':')[1];
-    const binary = atob(parts[1]);
-    const array = new Uint8Array(binary.length);
-    for (let i = 0; i < binary.length; i++) array[i] = binary.charCodeAt(i);
-    return new Blob([array], { type });
-  }
-
-  async function pollContainer(containerId, token, timeout = 60000) {
-    const start = Date.now();
-    while (Date.now() - start < timeout) {
-      const res = await fetch(`https://graph.instagram.com/v21.0/${containerId}?fields=status_code&access_token=${token}`);
-      const data = await res.json();
-      if (data.status_code === 'FINISHED') return;
-      if (data.status_code === 'ERROR') throw new Error('Erro ao processar mídia no Instagram.');
-      await new Promise(r => setTimeout(r, 3000));
-    }
-    throw new Error('Timeout ao aguardar processamento do Instagram.');
-  }
-
-  function buildCaption(data, platform) {
-    const lang = platform === 'instagram' ? 'pt' : 'pt';
-    const caption = data.captions[lang] || data.captions.pt || '';
-    const hashtags = data.hashtags[platform] || '';
-    return caption + (hashtags ? '\n\n' + hashtags : '');
-  }
-
-  // ---- Copiar legenda (para plataformas manuais) ----
-  function copyCaption(platform) {
-    const data = getFormData();
-    const text = buildCaption(data, platform);
-    if (!text) { showMsg('Escreve a legenda antes de copiar.', 'error'); return; }
-    navigator.clipboard.writeText(text).then(() => {
-      showMsg(`Legenda ${platform} copiada!`, 'success');
-    });
-  }
-
-  // ---- Capa ----
-  function handleCoverUpload(event) {
-    const file = event.target.files[0];
-    if (!file) return;
-    if (file.size > 5 * 1024 * 1024) { showMsg('Imagem muito grande — use até 5MB.', 'error'); return; }
-    const reader = new FileReader();
-    reader.onload = (e) => loadCover(e.target.result);
-    reader.readAsDataURL(file);
-    event.target.value = '';
-  }
-
-  function loadCover(base64) {
-    currentCoverBase64 = base64;
-    const preview  = document.getElementById('cover-preview');
-    const area     = document.getElementById('cover-upload-area');
-    const removeBtn = document.getElementById('cover-remove-btn');
-    if (base64) {
-      preview.innerHTML = `<img src="${base64}" alt="Capa">`;
-      area.classList.add('has-image');
-      removeBtn.classList.remove('hidden');
-    } else {
-      preview.innerHTML = '🖼';
-      area.classList.remove('has-image');
-      removeBtn.classList.add('hidden');
-    }
-  }
-
-  function removeCover() { loadCover(null); }
-
-  // ---- Editar post ----
+  // ---- Editar post (a partir do calendário) ----
   async function editPost(id) {
     const posts = await getPosts();
     const post = posts.find(p => p.id === id);
     if (!post) return;
+
     currentEditingId = id;
-    document.getElementById('video-link').value   = post.videoLink || '';
+
+    document.getElementById('video-link').value  = post.videoLink || '';
     document.getElementById('scheduled-at').value = post.scheduledAt || '';
     document.getElementById('caption-pt').value   = post.captions?.pt || '';
     document.getElementById('caption-en').value   = post.captions?.en || '';
@@ -1218,17 +1046,20 @@
     document.getElementById('hashtag-tiktok').value    = post.hashtags?.tiktok    || '';
     document.getElementById('hashtag-pinterest').value = post.hashtags?.pinterest || '';
     document.getElementById('hashtag-youtube').value   = post.hashtags?.youtube   || '';
+
     const typeInput = document.getElementById(`type-${post.type}`);
     if (typeInput) typeInput.checked = true;
     else document.getElementById('type-feed').checked = true;
+
     setActivePlatforms(post.platforms || []);
     loadCover(post.cover || null);
     document.getElementById('editing-banner').classList.remove('hidden');
+
     switchTab('new-post');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
-  // ---- Reset ----
+  // ---- Resetar formulário ----
   function resetForm() {
     currentEditingId = null;
     document.getElementById('video-link').value = '';
@@ -1247,6 +1078,43 @@
     clearMsg();
   }
 
+  // ---- Capa do vídeo ----
+  function handleCoverUpload(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    if (file.size > 3 * 1024 * 1024) {
+      showMsg('Imagem muito grande — use uma imagem até 3MB.', 'error');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (e) => loadCover(e.target.result);
+    reader.readAsDataURL(file);
+    event.target.value = '';
+  }
+
+  function loadCover(base64) {
+    currentCoverBase64 = base64;
+    const preview = document.getElementById('cover-preview');
+    const area    = document.getElementById('cover-upload-area');
+    const removeBtn = document.getElementById('cover-remove-btn');
+
+    if (base64) {
+      preview.innerHTML = `<img src="${base64}" alt="Capa">`;
+      area.classList.add('has-image');
+      removeBtn.classList.remove('hidden');
+    } else {
+      preview.innerHTML = '🖼';
+      area.classList.remove('has-image');
+      removeBtn.classList.add('hidden');
+    }
+  }
+
+  function removeCover() {
+    loadCover(null);
+  }
+
   // ---- Mensagens ----
   function showMsg(text, type) {
     const el = document.getElementById('form-message');
@@ -1255,10 +1123,15 @@
     el.classList.remove('hidden');
     if (type === 'success') setTimeout(clearMsg, 5000);
   }
-  function clearMsg() { document.getElementById('form-message').classList.add('hidden'); }
+
+  function clearMsg() {
+    document.getElementById('form-message').classList.add('hidden');
+  }
 
   // ---- Calendário ----
-  const MONTHS = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+  const MONTHS = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho',
+    'Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+
   const PLATFORM_ICON = { instagram:'📷', tiktok:'🎵', pinterest:'📌', youtube:'▶' };
 
   function prevMonth() {
@@ -1275,69 +1148,225 @@
 
   async function renderCalendar() {
     document.getElementById('cal-month-label').textContent = `${MONTHS[calMonth]} ${calYear}`;
+
     const grid = document.getElementById('cal-grid');
     grid.innerHTML = '';
-    const posts = await getPosts();
-    const today = new Date();
-    const firstDayOfWeek  = new Date(calYear, calMonth, 1).getDay();
-    const daysInMonth     = new Date(calYear, calMonth + 1, 0).getDate();
+
+    const posts  = await getPosts();
+    const today  = new Date();
+    const firstDayOfWeek = new Date(calYear, calMonth, 1).getDay();
+    const daysInMonth    = new Date(calYear, calMonth + 1, 0).getDate();
     const daysInPrevMonth = new Date(calYear, calMonth, 0).getDate();
+
     const cells = [];
-    for (let i = firstDayOfWeek - 1; i >= 0; i--) cells.push({ day: daysInPrevMonth - i, other: true });
-    for (let d = 1; d <= daysInMonth; d++) cells.push({ day: d, other: false });
+
+    // Dias do mês anterior (padding)
+    for (let i = firstDayOfWeek - 1; i >= 0; i--) {
+      cells.push({ day: daysInPrevMonth - i, other: true });
+    }
+
+    // Dias do mês atual
+    for (let d = 1; d <= daysInMonth; d++) {
+      cells.push({ day: d, other: false });
+    }
+
+    // Dias do próximo mês (padding para completar semanas)
     let next = 1;
     while (cells.length % 7 !== 0) cells.push({ day: next++, other: true });
 
     cells.forEach(cell => {
       const div = document.createElement('div');
       div.className = 'cal-day' + (cell.other ? ' other-month' : '');
-      const isToday = !cell.other && cell.day === today.getDate() && calMonth === today.getMonth() && calYear === today.getFullYear();
+
+      const isToday = !cell.other &&
+        cell.day === today.getDate() &&
+        calMonth === today.getMonth() &&
+        calYear  === today.getFullYear();
+
       if (isToday) div.classList.add('today');
+
       const num = document.createElement('span');
       num.className = 'day-num';
       num.textContent = cell.day;
       div.appendChild(num);
+
       if (!cell.other) {
         const dayStr = `${calYear}-${String(calMonth + 1).padStart(2,'0')}-${String(cell.day).padStart(2,'0')}`;
         const dayPosts = posts.filter(p => p.scheduledAt && p.scheduledAt.startsWith(dayStr));
+
         dayPosts.forEach(post => {
           const timeStr = post.scheduledAt.slice(11, 16);
           (post.platforms || []).forEach(platform => {
             const chip = document.createElement('div');
-            chip.className = 'chip' + (post.type === 'story' ? ' story' : '') + (post.status === 'published' ? ' published' : '');
+            chip.className = 'chip' + (post.type === 'story' ? ' story' : '');
             chip.dataset.platform = platform;
-            chip.title = `${platform} · ${post.type} · ${timeStr}${post.status === 'draft' ? ' (rascunho)' : post.status === 'published' ? ' (publicado)' : ''}`;
+            chip.title = `${platform} · ${post.type} · ${timeStr}${post.status === 'draft' ? ' (rascunho)' : ''}`;
             chip.innerHTML = `${PLATFORM_ICON[platform] || ''} ${timeStr}`;
             chip.onclick = () => editPost(post.id);
             div.appendChild(chip);
           });
         });
       }
+
       grid.appendChild(div);
     });
   }
 
-  // ---- Configurações ----
+  // ---- Publer utils ----
+  function getPublerKey() { return localStorage.getItem('minaue_publer_key') || ''; }
+
+  function getProfileMapping() {
+    try { return JSON.parse(localStorage.getItem('minaue_profile_map') || '{}'); }
+    catch { return {}; }
+  }
+
+  function convertGDriveUrl(url) {
+    const match = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
+    if (match) return `https://drive.google.com/uc?export=download&id=${match[1]}`;
+    return url;
+  }
+
+  async function fetchPublerProfiles() {
+    const key = document.getElementById('publer-key-input').value.trim() || getPublerKey();
+    if (!key) { showSettingsMsg('Cole a Publer API Key antes de buscar.'); return; }
+
+    const btn = document.getElementById('fetch-profiles-btn');
+    btn.textContent = '⏳ Buscando…';
+    btn.disabled = true;
+    hideSettingsMsg();
+
+    try {
+      // 1. Buscar workspace ID
+      const wsRes = await fetch('https://app.publer.com/api/v1/workspaces', {
+        headers: { 'Authorization': `Bearer-API ${key}`, 'Content-Type': 'application/json' }
+      });
+      if (!wsRes.ok) throw new Error(`Erro ${wsRes.status} — verifique sua API key.`);
+      const wsData = await wsRes.json();
+      const workspaces = Array.isArray(wsData) ? wsData : (wsData.data || []);
+      const workspaceId = workspaces[0]?.id;
+      if (!workspaceId) throw new Error('Nenhum workspace encontrado.');
+      localStorage.setItem('minaue_publer_workspace', String(workspaceId));
+
+      // 2. Buscar contas conectadas
+      const res = await fetch('https://app.publer.com/api/v1/accounts', {
+        headers: {
+          'Authorization': `Bearer-API ${key}`,
+          'Publer-Workspace-Id': String(workspaceId),
+          'Content-Type': 'application/json'
+        }
+      });
+      if (!res.ok) throw new Error(`Erro ${res.status} ao buscar contas.`);
+      const data = await res.json();
+      const profiles = Array.isArray(data) ? data : (data.data || []);
+
+      const selects = { instagram: 'map-instagram', tiktok: 'map-tiktok', pinterest: 'map-pinterest', youtube: 'map-youtube' };
+      const saved = getProfileMapping();
+
+      Object.entries(selects).forEach(([platform, selectId]) => {
+        const sel = document.getElementById(selectId);
+        sel.innerHTML = '<option value="">— selecione —</option>';
+        profiles.forEach(p => {
+          const opt = document.createElement('option');
+          opt.value = p.id;
+          opt.textContent = `${p.name || p.label || ''} (${p.provider || p.type || ''})`;
+          if (saved[platform] === String(p.id)) opt.selected = true;
+          sel.appendChild(opt);
+        });
+      });
+
+      document.getElementById('profile-mapping').classList.remove('hidden');
+      btn.textContent = '✅ Contas carregadas';
+    } catch (err) {
+      showSettingsMsg(err.message);
+      btn.textContent = '🔄 Buscar minhas contas conectadas no Publer';
+    } finally {
+      btn.disabled = false;
+    }
+  }
+
+  function showSettingsMsg(msg) {
+    const el = document.getElementById('settings-msg');
+    el.textContent = msg;
+    el.classList.remove('hidden');
+  }
+  function hideSettingsMsg() { document.getElementById('settings-msg').classList.add('hidden'); }
+
+  async function scheduleWithPubler(postData) {
+    const key = getPublerKey();
+    const mapping = getProfileMapping();
+    const workspaceId = localStorage.getItem('minaue_publer_workspace');
+    if (!key) throw new Error('Publer API key não configurada — abra ⚙ e salve sua key.');
+    if (!workspaceId) throw new Error('Abra ⚙, cole a API key e clique em "Buscar contas" para configurar o Publer.');
+
+    const videoUrl = postData.videoLink ? convertGDriveUrl(postData.videoLink) : null;
+    const scheduledAt = postData.scheduledAt ? new Date(postData.scheduledAt).toISOString() : null;
+
+    const networkTypeMap = { instagram: 'reel', tiktok: 'video', pinterest: 'pin', youtube: 'short' };
+    const errors = [];
+    const posts = [];
+
+    for (const platform of postData.platforms) {
+      const profileId = mapping[platform];
+      if (!profileId) { errors.push(`${platform}: sem perfil mapeado nas configurações`); continue; }
+
+      const hashtags = postData.hashtags[platform] || '';
+      const caption  = postData.captions.pt + (hashtags ? `\n\n${hashtags}` : '');
+
+      posts.push({
+        networks: {
+          [platform]: {
+            type: networkTypeMap[platform] || 'video',
+            text: caption,
+            ...(videoUrl ? { media_urls: [videoUrl] } : {})
+          }
+        },
+        accounts: [{ id: profileId, scheduled_at: scheduledAt }]
+      });
+    }
+
+    if (errors.length && posts.length === 0) throw new Error(errors.join(' | '));
+
+    const res = await fetch('https://app.publer.com/api/v1/posts/schedule', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer-API ${key}`,
+        'Publer-Workspace-Id': workspaceId,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ bulk: { state: 'scheduled', posts } })
+    });
+
+    if (!res.ok) {
+      const errText = await res.text().catch(() => '');
+      throw new Error(`Publer erro ${res.status}: ${errText.slice(0, 200)}`);
+    }
+
+    if (errors.length) throw new Error('Agendado parcialmente. ' + errors.join(' | '));
+  }
+
+  // ---- Modal de configurações ----
   function openSettings() {
-    document.getElementById('ig-token-input').value  = getIgToken();
-    document.getElementById('ig-userid-input').value = getIgUserId();
-    document.getElementById('api-key-input').value   = localStorage.getItem('minaue_api_key') || '';
+    document.getElementById('api-key-input').value = getApiKey();
+    document.getElementById('publer-key-input').value = getPublerKey();
     document.getElementById('supabase-url-input').value = localStorage.getItem('minaue_supabase_url') || '';
     document.getElementById('supabase-key-input').value = localStorage.getItem('minaue_supabase_key') || '';
-    updateIgStatus();
+    hideSettingsMsg();
+    if (Object.keys(getProfileMapping()).length > 0) {
+      document.getElementById('profile-mapping').classList.remove('hidden');
+    }
     document.getElementById('settings-modal').classList.remove('hidden');
   }
 
-  function closeSettings() { document.getElementById('settings-modal').classList.add('hidden'); }
+  function closeSettings() {
+    document.getElementById('settings-modal').classList.add('hidden');
+  }
 
   function saveSettings() {
-    const igToken  = document.getElementById('ig-token-input').value.trim();
-    const igUserId = document.getElementById('ig-userid-input').value.trim();
-    if (igToken)  localStorage.setItem('minaue_ig_token',  igToken);
-    if (igUserId) localStorage.setItem('minaue_ig_userid', igUserId);
-
     const claudeKey = document.getElementById('api-key-input').value.trim();
     if (claudeKey) localStorage.setItem('minaue_api_key', claudeKey);
+
+    const publerKey = document.getElementById('publer-key-input').value.trim();
+    if (publerKey) localStorage.setItem('minaue_publer_key', publerKey);
 
     const supabaseUrl = document.getElementById('supabase-url-input').value.trim();
     const supabaseKey = document.getElementById('supabase-key-input').value.trim();
@@ -1345,19 +1374,14 @@
     if (supabaseKey) localStorage.setItem('minaue_supabase_key', supabaseKey);
     if (supabaseUrl || supabaseKey) resetSupabaseClient();
 
-    closeSettings();
-  }
+    const mapping = {};
+    ['instagram','tiktok','pinterest','youtube'].forEach(p => {
+      const val = document.getElementById(`map-${p}`)?.value;
+      if (val) mapping[p] = val;
+    });
+    if (Object.keys(mapping).length) localStorage.setItem('minaue_profile_map', JSON.stringify(mapping));
 
-  function updateIgStatus() {
-    const dot  = document.getElementById('ig-status-dot');
-    const text = document.getElementById('ig-status-text');
-    if (getIgToken() && getIgUserId()) {
-      dot.className = 'status-dot ok';
-      text.textContent = 'Instagram configurado.';
-    } else {
-      dot.className = 'status-dot missing';
-      text.textContent = 'Token ou User ID não configurado.';
-    }
+    closeSettings();
   }
 
   document.getElementById('settings-modal').addEventListener('click', function(e) {
@@ -1365,15 +1389,6 @@
   });
 
   // ---- Init ----
-  // Pré-carregar token do Instagram nas configurações se já tiver
-  (function preloadIgSettings() {
-    if (!getIgToken()) {
-      // Token padrão do .env já configurado
-      localStorage.setItem('minaue_ig_token',  'EAATO3F6sISMBRgqgcULwIZBup6kxi8MDOf6wkZCmqSKKZB9G74JZCEkh1fWJZCZBMnljpIcYHzjiWujYZCEF34DosaivBvDNZCurZCUlZA1x8v3ZAKZCO0HXK5ML1AJ8psbGfTV4bmf1KKF56Lidn0Gnr2zGKpR6MjkH0UsVAbDYKr24XcOFZBYDgE0Qi0cZBYcQXZCVgrQGRg2Nih6sMHHWQwlfmGlUjEE2weafln5f2PIjJalF5YcuY4LZChK0gmkJNZB0b558EZB9sOUrurXRcTxgittq1cOdIs');
-      localStorage.setItem('minaue_ig_userid', '17841400256717252');
-    }
-  })();
-
   renderCalendar();
 </script>
 
