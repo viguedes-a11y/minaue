@@ -94,6 +94,13 @@ Após aprovação da versão em português, entregar as três versões formatada
 
 ---
 
+**Passo 7 — Conectar com a skill de legendas (opcional):**
+
+Após entregar os roteiros (ou após o Passo 5, se o Passo 6 for pulado), perguntar:
+> "Quer partir para as legendas dos vídeos agora? É só chamar /legenda-videos e colar o texto aprovado."
+
+---
+
 ## Tom do texto
 
 - Voz próxima e direta, como conversa com alguém de confiança
