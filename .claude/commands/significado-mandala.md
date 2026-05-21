@@ -41,7 +41,7 @@ Com as informações coletadas, gere um texto de **3 a 4 parágrafos** seguindo 
 1. **Gancho/síntese** — Abrir com a essência da mandala de forma direta, sem introdução. Para mandalas intuitivas à venda, começar com uma parte do "para quem é essa mandala" — o momento de vida, o estado interior. Não explicar que vai mostrar os elementos; entrar direto no texto.
 2. **Centro** — O centro da mandala carrega a intenção mais pura da peça. Descrever o elemento central (flor, símbolo, geometria), sua cor e sua base numérica, revelando o que está no coração energético da peça. Este parágrafo tem mais peso — é a intenção principal.
 3. **Elementos intermediários** — As folhas, símbolos, cores e elementos ao redor do centro são o que sustenta e alimenta a intenção central. Mostrar como cada um deles apoia a essência revelada no centro.
-4. **Encerramento/borda** — A borda representa como a intenção se ancora no mundo real. Amarrar com o "para quem é essa mandala" de um ângulo diferente do gancho — não repetir, mas aprofundar. Para encomendas, encerrar conectando a peça com quem a recebeu.
+4. **Encerramento/borda** — A borda é uma decisão energética: com borda, a energia fica mais contida e protegida; sem borda, ela se expande livremente. Revelar qual dessas intenções a peça carrega. Amarrar com o "para quem é essa mandala" de um ângulo diferente do gancho — não repetir, mas aprofundar. Para encomendas, encerrar conectando a peça com quem a recebeu.
 
 Apresente o texto e aguarde a aprovação da Vivi antes de continuar.
 
@@ -103,7 +103,7 @@ Após entregar os roteiros (ou após o Passo 5, se o Passo 6 for pulado), pergun
 
 ## Vocabulário da marca — usar com precisão
 
-**Floral Fluido** — técnica específica da Vivi. Caracteriza-se por criar uma área ao redor do centro da mandala composta de muitas folhas e elementos orgânicos, carregada de símbolos e intenções. Usar quando estiver falando da técnica em si.
+**Floral Fluido** — técnica específica da Vivi. Caracteriza-se por criar uma área ao redor do centro da mandala composta de muitas folhas e elementos orgânicos, carregada de símbolos e intenções. Essa área se chama **Campo**. Usar quando estiver falando da técnica em si.
 
 **Mandala Intencional** — conceito que diferencia a mandala como arte com significado de uma mandala apenas decorativa. É composta da energia dos números, das cores, dos símbolos e principalmente da energia e intenção de quem pinta. Usar quando quiser deixar claro que mandala não é só arte bonita.
 

@@ -117,11 +117,21 @@ Mulher que se interessa por espiritualidade e presentear com significado. Não q
 
 ## Vocabulário da marca — usar com precisão
 
-**Floral Fluido** — é a técnica específica da Vivi. Caracteriza-se por criar uma área ao redor do centro da mandala composta de muitas folhas e elementos orgânicos, carregada de símbolos e intenções. Usar quando estiver falando da técnica em si (o como, o estilo visual, o que se aprende no curso).
+**Floral Fluido** — é a técnica específica da Vivi. Caracteriza-se por criar uma área ao redor do centro da mandala composta de muitas folhas e elementos orgânicos, carregada de símbolos e intenções. Essa área se chama **Campo**. Usar quando estiver falando da técnica em si (o como, o estilo visual, o que se aprende no curso).
 
 **Mandala Intencional** — é o conceito que diferencia a mandala como arte com significado de uma mandala apenas decorativa. Uma mandala intencional é composta da energia dos números, das cores, dos símbolos e principalmente da energia e intenção de quem pinta. Usar quando quiser deixar claro que mandala não é só arte bonita — ela carrega intenção consciente.
 
 Não usar os dois termos como sinônimos. Floral Fluido = técnica. Mandala Intencional = conceito de criação consciente.
+
+---
+
+## Estrutura da mandala — três partes
+
+**Centro** — o coração energético da peça. Carrega a intenção mais pura. É de onde tudo parte.
+
+**Campo** — a área de Floral Fluido entre o centro e a borda. Composta de folhas, flores e elementos orgânicos, cada um com símbolo e intenção. É o que sustenta e alimenta o centro.
+
+**Borda** — uma decisão energética, não apenas estética. A borda define o campo de ação da mandala: com borda, a energia fica mais contida e protegida; sem borda, a energia se expande livremente em todas as direções. Ao descrever a borda, revelar qual dessas intenções ela carrega — não tratar como elemento decorativo.
 
 ---
 
