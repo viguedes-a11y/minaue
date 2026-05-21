@@ -64,6 +64,36 @@ Entrega final formatada assim:
 
 ---
 
+**Passo 6 — Adaptar para vídeo de 30 segundos (opcional):**
+
+Após entregar os textos, perguntar:
+> "Quer que eu adapte esse texto para um vídeo de 30 segundos com narração em voz?"
+
+Se sim, gerar uma versão condensada (~70-80 palavras) seguindo estas regras:
+
+- **Estrutura:** percorrer a mandala de dentro para fora — centro → elementos ao redor → borda → para quem
+- **Cadência:** frases conectadas com "e", "que" ou vírgulas — nunca soltas. Frases curtas demais ficam sem fôlego quando faladas
+- **Centro:** mencionar a base numérica e o que significa, depois cada cor separadamente com seu significado específico
+- **Elementos ao redor:** em uma frase fluida, não fragmentada
+- **Borda:** conectar com o encerramento "para quem é essa mandala" em sequência natural, sem quebra brusca
+- **Testar mentalmente:** ler em voz alta antes de entregar — se parecer uma lista, reescrever
+
+Após aprovação da versão em português, entregar as três versões formatadas para legenda de vídeo:
+
+🇧🇷
+[roteiro em português]
+
+🇺🇸
+[roteiro em inglês]
+
+🇪🇸
+[roteiro em espanhol]
+
+🇪🇸
+[texto em espanhol]
+
+---
+
 ## Tom do texto
 
 - Voz próxima e direta, como conversa com alguém de confiança
