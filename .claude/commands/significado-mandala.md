@@ -38,10 +38,10 @@ Pergunte apenas o que não foi possível identificar na foto:
 
 Com as informações coletadas, gere um texto de **3 a 4 parágrafos** seguindo esta estrutura. Ao finalizar o rascunho, aplique automaticamente o `/humanizer` para remover padrões de escrita IA antes de apresentar.
 
-1. **Abertura** — Apresentar a energia geral da peça, o que ela evoca, a intenção que a atravessa. Se for encomenda, conectar com quem a recebeu e o que foi pedido.
-2. **Símbolos e formas** — Revelar o significado dos elementos simbólicos presentes: animais, flores, geometria sagrada, símbolos espirituais.
-3. **Cores** — Explicar a energia de cada cor escolhida, conectando com os chakras, emoções e manifestações que elas ativam.
-4. **Encerramento** — Amarrar tudo com uma frase que sintetize o propósito da peça. Pode mencionar a base numérica se enriquecer o texto. Se a mandala for intuitiva e estiver disponível para venda, encerrar com "para quem é essa mandala" — descrever o momento de vida, o estado interior ou a intenção de quem deveria tê-la perto.
+1. **Gancho/síntese** — Abrir com a essência da mandala de forma direta, sem introdução. Para mandalas intuitivas à venda, começar com uma parte do "para quem é essa mandala" — o momento de vida, o estado interior. Não explicar que vai mostrar os elementos; entrar direto no texto.
+2. **Símbolos e formas** — Revelar o significado dos elementos simbólicos presentes: animais, flores, geometria sagrada, símbolos espirituais. Mostrar como cada elemento sustenta a essência do gancho.
+3. **Cores** — Explicar a energia de cada cor escolhida, conectando com os chakras, emoções e manifestações que elas ativam. Manter a conexão com a intenção central.
+4. **Encerramento** — Retomar e completar o "para quem é essa mandala" de um ângulo diferente do gancho — não repetir, mas aprofundar. Para encomendas, encerrar conectando a peça com quem a recebeu.
 
 Apresente o texto e aguarde a aprovação da Vivi antes de continuar.
 
