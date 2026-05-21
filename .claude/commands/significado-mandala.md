@@ -34,14 +34,33 @@ Pergunte apenas o que não foi possível identificar na foto:
 
 ---
 
-**Passo 4 — Gerar o texto de significado:**
+**Passo 4 — Gerar o texto de significado em português:**
 
-Com as informações coletadas, gere um texto de **3 a 4 parágrafos** seguindo esta estrutura. Ao finalizar o rascunho, aplique automaticamente o `/humanizer` para remover padrões de escrita IA antes de entregar o texto final.
+Com as informações coletadas, gere um texto de **3 a 4 parágrafos** seguindo esta estrutura. Ao finalizar o rascunho, aplique automaticamente o `/humanizer` para remover padrões de escrita IA antes de apresentar.
 
 1. **Abertura** — Apresentar a energia geral da peça, o que ela evoca, a intenção que a atravessa. Se for encomenda, conectar com quem a recebeu e o que foi pedido.
 2. **Símbolos e formas** — Revelar o significado dos elementos simbólicos presentes: animais, flores, geometria sagrada, símbolos espirituais.
 3. **Cores** — Explicar a energia de cada cor escolhida, conectando com os chakras, emoções e manifestações que elas ativam.
 4. **Encerramento** — Amarrar tudo com uma frase que sintetize o propósito da peça. Pode mencionar a base numérica se enriquecer o texto. Se a mandala for intuitiva e estiver disponível para venda, encerrar com "para quem é essa mandala" — descrever o momento de vida, o estado interior ou a intenção de quem deveria tê-la perto.
+
+Apresente o texto e aguarde a aprovação da Vivi antes de continuar.
+
+---
+
+**Passo 5 — Traduzir para inglês e espanhol após aprovação:**
+
+Quando a Vivi aprovar o texto em português, gere as traduções mantendo o mesmo tom, o mesmo nível de concretude e a mesma estrutura. Não traduzir literalmente — adaptar para que soe natural em cada idioma.
+
+Entrega final formatada assim:
+
+🇧🇷
+[texto em português aprovado]
+
+🇺🇸
+[texto em inglês]
+
+🇪🇸
+[texto em espanhol]
 
 ---
 
@@ -49,9 +68,9 @@ Com as informações coletadas, gere um texto de **3 a 4 parágrafos** seguindo 
 
 - Voz próxima e direta, como conversa com alguém de confiança
 - Espiritual mas acessível — nunca hermético nem técnico demais
-- Detalhes reais e concretos, não genérico
+- Detalhes reais e concretos, não genérico — cada frase deve falar sobre o que o elemento significa, não criar atmosfera vaga
 - Seguro, sem hesitação
-- Português brasileiro, sem gírias
+- Evite metáforas decorativas que não acrescentam significado (ex: "parece um lugar que cresceu sozinho")
 - Evite: "energia única", "feita com amor", "peça especial" — prefira revelar o porquê específico
 
 ---
