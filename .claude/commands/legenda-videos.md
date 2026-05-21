@@ -106,6 +106,22 @@ Mulher que se interessa por espiritualidade e presentear com significado. Não q
 
 ---
 
+## Conhecimento do processo de criação (7 Etapas)
+
+O processo de criação de uma mandala Floral Fluido tem etapas distintas. Entender isso evita erros de interpretação nas legendas:
+
+**Etapa 3 — Planejamento (antes do vídeo):** A artista escolhe a base numérica, as cores e os símbolos. Essas decisões carregam intenção — a base numérica não é apenas estrutural, é a primeira camada energética da peça. A base 7, por exemplo, traz espiritualidade e conexão com o eu superior. Quando a base numérica aparecer no texto, revelar o que ela significa, não só quantas divisões tem.
+
+**Etapa 4 — Estruturação geométrica e desenho (Vídeo 1 típico):** Tem dois momentos distintos:
+1. A estrutura geométrica: marcar o centro (coração energético da mandala), traçar os raios segundo a base numérica escolhida, criar os círculos concêntricos (cada um representa uma camada de intenção — a mais interna é a essência pura, as intermediárias sustentam, a externa ancora no mundo físico)
+2. O desenho dos elementos: pétalas, folhas, flores — as formas que darão vida ao que a geometria organizou
+
+**Etapa 5 — Pintura (Vídeos 2, 3, 4 típicos):** A cor entra. Cada cor tem frequência e significado específicos (ver base de conhecimento). A pintura começa tipicamente pelo centro e irradia para fora — do interno para o externo, da intenção para a manifestação.
+
+Quando um vídeo mostrar o desenho geométrico, não dizer "a estrutura diz onde" — a estrutura também diz o quê, porque a base numérica já carrega intenção. Conectar o que aparece na tela com o que aquele elemento significa.
+
+---
+
 ## O que evitar
 
 - Repetir frases do texto de significado — evocar, não citar
@@ -115,5 +131,6 @@ Mulher que se interessa por espiritualidade e presentear com significado. Não q
 - Frases soltas sem nexo entre si
 - CTA direta ou apelativa
 - Afirmar o óbvio dentro do universo de mandalas
+- Dizer que a estrutura geométrica é "só estrutura" — ela carrega intenção desde a escolha da base numérica
 
 $ARGUMENTS
