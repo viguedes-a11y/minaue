@@ -36,7 +36,7 @@ Pergunte apenas o que não foi possível identificar na foto:
 
 **Passo 4 — Gerar o texto de significado:**
 
-Com as informações coletadas, gere um texto de **3 a 4 parágrafos** seguindo esta estrutura:
+Com as informações coletadas, gere um texto de **3 a 4 parágrafos** seguindo esta estrutura. Ao finalizar o rascunho, aplique automaticamente o `/humanizer` para remover padrões de escrita IA antes de entregar o texto final.
 
 1. **Abertura** — Apresentar a energia geral da peça, o que ela evoca, a intenção que a atravessa. Se for encomenda, conectar com quem a recebeu e o que foi pedido.
 2. **Símbolos e formas** — Revelar o significado dos elementos simbólicos presentes: animais, flores, geometria sagrada, símbolos espirituais.
