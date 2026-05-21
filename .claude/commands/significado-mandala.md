@@ -41,7 +41,7 @@ Com as informações coletadas, gere um texto de **3 a 4 parágrafos** seguindo 
 1. **Abertura** — Apresentar a energia geral da peça, o que ela evoca, a intenção que a atravessa. Se for encomenda, conectar com quem a recebeu e o que foi pedido.
 2. **Símbolos e formas** — Revelar o significado dos elementos simbólicos presentes: animais, flores, geometria sagrada, símbolos espirituais.
 3. **Cores** — Explicar a energia de cada cor escolhida, conectando com os chakras, emoções e manifestações que elas ativam.
-4. **Encerramento** — Amarrar tudo com uma frase que sintetize o propósito da peça. Pode mencionar a base numérica se enriquecer o texto.
+4. **Encerramento** — Amarrar tudo com uma frase que sintetize o propósito da peça. Pode mencionar a base numérica se enriquecer o texto. Se a mandala for intuitiva e estiver disponível para venda, encerrar com "para quem é essa mandala" — descrever o momento de vida, o estado interior ou a intenção de quem deveria tê-la perto.
 
 ---
 
