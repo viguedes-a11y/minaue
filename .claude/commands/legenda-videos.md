@@ -27,26 +27,29 @@ Pode adaptar a pergunta se a Vivi já adiantou alguma informação.
 
 ---
 
-**Passo 3 — Definir as CTAs:**
+**Passo 3 — Gerar as legendas vídeo a vídeo:**
 
-Pergunte:
-> "Quais CTAs você quer distribuir nesses vídeos? Escolhe dois:
-> - Encomenda (para Fernanda — quem quer uma peça com significado para presentear ou ter)
-> - Curso Básico (para Camila — artista que quer aprender e viver da arte)
-> - Ebook 'Sua Mandala no Mundo' (para Camila — artista que quer aprender a vender)"
+Trabalhar um vídeo por vez. Para cada vídeo:
 
-Distribua as CTAs escolhidas entre os 4 vídeos. Os outros dois ficam sem CTA explícita — terminam com a mandala falando por si.
+1. Gerar a legenda em português
+2. Perguntar qual CTA para esse vídeo:
+   - **Encomenda** (para Fernanda)
+   - **Curso Básico** (para Camila)
+   - **Ebook "Sua Mandala no Mundo"** (para Camila)
+   - **Nenhuma** — termina com a mandala falando por si
+3. Incorporar a CTA escolhida e apresentar a versão final
+4. **Aguardar aprovação antes de passar para o próximo vídeo**
+
+Se a CTA sugerida não funcionar, oferecer 5 opções alternativas para a Vivi escolher.
+
+Dois dos 4 vídeos ficam sem CTA — distribuir as CTAs nos que fizerem mais sentido pelo conteúdo que aparece na cena.
 
 ---
 
-**Passo 4 — Gerar as legendas em português:**
-
-Gere legendas para os 4 vídeos e o carrossel seguindo estas regras:
-
 ### Estrutura de cada legenda
 
-- **Abertura:** conectada ao que aparece no vídeo + ao tema do significado. Não repetir o texto de significado — evocar, não citar.
-- **Desenvolvimento:** 2 a 3 parágrafos curtos, fluidos. Concreto, não genérico.
+- **Gancho:** primeira linha de impacto, curta, que prende antes de qualquer explicação. Deve surgir do que aparece no vídeo ou do tema do significado — nunca genérico.
+- **Desenvolvimento:** 2 a 3 parágrafos curtos, fluidos. Concreto, não genérico. Não repetir o texto de significado — evocar, não citar.
 - **Encerramento com CTA (quando houver):** sutil. Tocar no sonho ou na dor da persona — nunca oferecer diretamente. A pessoa deve chegar à conclusão sozinha.
 
 ### Comprimento
@@ -65,15 +68,17 @@ Gere legendas para os 4 vídeos e o carrossel seguindo estas regras:
 **Para Fernanda (encomenda):**
 Tocar no que torna uma peça inesquecível. Mostrar que significado é o que faz um presente ser sentido, não apenas visto. Nunca mencionar preço. Nunca "encomende agora". A frase pode terminar em algo como: "Às vezes o presente certo é aquele que carrega o que as palavras não conseguem dizer." — e deixar por aí.
 
-**Para Camila (curso ou ebook):**
-Tocar no conflito entre autenticidade e monetização. Mostrar que vender não é trair — é honrar o trabalho. Nunca prometer dinheiro fácil. A frase pode abrir uma porta: "Se você pinta e ainda não sabe como isso pode te sustentar, talvez esse seja o momento de olhar pra isso." — e deixar por aí.
+**Para Camila (curso):**
+O Curso Básico é para dois perfis: quem nunca pintou nada e quer começar do zero, e quem já pinta mandalas e quer aprender a técnica Floral Fluido especificamente. A CTA deve tocar na curiosidade sobre a técnica ou no desejo de entender o que está por trás de cada escolha na mandala. Nunca prometer renda ou resultado. Abrir uma porta: "Se você olha pra uma mandala e quer entender como ela nasce do zero, o link na bio é por onde começar."
+
+**Para Camila (ebook):**
+O ebook "Sua Mandala no Mundo" é para artistas que já criam e querem aprender a vender — mas sentem que monetizar trai a autenticidade. Tocar nesse conflito. Mostrar que vender não é trair, é honrar o trabalho. Nunca prometer dinheiro fácil. A frase pode abrir uma porta: "Se você pinta e ainda não sabe como isso pode te sustentar, talvez esse seja o momento de olhar pra isso."
 
 ---
 
-**Passo 5 — Aguardar aprovação em português antes de traduzir:**
+**Passo 4 — Entregar em 3 idiomas após aprovação de todos os vídeos em português:**
 
-Apresente as legendas em português e pergunte:
-> "Tem alguma que quer ajustar antes de eu traduzir?"
+Traduzir mantendo o mesmo tom, a mesma concretude, a mesma estrutura. Não traduzir literalmente — adaptar para soar natural em cada idioma.
 
 ---
 
@@ -99,7 +104,11 @@ Entrega formatada assim para cada vídeo:
 ## Personas de referência
 
 **Camila (A Artista Espiritual, 34 anos):**
-Artista que ama o que faz mas ainda não transformou isso em renda consistente. Sente que vender trai a autenticidade. Quer liberdade — de lugar, de horário, de depender de cliente a cliente. O que a move: ver que o caminho é possível sem abrir mão de quem ela é. Produto relevante: Curso Básico, Ebook.
+Dois perfis distintos dentro dessa persona:
+- Quem nunca pintou e quer aprender do zero (Curso Básico)
+- Quem já pinta mandalas e quer aprender a técnica Floral Fluido especificamente (Curso Básico)
+- Quem já cria e quer aprender a vender sem sentir que trai a autenticidade (Ebook)
+O que move os três: ver que o caminho é possível sem abrir mão de quem são. Produto relevante: Curso Básico, Ebook.
 
 **Fernanda (A que vai encomendar, 42 anos):**
 Mulher que se interessa por espiritualidade e presentear com significado. Não quer dar mais um presente qualquer. Quer algo que a pessoa sinta que foi feito pra ela. O que a convence: o texto de significado — quando lê, sente que a mandala foi feita para a pessoa certa. Produto relevante: Encomendas.
