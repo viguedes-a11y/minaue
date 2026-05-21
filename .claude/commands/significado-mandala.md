@@ -101,6 +101,16 @@ Após entregar os roteiros (ou após o Passo 5, se o Passo 6 for pulado), pergun
 
 ---
 
+## Vocabulário da marca — usar com precisão
+
+**Floral Fluido** — técnica específica da Vivi. Caracteriza-se por criar uma área ao redor do centro da mandala composta de muitas folhas e elementos orgânicos, carregada de símbolos e intenções. Usar quando estiver falando da técnica em si.
+
+**Mandala Intencional** — conceito que diferencia a mandala como arte com significado de uma mandala apenas decorativa. É composta da energia dos números, das cores, dos símbolos e principalmente da energia e intenção de quem pinta. Usar quando quiser deixar claro que mandala não é só arte bonita.
+
+Não usar os dois termos como sinônimos. Floral Fluido = técnica. Mandala Intencional = conceito de criação consciente.
+
+---
+
 ## Tom do texto
 
 - Voz próxima e direta, como conversa com alguém de confiança
