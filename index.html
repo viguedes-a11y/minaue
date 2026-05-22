@@ -585,6 +585,32 @@
     .empty-state p { font-size: 15px; margin-bottom: 8px; }
     .empty-state small { font-size: 13px; }
 
+    /* Tag input de hashtags */
+    .tag-input-wrap {
+      display: flex; flex-wrap: wrap; gap: 6px; align-items: center;
+      border: 1px solid var(--border); border-radius: 6px;
+      padding: 6px 8px; background: #fff; cursor: text;
+      min-height: 38px; margin-top: 6px;
+    }
+    .tag-input-wrap:focus-within { border-color: var(--gold); }
+    .hashtag-chip {
+      display: inline-flex; align-items: center; gap: 4px;
+      background: var(--gold-light); color: var(--gold-hover);
+      border-radius: 20px; padding: 2px 10px 2px 8px;
+      font-size: 12px; font-weight: 500; white-space: nowrap;
+    }
+    .hashtag-chip button {
+      background: none; border: none; cursor: pointer;
+      color: var(--gold-hover); font-size: 14px; line-height: 1;
+      padding: 0; opacity: 0.7;
+    }
+    .hashtag-chip button:hover { opacity: 1; }
+    .tag-input-field {
+      border: none; outline: none; font-size: 12px;
+      font-family: inherit; background: transparent;
+      min-width: 80px; flex: 1; padding: 2px 0;
+    }
+
     @media (max-width: 600px) {
       .header-inner { padding: 0 12px; }
       main { padding: 16px 12px; }
@@ -798,7 +824,7 @@
           <button type="button" class="copy-caption-btn" onclick="copyPlatformCaption('instagram')">Copiar</button>
         </div>
         <textarea id="caption-instagram" rows="4" placeholder="Legenda para o Instagram…"></textarea>
-        <textarea id="hashtag-instagram" rows="2" placeholder="#mandala #arte …" style="margin-top:6px;font-size:12px"></textarea>
+        <div class="tag-input-wrap" id="tags-instagram" onclick="this.querySelector('.tag-input-field').focus()"></div>
       </div>
 
       <div class="platform-caption-block">
@@ -807,7 +833,7 @@
           <button type="button" class="copy-caption-btn" onclick="copyPlatformCaption('tiktok')">Copiar</button>
         </div>
         <textarea id="caption-tiktok" rows="4" placeholder="Legenda para o TikTok…"></textarea>
-        <textarea id="hashtag-tiktok" rows="2" placeholder="#mandala #fyp …" style="margin-top:6px;font-size:12px"></textarea>
+        <div class="tag-input-wrap" id="tags-tiktok" onclick="this.querySelector('.tag-input-field').focus()"></div>
       </div>
 
       <div class="platform-caption-block">
@@ -816,7 +842,7 @@
           <button type="button" class="copy-caption-btn" onclick="copyPlatformCaption('pinterest')">Copiar</button>
         </div>
         <textarea id="caption-pinterest" rows="4" placeholder="Legenda para o Pinterest…"></textarea>
-        <textarea id="hashtag-pinterest" rows="2" placeholder="#mandalaart #watercolor …" style="margin-top:6px;font-size:12px"></textarea>
+        <div class="tag-input-wrap" id="tags-pinterest" onclick="this.querySelector('.tag-input-field').focus()"></div>
       </div>
 
       <div class="platform-caption-block">
@@ -825,7 +851,7 @@
           <button type="button" class="copy-caption-btn" onclick="copyPlatformCaption('youtube')">Copiar</button>
         </div>
         <textarea id="caption-youtube" rows="4" placeholder="Legenda para o YouTube…"></textarea>
-        <textarea id="hashtag-youtube" rows="2" placeholder="#mandala #shorts …" style="margin-top:6px;font-size:12px"></textarea>
+        <div class="tag-input-wrap" id="tags-youtube" onclick="this.querySelector('.tag-input-field').focus()"></div>
       </div>
     </div>
 
@@ -1004,10 +1030,10 @@
         youtube:   document.getElementById('caption-youtube').value,
       },
       hashtags: {
-        instagram: document.getElementById('hashtag-instagram').value,
-        tiktok:    document.getElementById('hashtag-tiktok').value,
-        pinterest: document.getElementById('hashtag-pinterest').value,
-        youtube:   document.getElementById('hashtag-youtube').value,
+        instagram: getHashtags('instagram'),
+        tiktok:    getHashtags('tiktok'),
+        pinterest: getHashtags('pinterest'),
+        youtube:   getHashtags('youtube'),
       }
     };
   }
@@ -1034,9 +1060,65 @@
     renderCalendar();
   }
 
+  // ---- Tag input de hashtags ----
+  const tagState = { instagram: [], tiktok: [], pinterest: [], youtube: [] };
+
+  function initTagInput(platform) {
+    const wrap = document.getElementById('tags-' + platform);
+    if (!wrap) return;
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.className = 'tag-input-field';
+    input.placeholder = '#mandala …';
+    wrap.appendChild(input);
+
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ',' || e.key === ' ') {
+        e.preventDefault();
+        const val = input.value.trim().replace(/^#+/, '');
+        if (val) { addTag(platform, val); input.value = ''; }
+      } else if (e.key === 'Backspace' && !input.value) {
+        const tags = tagState[platform];
+        if (tags.length) removeTag(platform, tags[tags.length - 1]);
+      }
+    });
+  }
+
+  function addTag(platform, word) {
+    if (tagState[platform].includes(word)) return;
+    tagState[platform].push(word);
+    renderTags(platform);
+  }
+
+  function removeTag(platform, word) {
+    tagState[platform] = tagState[platform].filter(t => t !== word);
+    renderTags(platform);
+  }
+
+  function renderTags(platform) {
+    const wrap = document.getElementById('tags-' + platform);
+    const input = wrap.querySelector('.tag-input-field');
+    wrap.querySelectorAll('.hashtag-chip').forEach(c => c.remove());
+    tagState[platform].forEach(word => {
+      const chip = document.createElement('span');
+      chip.className = 'hashtag-chip';
+      chip.innerHTML = `#${word}<button type="button" onclick="removeTag('${platform}','${word}')">×</button>`;
+      wrap.insertBefore(chip, input);
+    });
+  }
+
+  function getHashtags(platform) {
+    return tagState[platform].map(t => '#' + t).join(' ');
+  }
+
+  function setHashtags(platform, text) {
+    tagState[platform] = (text || '').split(/[\s,]+/).map(t => t.replace(/^#+/, '')).filter(Boolean);
+    renderTags(platform);
+  }
+
   function buildCaption(data, platform) {
     const caption = data.captions[platform] || '';
-    const hashtags = data.hashtags[platform] || '';
+    const hashtags = getHashtags(platform);
     return caption + (hashtags ? '\n\n' + hashtags : '');
   }
 
@@ -1091,10 +1173,10 @@
     document.getElementById('caption-tiktok').value    = post.captions?.tiktok    || '';
     document.getElementById('caption-pinterest').value = post.captions?.pinterest || '';
     document.getElementById('caption-youtube').value   = post.captions?.youtube   || '';
-    document.getElementById('hashtag-instagram').value = post.hashtags?.instagram || '';
-    document.getElementById('hashtag-tiktok').value    = post.hashtags?.tiktok    || '';
-    document.getElementById('hashtag-pinterest').value = post.hashtags?.pinterest || '';
-    document.getElementById('hashtag-youtube').value   = post.hashtags?.youtube   || '';
+    setHashtags('instagram', post.hashtags?.instagram || '');
+    setHashtags('tiktok',    post.hashtags?.tiktok    || '');
+    setHashtags('pinterest', post.hashtags?.pinterest || '');
+    setHashtags('youtube',   post.hashtags?.youtube   || '');
     loadThumb(post.thumb || null);
     document.getElementById('editing-banner').classList.remove('hidden');
     switchTab('new-post');
@@ -1113,10 +1195,10 @@
     document.getElementById('caption-tiktok').value    = '';
     document.getElementById('caption-pinterest').value = '';
     document.getElementById('caption-youtube').value   = '';
-    document.getElementById('hashtag-instagram').value = '';
-    document.getElementById('hashtag-tiktok').value    = '';
-    document.getElementById('hashtag-pinterest').value = '';
-    document.getElementById('hashtag-youtube').value   = '';
+    setHashtags('instagram', '');
+    setHashtags('tiktok',    '');
+    setHashtags('pinterest', '');
+    setHashtags('youtube',   '');
     document.getElementById('editing-banner').classList.add('hidden');
     loadThumb(null);
     currentThumbBase64 = null;
@@ -1251,6 +1333,7 @@
     }
   })();
 
+  ['instagram', 'tiktok', 'pinterest', 'youtube'].forEach(initTagInput);
   renderCalendar();
 </script>
 
