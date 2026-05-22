@@ -735,20 +735,6 @@
       <div class="publish-panel">
         <h4>Publicar agora</h4>
 
-        <div id="publish-instagram" style="display:none">
-          <div style="display:flex;flex-direction:column;gap:8px">
-            <div style="font-size:13px;color:var(--text-muted)">Publica direto no Instagram via Graph API.</div>
-            <div class="publish-actions">
-              <button class="publish-btn publish-btn-instagram" id="btn-publish-instagram" onclick="publishToInstagram()">
-                📷 Publicar no Instagram
-              </button>
-            </div>
-            <div class="progress-bar hidden" id="ig-progress">
-              <div class="progress-bar-fill" id="ig-progress-fill" style="width:0%"></div>
-            </div>
-          </div>
-        </div>
-
         <div id="reminders-box" style="display:none">
           <div class="reminder-box" id="reminder-tiktok" style="display:none">
             <strong>🎵 TikTok — hora de postar!</strong>
@@ -972,9 +958,6 @@
     const hasAny = activePlatforms.length > 0;
     document.getElementById('publish-section').style.display = hasAny ? '' : 'none';
 
-    const hasInstagram = activePlatforms.includes('instagram');
-    document.getElementById('publish-instagram').style.display = hasInstagram ? '' : 'none';
-
     const hasOthers = ['tiktok', 'pinterest', 'youtube'].some(p => activePlatforms.includes(p));
     document.getElementById('reminders-box').style.display = hasOthers ? '' : 'none';
     document.getElementById('reminder-tiktok').style.display    = activePlatforms.includes('tiktok')    ? '' : 'none';
@@ -1025,134 +1008,6 @@
     await savePost({ id: currentEditingId, ...data, status: data.scheduledAt ? 'scheduled' : 'draft' });
     showMsg('Post salvo!', 'success');
     renderCalendar();
-  }
-
-  // ---- Publicar no Instagram ----
-  async function publishToInstagram() {
-    const token  = getIgToken();
-    const userId = getIgUserId();
-
-    if (!token || !userId) {
-      showMsg('Configure o token do Instagram nas ⚙ configurações.', 'error');
-      return;
-    }
-
-    const data = getFormData();
-    const caption = buildCaption(data, 'instagram');
-
-    if (!data.videoLink && !currentCoverBase64) {
-      showMsg('Adiciona um link de vídeo (Google Drive) ou uma imagem de capa para publicar.', 'error');
-      return;
-    }
-
-    const btn = document.getElementById('btn-publish-instagram');
-    btn.disabled = true;
-    btn.textContent = '⏳ Publicando…';
-    showMsg('Iniciando publicação…', 'info');
-
-    const progress = document.getElementById('ig-progress');
-    const fill = document.getElementById('ig-progress-fill');
-    progress.classList.remove('hidden');
-
-    try {
-      // Usar imagem de capa se tiver, senão tentar vídeo
-      if (currentCoverBase64) {
-        setProgress(fill, 20);
-        showMsg('Fazendo upload da imagem…', 'info');
-
-        // Upload da imagem para catbox.moe
-        const imageUrl = await uploadToCatbox(currentCoverBase64);
-        setProgress(fill, 50);
-        showMsg('Criando post no Instagram…', 'info');
-
-        // Criar container
-        const containerRes = await fetch(`https://graph.instagram.com/v21.0/${userId}/media`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ image_url: imageUrl, caption, access_token: token })
-        });
-        const container = await containerRes.json();
-        if (container.error) throw new Error(container.error.message);
-        setProgress(fill, 75);
-
-        // Aguardar container ficar pronto
-        await pollContainer(container.id, token);
-        setProgress(fill, 90);
-
-        // Publicar
-        const pubRes = await fetch(`https://graph.instagram.com/v21.0/${userId}/media_publish`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ creation_id: container.id, access_token: token })
-        });
-        const pub = await pubRes.json();
-        if (pub.error) throw new Error(pub.error.message);
-
-        setProgress(fill, 100);
-
-        // Marcar como publicado
-        if (currentEditingId) {
-          const posts = await getPosts();
-          const post = posts.find(p => p.id === currentEditingId);
-          if (post) await savePost({ ...post, status: 'published' });
-        }
-
-        showMsg('✅ Publicado no Instagram com sucesso!', 'success');
-
-        // Buscar permalink
-        const mediaRes = await fetch(`https://graph.instagram.com/v21.0/${pub.id}?fields=permalink&access_token=${token}`);
-        const media = await mediaRes.json();
-        if (media.permalink) {
-          showMsg(`✅ Publicado! Ver post: ${media.permalink}`, 'success');
-        }
-
-      } else {
-        showMsg('Para publicar vídeo, adicione uma imagem de capa primeiro. O Instagram exige uma URL pública para vídeos.', 'error');
-      }
-
-    } catch(err) {
-      showMsg('Erro ao publicar: ' + err.message, 'error');
-    } finally {
-      btn.disabled = false;
-      btn.textContent = '📷 Publicar no Instagram';
-      setTimeout(() => { progress.classList.add('hidden'); setProgress(fill, 0); }, 3000);
-    }
-  }
-
-  function setProgress(fill, pct) {
-    fill.style.width = pct + '%';
-  }
-
-  async function uploadToCatbox(base64) {
-    const res = await fetch('/api/upload-image', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ base64 })
-    });
-    const data = await res.json();
-    if (!res.ok || data.error) throw new Error(data.error || 'Falha no upload da imagem.');
-    return data.url;
-  }
-
-  function base64ToBlob(base64) {
-    const parts = base64.split(';base64,');
-    const type = parts[0].split(':')[1];
-    const binary = atob(parts[1]);
-    const array = new Uint8Array(binary.length);
-    for (let i = 0; i < binary.length; i++) array[i] = binary.charCodeAt(i);
-    return new Blob([array], { type });
-  }
-
-  async function pollContainer(containerId, token, timeout = 60000) {
-    const start = Date.now();
-    while (Date.now() - start < timeout) {
-      const res = await fetch(`https://graph.instagram.com/v21.0/${containerId}?fields=status_code&access_token=${token}`);
-      const data = await res.json();
-      if (data.status_code === 'FINISHED') return;
-      if (data.status_code === 'ERROR') throw new Error('Erro ao processar mídia no Instagram.');
-      await new Promise(r => setTimeout(r, 3000));
-    }
-    throw new Error('Timeout ao aguardar processamento do Instagram.');
   }
 
   function buildCaption(data, platform) {
