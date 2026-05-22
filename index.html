@@ -585,6 +585,34 @@
     .empty-state p { font-size: 15px; margin-bottom: 8px; }
     .empty-state small { font-size: 13px; }
 
+    @media (max-width: 600px) {
+      .header-inner { padding: 0 12px; }
+      main { padding: 16px 12px; }
+      .post-form { gap: 0; }
+      .grid-2 { grid-template-columns: 1fr; }
+      .form-footer { padding: 12px 16px; gap: 8px; }
+      .form-footer .btn { flex: 1; }
+      .platform-caption-header { flex-wrap: wrap; gap: 6px; }
+      .cover-upload-area { flex-direction: column; align-items: flex-start; gap: 12px; }
+      .cal-grid { font-size: 12px; }
+      .modal { margin: 12px; padding: 20px 16px; }
+    }
+
+    /* Foto miniatura da mandala ao lado do título */
+    .title-with-thumb {
+      display: flex; align-items: flex-end; gap: 12px;
+    }
+    .mandala-thumb-wrap { flex-shrink: 0; }
+    .mandala-thumb {
+      width: 68px; height: 68px; border-radius: 10px;
+      border: 2px dashed var(--border); background: var(--bg-secondary);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; overflow: hidden; transition: border-color 0.15s;
+      font-size: 24px;
+    }
+    .mandala-thumb:hover { border-color: var(--gold); }
+    .mandala-thumb img { width: 100%; height: 100%; object-fit: cover; }
+
     /* Blocos de legenda por plataforma */
     .platform-caption-block {
       border: 1px solid var(--border);
@@ -722,9 +750,18 @@
     <div class="form-section">
       <span class="section-label">Briefing</span>
 
-      <div class="field">
-        <label for="video-title">Título / tipo de vídeo</label>
-        <input type="text" id="video-title" placeholder="Ex: Tutorial mandala floral verde…">
+      <div class="title-with-thumb">
+        <div class="mandala-thumb-wrap">
+          <input type="file" id="thumb-input" accept="image/*" style="display:none" onchange="handleThumbUpload(event)">
+          <div class="mandala-thumb" id="mandala-thumb" onclick="document.getElementById('thumb-input').click()" title="Foto da mandala">
+            <span id="mandala-thumb-placeholder">🌸</span>
+            <img id="mandala-thumb-img" src="" alt="" style="display:none">
+          </div>
+        </div>
+        <div class="field" style="flex:1;margin:0">
+          <label for="video-title">Título / tipo de vídeo</label>
+          <input type="text" id="video-title" placeholder="Ex: Tutorial mandala floral verde…">
+        </div>
       </div>
 
       <div class="field">
@@ -751,15 +788,15 @@
 
     <hr class="divider">
 
-    <!-- Foto de referência -->
+    <!-- Capa -->
     <div class="form-section">
-      <span class="section-label">Foto de referência</span>
+      <span class="section-label">Capa do post</span>
       <input type="file" id="cover-input" accept="image/*" style="display:none" onchange="handleCoverUpload(event)">
       <div class="cover-upload-area" id="cover-upload-area" onclick="document.getElementById('cover-input').click()">
         <div class="cover-preview" id="cover-preview">🖼</div>
         <div class="cover-upload-info">
-          <p>Print do vídeo ou foto da mandala</p>
-          <small>Serve pra Tainá identificar qual vídeo é e também será a capa do post no Instagram</small>
+          <p>Imagem de capa</p>
+          <small>Aparece no grid do Instagram. Proporção ideal 3:4 (1080×1440px)</small>
           <div class="cover-actions" onclick="event.stopPropagation()">
             <button class="cover-btn" onclick="document.getElementById('cover-input').click()">Escolher imagem</button>
             <button class="cover-btn remove hidden" id="cover-remove-btn" onclick="removeCover()">Remover</button>
@@ -802,16 +839,6 @@
       </div>
     </div>
 
-    <hr class="divider">
-
-    <!-- Preview -->
-    <div class="form-section">
-      <span class="section-label">Preview</span>
-      <button type="button" class="preview-btn" onclick="openPreview()">
-        👁 Ver como vai ficar no Instagram
-      </button>
-    </div>
-
     <div id="form-message" class="form-message hidden"></div>
 
   </form>
@@ -821,39 +848,6 @@
 <div class="form-footer hidden" id="form-footer">
   <button class="btn btn-secondary" onclick="saveDraft()">Salvar rascunho</button>
   <button class="btn btn-primary" id="save-btn" onclick="saveScheduled()">Salvar</button>
-</div>
-
-<!-- Modal Preview Instagram -->
-<div class="preview-modal-overlay hidden" id="preview-modal" onclick="closePreview(event)">
-  <button class="ig-preview-close" onclick="document.getElementById('preview-modal').classList.add('hidden')">×</button>
-  <div class="ig-preview-wrapper">
-    <div class="ig-card">
-      <div class="ig-header">
-        <div class="ig-avatar">🌸</div>
-        <div>
-          <div class="ig-username">minaue.art</div>
-          <div class="ig-location" id="preview-location"></div>
-        </div>
-        <div class="ig-more">···</div>
-      </div>
-      <div class="ig-image">
-        <img id="preview-image" src="" alt="" style="display:none">
-        <div class="ig-image-placeholder" id="preview-placeholder">🌸</div>
-      </div>
-      <div class="ig-actions">
-        <span class="ig-action-icon">🤍</span>
-        <span class="ig-action-icon">💬</span>
-        <span class="ig-action-icon">✈️</span>
-        <span class="ig-action-icon ig-save-icon">🔖</span>
-      </div>
-      <div class="ig-likes">1.234 curtidas</div>
-      <div class="ig-caption">
-        <span class="ig-caption-username">minaue.art</span><span id="preview-caption"></span>
-        <span class="ig-hashtags" id="preview-hashtags"></span>
-      </div>
-      <div class="ig-timestamp">agora mesmo</div>
-    </div>
-  </div>
 </div>
 
 <!-- Modal de configurações -->
@@ -909,6 +903,7 @@
   let calMonth = new Date().getMonth();
   let currentEditingId = null;
   let currentCoverBase64 = null;
+  let currentThumbBase64 = null;
   let _supabaseClient = null;
 
   const SUPABASE_URL = 'https://luksckgvgzbcnlwncdtt.supabase.co';
@@ -1002,34 +997,6 @@
   }
 
 
-  // ---- Preview Instagram ----
-  function openPreview() {
-    const data = getFormData();
-    const caption = (data.captions && data.captions.instagram) || '';
-    const hashtags = (data.hashtags && data.hashtags.instagram) || '';
-
-    const img = document.getElementById('preview-image');
-    const placeholder = document.getElementById('preview-placeholder');
-    if (currentCoverBase64) {
-      img.src = currentCoverBase64;
-      img.style.display = '';
-      placeholder.style.display = 'none';
-    } else {
-      img.style.display = 'none';
-      placeholder.style.display = '';
-    }
-
-    document.getElementById('preview-caption').textContent = caption ? ' ' + caption : '';
-    document.getElementById('preview-hashtags').textContent = hashtags ? '\n' + hashtags : '';
-    document.getElementById('preview-modal').classList.remove('hidden');
-  }
-
-  function closePreview(event) {
-    if (event.target === document.getElementById('preview-modal')) {
-      document.getElementById('preview-modal').classList.add('hidden');
-    }
-  }
-
   // ---- Dados do formulário ----
   function getFormData() {
     return {
@@ -1038,6 +1005,7 @@
       audioTiktok:  document.getElementById('audio-tiktok').value.trim(),
       audioIg:      document.getElementById('audio-instagram').value.trim(),
       notesTaina:   document.getElementById('notes-taina').value.trim(),
+      thumb:        currentThumbBase64,
       cover:        currentCoverBase64,
       captions: {
         instagram: document.getElementById('caption-instagram').value,
@@ -1089,6 +1057,21 @@
     });
   }
 
+  // ---- Foto miniatura da mandala ----
+  function handleThumbUpload(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      currentThumbBase64 = e.target.result;
+      document.getElementById('mandala-thumb-img').src = e.target.result;
+      document.getElementById('mandala-thumb-img').style.display = '';
+      document.getElementById('mandala-thumb-placeholder').style.display = 'none';
+    };
+    reader.readAsDataURL(file);
+    event.target.value = '';
+  }
+
   // ---- Capa ----
   function handleCoverUpload(event) {
     const file = event.target.files[0];
@@ -1118,6 +1101,17 @@
 
   function removeCover() { loadCover(null); }
 
+  function loadThumb(base64) {
+    currentThumbBase64 = base64;
+    const img = document.getElementById('mandala-thumb-img');
+    const placeholder = document.getElementById('mandala-thumb-placeholder');
+    if (base64) {
+      img.src = base64; img.style.display = ''; placeholder.style.display = 'none';
+    } else {
+      img.src = ''; img.style.display = 'none'; placeholder.style.display = '';
+    }
+  }
+
   // ---- Editar post ----
   async function editPost(id) {
     const posts = await getPosts();
@@ -1135,6 +1129,7 @@
     document.getElementById('hashtag-instagram').value = post.hashtags?.instagram || '';
     document.getElementById('hashtag-tiktok').value    = post.hashtags?.tiktok    || '';
     document.getElementById('hashtag-pinterest').value = post.hashtags?.pinterest || '';
+    loadThumb(post.thumb || null);
     loadCover(post.cover || null);
     document.getElementById('editing-banner').classList.remove('hidden');
     switchTab('new-post');
@@ -1156,6 +1151,7 @@
     document.getElementById('hashtag-tiktok').value    = '';
     document.getElementById('hashtag-pinterest').value = '';
     document.getElementById('editing-banner').classList.add('hidden');
+    loadThumb(null);
     loadCover(null);
     clearMsg();
   }
