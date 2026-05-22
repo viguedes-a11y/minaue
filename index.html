@@ -586,6 +586,44 @@
     .empty-state p { font-size: 15px; margin-bottom: 8px; }
     .empty-state small { font-size: 13px; }
 
+    /* Aba Mandalas */
+    .mandala-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 14px;
+    }
+    .mandala-card {
+      background: var(--bg-secondary); border-radius: 12px;
+      overflow: hidden; cursor: pointer;
+      border: 1.5px solid var(--border);
+      transition: border-color 0.15s, transform 0.1s;
+    }
+    .mandala-card:hover { border-color: var(--gold); transform: translateY(-2px); }
+    .mandala-card-img {
+      width: 100%; aspect-ratio: 1;
+      background: var(--cream-dark);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 40px; overflow: hidden;
+    }
+    .mandala-card-img img { width: 100%; height: 100%; object-fit: cover; }
+    .mandala-card-info { padding: 10px 10px 12px; }
+    .mandala-card-name { font-weight: 600; font-size: 13px; margin-bottom: 4px; }
+    .mandala-card-count { font-size: 11px; color: var(--text-muted); }
+    .post-list-item {
+      background: var(--bg-secondary); border-radius: 10px;
+      padding: 14px 16px; margin-bottom: 10px;
+      border: 1.5px solid var(--border); cursor: pointer;
+      transition: border-color 0.15s;
+    }
+    .post-list-item:hover { border-color: var(--gold); }
+    .post-list-item-title { font-weight: 600; font-size: 14px; margin-bottom: 4px; }
+    .post-list-item-meta { font-size: 12px; color: var(--text-muted); display: flex; gap: 12px; }
+    .post-list-item-status {
+      font-size: 11px; font-weight: 600; padding: 2px 8px;
+      border-radius: 20px; background: var(--gold-light); color: var(--gold-hover);
+    }
+    .post-list-item-status.scheduled { background: #e8f7f2; color: var(--green); }
+
     /* Tag input de hashtags */
     .tag-input-wrap {
       display: flex; flex-wrap: wrap; gap: 6px; align-items: center;
@@ -744,6 +782,7 @@
     <span class="logo">minaue</span>
     <nav class="tabs">
       <button class="tab active" id="tab-btn-calendar" onclick="switchTab('calendar')">Calendário</button>
+      <button class="tab" id="tab-btn-mandalas" onclick="switchTab('mandalas')">Mandalas</button>
       <button class="tab" id="tab-btn-new-post" onclick="switchTab('new-post')">Novo Post</button>
     </nav>
     <button class="settings-btn" onclick="openSettings()" title="Configurações">⚙</button>
@@ -761,6 +800,23 @@
     <div>Dom</div><div>Seg</div><div>Ter</div><div>Qua</div><div>Qui</div><div>Sex</div><div>Sáb</div>
   </div>
   <div class="cal-grid" id="cal-grid"></div>
+</main>
+
+<!-- Mandalas -->
+<main id="tab-mandalas" class="tab-content hidden">
+  <div id="mandalas-grid-view">
+    <div class="mandala-grid" id="mandala-grid"></div>
+  </div>
+  <div id="mandala-detail-view" class="hidden">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px">
+      <button class="cal-nav-btn" onclick="closeMandalaDetail()">&#8592;</button>
+      <div style="display:flex;align-items:center;gap:10px">
+        <img id="detail-thumb" src="" style="width:40px;height:40px;border-radius:8px;object-fit:cover;display:none">
+        <h2 id="detail-mandala-name" style="font-size:18px;font-weight:600"></h2>
+      </div>
+    </div>
+    <div id="detail-posts-list"></div>
+  </div>
 </main>
 
 <!-- Novo Post -->
@@ -785,9 +841,16 @@
             <img id="mandala-thumb-img" src="" alt="" style="display:none">
           </div>
         </div>
-        <div class="field" style="flex:1;margin:0">
-          <label for="video-title">Título / tipo de vídeo</label>
-          <input type="text" id="video-title" placeholder="Ex: Tutorial mandala floral verde…">
+        <div style="flex:1;display:flex;flex-direction:column;gap:8px;margin:0">
+          <div class="field" style="margin:0">
+            <label for="mandala-name">Nome da mandala</label>
+            <input type="text" id="mandala-name" placeholder="Ex: Mandala Verde Floral" list="mandala-suggestions">
+            <datalist id="mandala-suggestions"></datalist>
+          </div>
+          <div class="field" style="margin:0">
+            <label for="video-title">Título / tipo de vídeo</label>
+            <input type="text" id="video-title" placeholder="Ex: Tutorial passo a passo…">
+          </div>
         </div>
       </div>
 
@@ -940,6 +1003,7 @@
     return {
       id: post.id,
       title: post.title || null,
+      mandala_name: post.mandalaName || null,
       scheduled_at: post.scheduledAt || null,
       audio_tiktok: post.audioTiktok || null,
       audio_ig: post.audioIg || null,
@@ -955,6 +1019,7 @@
     return {
       id: row.id,
       title: row.title,
+      mandalaName: row.mandala_name,
       scheduledAt: row.scheduled_at,
       audioTiktok: row.audio_tiktok,
       audioIg: row.audio_ig,
@@ -1006,12 +1071,81 @@
   function switchTab(tab) {
     currentTab = tab;
     document.getElementById('tab-calendar').classList.toggle('hidden', tab !== 'calendar');
+    document.getElementById('tab-mandalas').classList.toggle('hidden', tab !== 'mandalas');
     document.getElementById('tab-new-post').classList.toggle('hidden', tab !== 'new-post');
     document.getElementById('form-footer').classList.toggle('hidden', tab !== 'new-post');
     document.getElementById('tab-btn-calendar').classList.toggle('active', tab === 'calendar');
+    document.getElementById('tab-btn-mandalas').classList.toggle('active', tab === 'mandalas');
     document.getElementById('tab-btn-new-post').classList.toggle('active', tab === 'new-post');
     if (tab === 'calendar') renderCalendar();
+    if (tab === 'mandalas') renderMandalas();
     if (tab === 'new-post' && !currentEditingId) resetForm();
+  }
+
+  // ---- Aba Mandalas ----
+  async function renderMandalas() {
+    const posts = await getPosts();
+    const byMandala = {};
+    posts.forEach(p => {
+      const key = p.mandalaName || '(sem mandala)';
+      if (!byMandala[key]) byMandala[key] = { name: key, thumb: p.thumb, posts: [] };
+      if (!byMandala[key].thumb && p.thumb) byMandala[key].thumb = p.thumb;
+      byMandala[key].posts.push(p);
+    });
+    const grid = document.getElementById('mandala-grid');
+    grid.innerHTML = '';
+    if (!Object.keys(byMandala).length) {
+      grid.innerHTML = '<p style="color:var(--text-muted);font-size:14px">Nenhum post ainda.</p>';
+      return;
+    }
+    Object.values(byMandala).forEach(m => {
+      const card = document.createElement('div');
+      card.className = 'mandala-card';
+      card.onclick = () => openMandalaDetail(m);
+      card.innerHTML = `
+        <div class="mandala-card-img">
+          ${m.thumb ? `<img src="${m.thumb}" alt="${m.name}">` : '🌸'}
+        </div>
+        <div class="mandala-card-info">
+          <div class="mandala-card-name">${m.name}</div>
+          <div class="mandala-card-count">${m.posts.length} post${m.posts.length !== 1 ? 's' : ''}</div>
+        </div>`;
+      grid.appendChild(card);
+    });
+    // preenche sugestões de autocomplete no form
+    const dl = document.getElementById('mandala-suggestions');
+    if (dl) { dl.innerHTML = Object.keys(byMandala).map(n => `<option value="${n}">`).join(''); }
+  }
+
+  function openMandalaDetail(mandala) {
+    document.getElementById('mandalas-grid-view').classList.add('hidden');
+    document.getElementById('mandala-detail-view').classList.remove('hidden');
+    document.getElementById('detail-mandala-name').textContent = mandala.name;
+    const thumb = document.getElementById('detail-thumb');
+    if (mandala.thumb) { thumb.src = mandala.thumb; thumb.style.display = ''; }
+    else thumb.style.display = 'none';
+    const list = document.getElementById('detail-posts-list');
+    list.innerHTML = '';
+    mandala.posts.forEach(post => {
+      const item = document.createElement('div');
+      item.className = 'post-list-item';
+      item.onclick = () => { editPost(post.id); switchTab('new-post'); };
+      const date = post.scheduledAt ? new Date(post.scheduledAt).toLocaleDateString('pt-BR', { day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit' }) : 'Sem data';
+      const statusLabel = post.status === 'scheduled' ? 'Agendado' : post.status === 'published' ? 'Publicado' : 'Rascunho';
+      const statusClass = post.status === 'scheduled' ? 'scheduled' : '';
+      item.innerHTML = `
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">
+          <div class="post-list-item-title">${post.title || '(sem título)'}</div>
+          <span class="post-list-item-status ${statusClass}">${statusLabel}</span>
+        </div>
+        <div class="post-list-item-meta"><span>📅 ${date}</span></div>`;
+      list.appendChild(item);
+    });
+  }
+
+  function closeMandalaDetail() {
+    document.getElementById('mandala-detail-view').classList.add('hidden');
+    document.getElementById('mandalas-grid-view').classList.remove('hidden');
   }
 
 
@@ -1019,6 +1153,7 @@
   function getFormData() {
     return {
       title:        document.getElementById('video-title').value.trim(),
+      mandalaName:  document.getElementById('mandala-name').value.trim(),
       scheduledAt:  document.getElementById('scheduled-at').value,
       audioTiktok:  document.getElementById('audio-tiktok').value.trim(),
       audioIg:      document.getElementById('audio-instagram').value.trim(),
@@ -1166,6 +1301,7 @@
     if (!post) return;
     currentEditingId = id;
     document.getElementById('video-title').value      = post.title       || '';
+    document.getElementById('mandala-name').value     = post.mandalaName || '';
     document.getElementById('scheduled-at').value     = post.scheduledAt || '';
     document.getElementById('audio-tiktok').value     = post.audioTiktok || '';
     document.getElementById('audio-instagram').value  = post.audioIg     || '';
@@ -1188,6 +1324,7 @@
   function resetForm() {
     currentEditingId = null;
     document.getElementById('video-title').value      = '';
+    document.getElementById('mandala-name').value     = '';
     document.getElementById('scheduled-at').value     = '';
     document.getElementById('audio-tiktok').value     = '';
     document.getElementById('audio-instagram').value  = '';
@@ -1203,7 +1340,6 @@
     document.getElementById('editing-banner').classList.add('hidden');
     loadThumb(null);
     currentThumbBase64 = null;
-    loadCover(null);
     clearMsg();
   }
 
@@ -1262,15 +1398,12 @@
         const dayPosts = posts.filter(p => p.scheduledAt && p.scheduledAt.startsWith(dayStr));
         dayPosts.forEach(post => {
           const timeStr = post.scheduledAt.slice(11, 16);
-          (post.platforms || []).forEach(platform => {
-            const chip = document.createElement('div');
-            chip.className = 'chip' + (post.type === 'story' ? ' story' : '') + (post.status === 'published' ? ' published' : '');
-            chip.dataset.platform = platform;
-            chip.title = `${platform} · ${post.type} · ${timeStr}${post.status === 'draft' ? ' (rascunho)' : post.status === 'published' ? ' (publicado)' : ''}`;
-            chip.innerHTML = `${PLATFORM_ICON[platform] || ''} ${timeStr}`;
-            chip.onclick = () => editPost(post.id);
-            div.appendChild(chip);
-          });
+          const chip = document.createElement('div');
+          chip.className = 'chip' + (post.status === 'published' ? ' published' : '');
+          chip.title = `${post.mandalaName || post.title || 'Post'} · ${timeStr}`;
+          chip.innerHTML = `🌸 ${timeStr}`;
+          chip.onclick = () => editPost(post.id);
+          div.appendChild(chip);
         });
       }
       grid.appendChild(div);
