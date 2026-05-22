@@ -788,25 +788,6 @@
 
     <hr class="divider">
 
-    <!-- Capa -->
-    <div class="form-section">
-      <span class="section-label">Capa do post</span>
-      <input type="file" id="cover-input" accept="image/*" style="display:none" onchange="handleCoverUpload(event)">
-      <div class="cover-upload-area" id="cover-upload-area" onclick="document.getElementById('cover-input').click()">
-        <div class="cover-preview" id="cover-preview">🖼</div>
-        <div class="cover-upload-info">
-          <p>Imagem de capa</p>
-          <small>Aparece no grid do Instagram. Proporção ideal 3:4 (1080×1440px)</small>
-          <div class="cover-actions" onclick="event.stopPropagation()">
-            <button class="cover-btn" onclick="document.getElementById('cover-input').click()">Escolher imagem</button>
-            <button class="cover-btn remove hidden" id="cover-remove-btn" onclick="removeCover()">Remover</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <hr class="divider">
-
     <!-- Legendas -->
     <div class="form-section">
       <span class="section-label">Legendas</span>
@@ -836,6 +817,15 @@
         </div>
         <textarea id="caption-pinterest" rows="4" placeholder="Legenda para o Pinterest…"></textarea>
         <textarea id="hashtag-pinterest" rows="2" placeholder="#mandalaart #watercolor …" style="margin-top:6px;font-size:12px"></textarea>
+      </div>
+
+      <div class="platform-caption-block">
+        <div class="platform-caption-header">
+          <span>▶ YouTube Shorts</span>
+          <button type="button" class="copy-caption-btn" onclick="copyPlatformCaption('youtube')">Copiar</button>
+        </div>
+        <textarea id="caption-youtube" rows="4" placeholder="Legenda para o YouTube…"></textarea>
+        <textarea id="hashtag-youtube" rows="2" placeholder="#mandala #shorts …" style="margin-top:6px;font-size:12px"></textarea>
       </div>
     </div>
 
@@ -902,7 +892,6 @@
   let calYear = new Date().getFullYear();
   let calMonth = new Date().getMonth();
   let currentEditingId = null;
-  let currentCoverBase64 = null;
   let currentThumbBase64 = null;
   let _supabaseClient = null;
 
@@ -923,11 +912,12 @@
   function postToDb(post) {
     return {
       id: post.id,
-      video_link: post.videoLink || null,
-      type: post.type || 'feed',
-      platforms: post.platforms || [],
+      title: post.title || null,
       scheduled_at: post.scheduledAt || null,
-      cover: post.cover || null,
+      audio_tiktok: post.audioTiktok || null,
+      audio_ig: post.audioIg || null,
+      notes_taina: post.notesTaina || null,
+      thumb: post.thumb || null,
       captions: post.captions || {},
       hashtags: post.hashtags || {},
       status: post.status || 'draft'
@@ -937,11 +927,12 @@
   function dbToPost(row) {
     return {
       id: row.id,
-      videoLink: row.video_link,
-      type: row.type,
-      platforms: row.platforms || [],
+      title: row.title,
       scheduledAt: row.scheduled_at,
-      cover: row.cover,
+      audioTiktok: row.audio_tiktok,
+      audioIg: row.audio_ig,
+      notesTaina: row.notes_taina,
+      thumb: row.thumb,
       captions: row.captions || {},
       hashtags: row.hashtags || {},
       status: row.status
@@ -1006,16 +997,17 @@
       audioIg:      document.getElementById('audio-instagram').value.trim(),
       notesTaina:   document.getElementById('notes-taina').value.trim(),
       thumb:        currentThumbBase64,
-      cover:        currentCoverBase64,
       captions: {
         instagram: document.getElementById('caption-instagram').value,
         tiktok:    document.getElementById('caption-tiktok').value,
         pinterest: document.getElementById('caption-pinterest').value,
+        youtube:   document.getElementById('caption-youtube').value,
       },
       hashtags: {
         instagram: document.getElementById('hashtag-instagram').value,
         tiktok:    document.getElementById('hashtag-tiktok').value,
         pinterest: document.getElementById('hashtag-pinterest').value,
+        youtube:   document.getElementById('hashtag-youtube').value,
       }
     };
   }
@@ -1072,34 +1064,6 @@
     event.target.value = '';
   }
 
-  // ---- Capa ----
-  function handleCoverUpload(event) {
-    const file = event.target.files[0];
-    if (!file) return;
-    if (file.size > 5 * 1024 * 1024) { showMsg('Imagem muito grande — use até 5MB.', 'error'); return; }
-    const reader = new FileReader();
-    reader.onload = (e) => loadCover(e.target.result);
-    reader.readAsDataURL(file);
-    event.target.value = '';
-  }
-
-  function loadCover(base64) {
-    currentCoverBase64 = base64;
-    const preview  = document.getElementById('cover-preview');
-    const area     = document.getElementById('cover-upload-area');
-    const removeBtn = document.getElementById('cover-remove-btn');
-    if (base64) {
-      preview.innerHTML = `<img src="${base64}" alt="Capa">`;
-      area.classList.add('has-image');
-      removeBtn.classList.remove('hidden');
-    } else {
-      preview.innerHTML = '🖼';
-      area.classList.remove('has-image');
-      removeBtn.classList.add('hidden');
-    }
-  }
-
-  function removeCover() { loadCover(null); }
 
   function loadThumb(base64) {
     currentThumbBase64 = base64;
@@ -1123,14 +1087,15 @@
     document.getElementById('audio-tiktok').value     = post.audioTiktok || '';
     document.getElementById('audio-instagram').value  = post.audioIg     || '';
     document.getElementById('notes-taina').value      = post.notesTaina  || '';
-    document.getElementById('caption-instagram').value = post.captions?.instagram || post.captions?.pt || '';
+    document.getElementById('caption-instagram').value = post.captions?.instagram || '';
     document.getElementById('caption-tiktok').value    = post.captions?.tiktok    || '';
     document.getElementById('caption-pinterest').value = post.captions?.pinterest || '';
+    document.getElementById('caption-youtube').value   = post.captions?.youtube   || '';
     document.getElementById('hashtag-instagram').value = post.hashtags?.instagram || '';
     document.getElementById('hashtag-tiktok').value    = post.hashtags?.tiktok    || '';
     document.getElementById('hashtag-pinterest').value = post.hashtags?.pinterest || '';
+    document.getElementById('hashtag-youtube').value   = post.hashtags?.youtube   || '';
     loadThumb(post.thumb || null);
-    loadCover(post.cover || null);
     document.getElementById('editing-banner').classList.remove('hidden');
     switchTab('new-post');
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -1147,11 +1112,14 @@
     document.getElementById('caption-instagram').value = '';
     document.getElementById('caption-tiktok').value    = '';
     document.getElementById('caption-pinterest').value = '';
+    document.getElementById('caption-youtube').value   = '';
     document.getElementById('hashtag-instagram').value = '';
     document.getElementById('hashtag-tiktok').value    = '';
     document.getElementById('hashtag-pinterest').value = '';
+    document.getElementById('hashtag-youtube').value   = '';
     document.getElementById('editing-banner').classList.add('hidden');
     loadThumb(null);
+    currentThumbBase64 = null;
     loadCover(null);
     clearMsg();
   }
