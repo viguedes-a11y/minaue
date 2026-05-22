@@ -584,6 +584,79 @@
     }
     .empty-state p { font-size: 15px; margin-bottom: 8px; }
     .empty-state small { font-size: 13px; }
+
+    /* Instagram Preview Modal */
+    .preview-modal-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.7);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 2000; padding: 16px;
+    }
+    .preview-modal-overlay.hidden { display: none; }
+    .ig-preview-wrapper {
+      background: #fff; border-radius: 12px; overflow: hidden;
+      width: 100%; max-width: 380px; max-height: 90vh;
+      overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+    }
+    .ig-preview-close {
+      position: absolute; top: 12px; right: 16px;
+      background: none; border: none; font-size: 24px;
+      cursor: pointer; color: #fff; font-weight: bold;
+      text-shadow: 0 1px 4px rgba(0,0,0,0.5);
+    }
+    .ig-card {
+      font-family: -apple-system, 'Segoe UI', sans-serif;
+      font-size: 14px; color: #000; background: #fff;
+    }
+    .ig-header {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 12px;
+    }
+    .ig-avatar {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: linear-gradient(135deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px; flex-shrink: 0;
+    }
+    .ig-username { font-weight: 600; font-size: 13px; }
+    .ig-location { font-size: 11px; color: #737373; }
+    .ig-more { margin-left: auto; font-size: 18px; color: #000; }
+    .ig-image {
+      width: 100%; aspect-ratio: 4/5; background: #f0e8d8;
+      display: flex; align-items: center; justify-content: center;
+      overflow: hidden; position: relative;
+    }
+    .ig-image img { width: 100%; height: 100%; object-fit: cover; }
+    .ig-image-placeholder {
+      color: #c9a84c; font-size: 48px; opacity: 0.5;
+    }
+    .ig-actions {
+      display: flex; gap: 14px; padding: 10px 12px 6px;
+      align-items: center;
+    }
+    .ig-action-icon { font-size: 22px; cursor: pointer; }
+    .ig-save-icon { margin-left: auto; }
+    .ig-likes { padding: 0 12px 4px; font-weight: 600; font-size: 13px; }
+    .ig-caption {
+      padding: 0 12px 10px;
+      font-size: 13px; line-height: 1.4;
+      max-height: 120px; overflow-y: auto;
+      white-space: pre-wrap; word-break: break-word;
+    }
+    .ig-caption-username { font-weight: 600; margin-right: 4px; }
+    .ig-hashtags { color: #003569; }
+    .ig-timestamp {
+      padding: 0 12px 12px;
+      font-size: 10px; color: #737373; text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+    .preview-btn {
+      background: none; border: 1.5px solid var(--border);
+      border-radius: 8px; padding: 8px 16px;
+      font-size: 13px; cursor: pointer; color: var(--text);
+      display: flex; align-items: center; gap: 6px;
+      transition: border-color 0.15s;
+    }
+    .preview-btn:hover { border-color: var(--instagram); color: var(--instagram); }
   </style>
 </head>
 <body>
@@ -755,6 +828,14 @@
       </div>
     </div>
 
+    <!-- Preview Instagram -->
+    <div class="form-section" id="preview-section" style="display:none">
+      <span class="section-label">Preview</span>
+      <button type="button" class="preview-btn" onclick="openPreview()">
+        👁 Ver como vai ficar no Instagram
+      </button>
+    </div>
+
     <div id="form-message" class="form-message hidden"></div>
 
   </form>
@@ -764,6 +845,39 @@
 <div class="form-footer hidden" id="form-footer">
   <button class="btn btn-secondary" onclick="saveDraft()">Salvar rascunho</button>
   <button class="btn btn-primary" id="save-btn" onclick="saveScheduled()">Salvar</button>
+</div>
+
+<!-- Modal Preview Instagram -->
+<div class="preview-modal-overlay hidden" id="preview-modal" onclick="closePreview(event)">
+  <button class="ig-preview-close" onclick="document.getElementById('preview-modal').classList.add('hidden')">×</button>
+  <div class="ig-preview-wrapper">
+    <div class="ig-card">
+      <div class="ig-header">
+        <div class="ig-avatar">🌸</div>
+        <div>
+          <div class="ig-username">minaue.art</div>
+          <div class="ig-location" id="preview-location"></div>
+        </div>
+        <div class="ig-more">···</div>
+      </div>
+      <div class="ig-image">
+        <img id="preview-image" src="" alt="" style="display:none">
+        <div class="ig-image-placeholder" id="preview-placeholder">🌸</div>
+      </div>
+      <div class="ig-actions">
+        <span class="ig-action-icon">🤍</span>
+        <span class="ig-action-icon">💬</span>
+        <span class="ig-action-icon">✈️</span>
+        <span class="ig-action-icon ig-save-icon">🔖</span>
+      </div>
+      <div class="ig-likes">1.234 curtidas</div>
+      <div class="ig-caption">
+        <span class="ig-caption-username">minaue.art</span><span id="preview-caption"></span>
+        <span class="ig-hashtags" id="preview-hashtags"></span>
+      </div>
+      <div class="ig-timestamp">agora mesmo</div>
+    </div>
+  </div>
 </div>
 
 <!-- Modal de configurações -->
@@ -957,12 +1071,41 @@
   function updatePublishSection() {
     const hasAny = activePlatforms.length > 0;
     document.getElementById('publish-section').style.display = hasAny ? '' : 'none';
+    document.getElementById('preview-section').style.display = activePlatforms.includes('instagram') ? '' : 'none';
 
     const hasOthers = ['tiktok', 'pinterest', 'youtube'].some(p => activePlatforms.includes(p));
     document.getElementById('reminders-box').style.display = hasOthers ? '' : 'none';
     document.getElementById('reminder-tiktok').style.display    = activePlatforms.includes('tiktok')    ? '' : 'none';
     document.getElementById('reminder-pinterest').style.display = activePlatforms.includes('pinterest') ? '' : 'none';
     document.getElementById('reminder-youtube').style.display   = activePlatforms.includes('youtube')   ? '' : 'none';
+  }
+
+  // ---- Preview Instagram ----
+  function openPreview() {
+    const data = getFormData();
+    const caption = (data.captions && (data.captions.pt || Object.values(data.captions)[0])) || '';
+    const hashtags = (data.hashtags && data.hashtags.instagram) || '';
+
+    const img = document.getElementById('preview-image');
+    const placeholder = document.getElementById('preview-placeholder');
+    if (currentCoverBase64) {
+      img.src = currentCoverBase64;
+      img.style.display = '';
+      placeholder.style.display = 'none';
+    } else {
+      img.style.display = 'none';
+      placeholder.style.display = '';
+    }
+
+    document.getElementById('preview-caption').textContent = caption ? ' ' + caption : '';
+    document.getElementById('preview-hashtags').textContent = hashtags ? '\n' + hashtags : '';
+    document.getElementById('preview-modal').classList.remove('hidden');
+  }
+
+  function closePreview(event) {
+    if (event.target === document.getElementById('preview-modal')) {
+      document.getElementById('preview-modal').classList.add('hidden');
+    }
   }
 
   // ---- Dados do formulário ----
