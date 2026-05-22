@@ -585,6 +585,29 @@
     .empty-state p { font-size: 15px; margin-bottom: 8px; }
     .empty-state small { font-size: 13px; }
 
+    /* Blocos de legenda por plataforma */
+    .platform-caption-block {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 14px;
+      margin-bottom: 12px;
+      background: var(--bg-secondary);
+    }
+    .platform-caption-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 8px;
+      font-weight: 600; font-size: 13px;
+    }
+    .platform-caption-header .copy-caption-btn {
+      font-size: 12px; padding: 4px 12px;
+    }
+    .platform-caption-block textarea {
+      width: 100%; border: 1px solid var(--border);
+      border-radius: 6px; padding: 8px 10px;
+      font-size: 13px; font-family: inherit;
+      background: #fff; resize: vertical;
+    }
+
     /* Instagram Preview Modal */
     .preview-modal-overlay {
       position: fixed; inset: 0; background: rgba(0,0,0,0.7);
@@ -761,72 +784,47 @@
 
     <hr class="divider">
 
-    <!-- Legendas -->
-    <div class="form-section">
+    <!-- Legendas por plataforma -->
+    <div class="form-section" id="captions-section" style="display:none">
       <span class="section-label">Legendas</span>
-      <div class="field">
-        <label>🇧🇷 Legenda em português</label>
-        <textarea id="caption-pt" rows="4" placeholder="Escreva sua legenda aqui…"></textarea>
-      </div>
-      <div class="field">
-        <label>🇺🇸 Legenda em inglês</label>
-        <textarea id="caption-en" rows="4" placeholder="Cole a tradução em inglês…"></textarea>
-      </div>
-      <div class="field">
-        <label>🇪🇸 Legenda em espanhol</label>
-        <textarea id="caption-es" rows="4" placeholder="Cole a tradução em espanhol…"></textarea>
-      </div>
-    </div>
 
-    <!-- Hashtags -->
-    <div class="form-section" id="hashtags-section" style="display:none">
-      <hr class="divider" style="margin-bottom:0">
-      <span class="section-label">Hashtags</span>
-      <div class="field" id="hashtags-instagram" style="display:none">
-        <label>📷 Hashtags Instagram</label>
-        <textarea id="hashtag-instagram" rows="3" placeholder="#mandala #arte …"></textarea>
-      </div>
-      <div class="field" id="hashtags-tiktok" style="display:none">
-        <label>🎵 Hashtags TikTok</label>
-        <textarea id="hashtag-tiktok" rows="3" placeholder="#mandala #fyp …"></textarea>
-      </div>
-      <div class="field" id="hashtags-pinterest" style="display:none">
-        <label>📌 Hashtags Pinterest</label>
-        <textarea id="hashtag-pinterest" rows="3" placeholder="#mandalaart #watercolor …"></textarea>
-      </div>
-      <div class="field" id="hashtags-youtube" style="display:none">
-        <label>▶ Hashtags YouTube</label>
-        <textarea id="hashtag-youtube" rows="3" placeholder="#mandala #shorts …"></textarea>
-      </div>
-    </div>
-
-    <hr class="divider">
-
-    <!-- Publicar -->
-    <div class="form-section" id="publish-section" style="display:none">
-      <span class="section-label">Publicar</span>
-      <div class="publish-panel">
-        <h4>Publicar agora</h4>
-
-        <div id="reminders-box" style="display:none">
-          <div class="reminder-box" id="reminder-tiktok" style="display:none">
-            <strong>🎵 TikTok — hora de postar!</strong>
-            <span style="font-size:12px">Abra o TikTok, cole a legenda abaixo e publique o vídeo manualmente.</span>
-            <button class="copy-caption-btn" onclick="copyCaption('tiktok')">Copiar legenda TikTok</button>
-          </div>
-          <div class="reminder-box" id="reminder-pinterest" style="display:none">
-            <strong>📌 Pinterest — hora de postar!</strong>
-            <span style="font-size:12px">Acesse o Pinterest, cole a legenda abaixo e publique o pin manualmente.</span>
-            <button class="copy-caption-btn" onclick="copyCaption('pinterest')">Copiar legenda Pinterest</button>
-          </div>
-          <div class="reminder-box" id="reminder-youtube" style="display:none">
-            <strong>▶ YouTube Shorts — hora de postar!</strong>
-            <span style="font-size:12px">Acesse o YouTube Studio, cole a legenda abaixo e publique o Short manualmente.</span>
-            <button class="copy-caption-btn" onclick="copyCaption('youtube')">Copiar legenda YouTube</button>
-          </div>
+      <div class="platform-caption-block" id="caption-block-instagram" style="display:none">
+        <div class="platform-caption-header">
+          <span>📷 Instagram</span>
+          <button type="button" class="copy-caption-btn" onclick="copyPlatformCaption('instagram')">Copiar</button>
         </div>
+        <textarea id="caption-instagram" rows="4" placeholder="Legenda para o Instagram…"></textarea>
+        <textarea id="hashtag-instagram" rows="2" placeholder="#mandala #arte …" style="margin-top:6px;font-size:12px"></textarea>
+      </div>
+
+      <div class="platform-caption-block" id="caption-block-tiktok" style="display:none">
+        <div class="platform-caption-header">
+          <span>🎵 TikTok</span>
+          <button type="button" class="copy-caption-btn" onclick="copyPlatformCaption('tiktok')">Copiar</button>
+        </div>
+        <textarea id="caption-tiktok" rows="4" placeholder="Legenda para o TikTok…"></textarea>
+        <textarea id="hashtag-tiktok" rows="2" placeholder="#mandala #fyp …" style="margin-top:6px;font-size:12px"></textarea>
+      </div>
+
+      <div class="platform-caption-block" id="caption-block-pinterest" style="display:none">
+        <div class="platform-caption-header">
+          <span>📌 Pinterest</span>
+          <button type="button" class="copy-caption-btn" onclick="copyPlatformCaption('pinterest')">Copiar</button>
+        </div>
+        <textarea id="caption-pinterest" rows="4" placeholder="Legenda para o Pinterest…"></textarea>
+        <textarea id="hashtag-pinterest" rows="2" placeholder="#mandalaart #watercolor …" style="margin-top:6px;font-size:12px"></textarea>
+      </div>
+
+      <div class="platform-caption-block" id="caption-block-youtube" style="display:none">
+        <div class="platform-caption-header">
+          <span>▶ YouTube Shorts</span>
+          <button type="button" class="copy-caption-btn" onclick="copyPlatformCaption('youtube')">Copiar</button>
+        </div>
+        <textarea id="caption-youtube" rows="4" placeholder="Legenda para o YouTube…"></textarea>
+        <textarea id="hashtag-youtube" rows="2" placeholder="#mandala #shorts …" style="margin-top:6px;font-size:12px"></textarea>
       </div>
     </div>
+
 
     <!-- Preview Instagram -->
     <div class="form-section" id="preview-section" style="display:none">
@@ -1070,20 +1068,19 @@
 
   function updatePublishSection() {
     const hasAny = activePlatforms.length > 0;
-    document.getElementById('publish-section').style.display = hasAny ? '' : 'none';
+    document.getElementById('captions-section').style.display = hasAny ? '' : 'none';
     document.getElementById('preview-section').style.display = activePlatforms.includes('instagram') ? '' : 'none';
 
-    const hasOthers = ['tiktok', 'pinterest', 'youtube'].some(p => activePlatforms.includes(p));
-    document.getElementById('reminders-box').style.display = hasOthers ? '' : 'none';
-    document.getElementById('reminder-tiktok').style.display    = activePlatforms.includes('tiktok')    ? '' : 'none';
-    document.getElementById('reminder-pinterest').style.display = activePlatforms.includes('pinterest') ? '' : 'none';
-    document.getElementById('reminder-youtube').style.display   = activePlatforms.includes('youtube')   ? '' : 'none';
+    ['instagram', 'tiktok', 'pinterest', 'youtube'].forEach(p => {
+      const block = document.getElementById('caption-block-' + p);
+      if (block) block.style.display = activePlatforms.includes(p) ? '' : 'none';
+    });
   }
 
   // ---- Preview Instagram ----
   function openPreview() {
     const data = getFormData();
-    const caption = (data.captions && (data.captions.pt || Object.values(data.captions)[0])) || '';
+    const caption = (data.captions && data.captions.instagram) || '';
     const hashtags = (data.hashtags && data.hashtags.instagram) || '';
 
     const img = document.getElementById('preview-image');
@@ -1118,9 +1115,10 @@
       scheduledAt: document.getElementById('scheduled-at').value,
       cover:       currentCoverBase64,
       captions: {
-        pt: document.getElementById('caption-pt').value,
-        en: document.getElementById('caption-en').value,
-        es: document.getElementById('caption-es').value,
+        instagram: document.getElementById('caption-instagram').value,
+        tiktok:    document.getElementById('caption-tiktok').value,
+        pinterest: document.getElementById('caption-pinterest').value,
+        youtube:   document.getElementById('caption-youtube').value,
       },
       hashtags: {
         instagram: document.getElementById('hashtag-instagram').value,
@@ -1154,19 +1152,17 @@
   }
 
   function buildCaption(data, platform) {
-    const lang = platform === 'instagram' ? 'pt' : 'pt';
-    const caption = data.captions[lang] || data.captions.pt || '';
+    const caption = data.captions[platform] || '';
     const hashtags = data.hashtags[platform] || '';
     return caption + (hashtags ? '\n\n' + hashtags : '');
   }
 
-  // ---- Copiar legenda (para plataformas manuais) ----
-  function copyCaption(platform) {
+  function copyPlatformCaption(platform) {
     const data = getFormData();
     const text = buildCaption(data, platform);
     if (!text) { showMsg('Escreve a legenda antes de copiar.', 'error'); return; }
     navigator.clipboard.writeText(text).then(() => {
-      showMsg(`Legenda ${platform} copiada!`, 'success');
+      showMsg('Legenda copiada!', 'success');
     });
   }
 
@@ -1207,9 +1203,10 @@
     currentEditingId = id;
     document.getElementById('video-link').value   = post.videoLink || '';
     document.getElementById('scheduled-at').value = post.scheduledAt || '';
-    document.getElementById('caption-pt').value   = post.captions?.pt || '';
-    document.getElementById('caption-en').value   = post.captions?.en || '';
-    document.getElementById('caption-es').value   = post.captions?.es || '';
+    document.getElementById('caption-instagram').value = post.captions?.instagram || post.captions?.pt || '';
+    document.getElementById('caption-tiktok').value    = post.captions?.tiktok    || '';
+    document.getElementById('caption-pinterest').value = post.captions?.pinterest || '';
+    document.getElementById('caption-youtube').value   = post.captions?.youtube   || '';
     document.getElementById('hashtag-instagram').value = post.hashtags?.instagram || '';
     document.getElementById('hashtag-tiktok').value    = post.hashtags?.tiktok    || '';
     document.getElementById('hashtag-pinterest').value = post.hashtags?.pinterest || '';
@@ -1229,9 +1226,10 @@
     currentEditingId = null;
     document.getElementById('video-link').value = '';
     document.getElementById('scheduled-at').value = '';
-    document.getElementById('caption-pt').value = '';
-    document.getElementById('caption-en').value = '';
-    document.getElementById('caption-es').value = '';
+    document.getElementById('caption-instagram').value = '';
+    document.getElementById('caption-tiktok').value    = '';
+    document.getElementById('caption-pinterest').value = '';
+    document.getElementById('caption-youtube').value   = '';
     document.getElementById('hashtag-instagram').value = '';
     document.getElementById('hashtag-tiktok').value    = '';
     document.getElementById('hashtag-pinterest').value = '';
