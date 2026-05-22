@@ -718,62 +718,48 @@
 
   <form class="post-form" id="post-form" onsubmit="return false">
 
-    <!-- Plataformas -->
+    <!-- Briefing -->
     <div class="form-section">
-      <span class="section-label">Plataformas</span>
-      <div class="platform-toggles">
-        <button type="button" class="platform-btn" data-platform="instagram" onclick="togglePlatform('instagram')">📷 Instagram</button>
-        <button type="button" class="platform-btn" data-platform="tiktok"    onclick="togglePlatform('tiktok')">🎵 TikTok</button>
-        <button type="button" class="platform-btn" data-platform="pinterest" onclick="togglePlatform('pinterest')">📌 Pinterest</button>
-        <button type="button" class="platform-btn" data-platform="youtube"   onclick="togglePlatform('youtube')">▶ YouTube Shorts</button>
+      <span class="section-label">Briefing</span>
+
+      <div class="field">
+        <label for="video-title">Título / tipo de vídeo</label>
+        <input type="text" id="video-title" placeholder="Ex: Tutorial mandala floral verde…">
       </div>
-    </div>
 
-    <hr class="divider">
-
-    <!-- Tipo -->
-    <div class="form-section">
-      <span class="section-label">Tipo de conteúdo</span>
-      <div class="type-options">
-        <div class="type-radio">
-          <input type="radio" name="postType" id="type-feed" value="feed" checked>
-          <label for="type-feed">Feed / Reel / Short</label>
-        </div>
-        <div class="type-radio" id="story-option" style="display:none">
-          <input type="radio" name="postType" id="type-story" value="story">
-          <label for="type-story">Story</label>
-        </div>
+      <div class="field">
+        <label for="scheduled-at">Data e horário de publicação</label>
+        <input type="datetime-local" id="scheduled-at">
       </div>
-    </div>
 
-    <hr class="divider">
-
-    <!-- Detalhes -->
-    <div class="form-section">
-      <span class="section-label">Detalhes</span>
       <div class="grid-2">
         <div class="field">
-          <label for="video-link">Link do vídeo (Google Drive)</label>
-          <input type="url" id="video-link" placeholder="https://drive.google.com/...">
+          <label for="audio-tiktok">🎵 Link do áudio TikTok</label>
+          <input type="url" id="audio-tiktok" placeholder="https://www.tiktok.com/music/…">
         </div>
         <div class="field">
-          <label for="scheduled-at">Data e horário</label>
-          <input type="datetime-local" id="scheduled-at">
+          <label for="audio-instagram">📷 Link do áudio Instagram</label>
+          <input type="url" id="audio-instagram" placeholder="https://www.instagram.com/reels/audio/…">
         </div>
+      </div>
+
+      <div class="field">
+        <label for="notes-taina">📝 Observações para a Tainá</label>
+        <textarea id="notes-taina" rows="3" placeholder="Ex: Começa com close nas pétalas, termina com a mandala completa. Edita nas batidas do áudio."></textarea>
       </div>
     </div>
 
     <hr class="divider">
 
-    <!-- Capa -->
+    <!-- Foto de referência -->
     <div class="form-section">
-      <span class="section-label">Capa do vídeo</span>
+      <span class="section-label">Foto de referência</span>
       <input type="file" id="cover-input" accept="image/*" style="display:none" onchange="handleCoverUpload(event)">
       <div class="cover-upload-area" id="cover-upload-area" onclick="document.getElementById('cover-input').click()">
         <div class="cover-preview" id="cover-preview">🖼</div>
         <div class="cover-upload-info">
-          <p>Imagem de capa</p>
-          <small>Proporção ideal: 3:4 (1080×1440px)<br>Formatos: JPG, PNG<br>Esta imagem aparecerá no grid do perfil</small>
+          <p>Print do vídeo ou foto da mandala</p>
+          <small>Serve pra Tainá identificar qual vídeo é e também será a capa do post no Instagram</small>
           <div class="cover-actions" onclick="event.stopPropagation()">
             <button class="cover-btn" onclick="document.getElementById('cover-input').click()">Escolher imagem</button>
             <button class="cover-btn remove hidden" id="cover-remove-btn" onclick="removeCover()">Remover</button>
@@ -784,11 +770,11 @@
 
     <hr class="divider">
 
-    <!-- Legendas por plataforma -->
-    <div class="form-section" id="captions-section" style="display:none">
+    <!-- Legendas -->
+    <div class="form-section">
       <span class="section-label">Legendas</span>
 
-      <div class="platform-caption-block" id="caption-block-instagram" style="display:none">
+      <div class="platform-caption-block">
         <div class="platform-caption-header">
           <span>📷 Instagram</span>
           <button type="button" class="copy-caption-btn" onclick="copyPlatformCaption('instagram')">Copiar</button>
@@ -797,7 +783,7 @@
         <textarea id="hashtag-instagram" rows="2" placeholder="#mandala #arte …" style="margin-top:6px;font-size:12px"></textarea>
       </div>
 
-      <div class="platform-caption-block" id="caption-block-tiktok" style="display:none">
+      <div class="platform-caption-block">
         <div class="platform-caption-header">
           <span>🎵 TikTok</span>
           <button type="button" class="copy-caption-btn" onclick="copyPlatformCaption('tiktok')">Copiar</button>
@@ -806,7 +792,7 @@
         <textarea id="hashtag-tiktok" rows="2" placeholder="#mandala #fyp …" style="margin-top:6px;font-size:12px"></textarea>
       </div>
 
-      <div class="platform-caption-block" id="caption-block-pinterest" style="display:none">
+      <div class="platform-caption-block">
         <div class="platform-caption-header">
           <span>📌 Pinterest</span>
           <button type="button" class="copy-caption-btn" onclick="copyPlatformCaption('pinterest')">Copiar</button>
@@ -814,20 +800,12 @@
         <textarea id="caption-pinterest" rows="4" placeholder="Legenda para o Pinterest…"></textarea>
         <textarea id="hashtag-pinterest" rows="2" placeholder="#mandalaart #watercolor …" style="margin-top:6px;font-size:12px"></textarea>
       </div>
-
-      <div class="platform-caption-block" id="caption-block-youtube" style="display:none">
-        <div class="platform-caption-header">
-          <span>▶ YouTube Shorts</span>
-          <button type="button" class="copy-caption-btn" onclick="copyPlatformCaption('youtube')">Copiar</button>
-        </div>
-        <textarea id="caption-youtube" rows="4" placeholder="Legenda para o YouTube…"></textarea>
-        <textarea id="hashtag-youtube" rows="2" placeholder="#mandala #shorts …" style="margin-top:6px;font-size:12px"></textarea>
-      </div>
     </div>
 
+    <hr class="divider">
 
-    <!-- Preview Instagram -->
-    <div class="form-section" id="preview-section" style="display:none">
+    <!-- Preview -->
+    <div class="form-section">
       <span class="section-label">Preview</span>
       <button type="button" class="preview-btn" onclick="openPreview()">
         👁 Ver como vai ficar no Instagram
@@ -929,7 +907,6 @@
   let currentTab = 'calendar';
   let calYear = new Date().getFullYear();
   let calMonth = new Date().getMonth();
-  let activePlatforms = [];
   let currentEditingId = null;
   let currentCoverBase64 = null;
   let _supabaseClient = null;
@@ -1024,58 +1001,6 @@
     if (tab === 'new-post' && !currentEditingId) resetForm();
   }
 
-  // ---- Plataformas ----
-  function togglePlatform(platform) {
-    const btn = document.querySelector(`.platform-btn[data-platform="${platform}"]`);
-    const idx = activePlatforms.indexOf(platform);
-    if (idx === -1) { activePlatforms.push(platform); btn.classList.add('active'); }
-    else { activePlatforms.splice(idx, 1); btn.classList.remove('active'); }
-    updateStoryOption();
-    updateHashtagSections();
-    updatePublishSection();
-  }
-
-  function setActivePlatforms(platforms) {
-    activePlatforms = [];
-    document.querySelectorAll('.platform-btn').forEach(b => b.classList.remove('active'));
-    (platforms || []).forEach(p => {
-      activePlatforms.push(p);
-      const btn = document.querySelector(`.platform-btn[data-platform="${p}"]`);
-      if (btn) btn.classList.add('active');
-    });
-    updateStoryOption();
-    updateHashtagSections();
-    updatePublishSection();
-  }
-
-  function updateStoryOption() {
-    const hasInstagram = activePlatforms.includes('instagram');
-    document.getElementById('story-option').style.display = hasInstagram ? '' : 'none';
-    if (!hasInstagram) document.getElementById('type-feed').checked = true;
-  }
-
-  function updateHashtagSections() {
-    const platforms = ['instagram', 'tiktok', 'pinterest', 'youtube'];
-    let anyActive = false;
-    platforms.forEach(p => {
-      const el = document.getElementById(`hashtags-${p}`);
-      const active = activePlatforms.includes(p);
-      if (el) el.style.display = active ? '' : 'none';
-      if (active) anyActive = true;
-    });
-    document.getElementById('hashtags-section').style.display = anyActive ? '' : 'none';
-  }
-
-  function updatePublishSection() {
-    const hasAny = activePlatforms.length > 0;
-    document.getElementById('captions-section').style.display = hasAny ? '' : 'none';
-    document.getElementById('preview-section').style.display = activePlatforms.includes('instagram') ? '' : 'none';
-
-    ['instagram', 'tiktok', 'pinterest', 'youtube'].forEach(p => {
-      const block = document.getElementById('caption-block-' + p);
-      if (block) block.style.display = activePlatforms.includes(p) ? '' : 'none';
-    });
-  }
 
   // ---- Preview Instagram ----
   function openPreview() {
@@ -1107,24 +1032,22 @@
 
   // ---- Dados do formulário ----
   function getFormData() {
-    const typeEl = document.querySelector('input[name="postType"]:checked');
     return {
-      videoLink:   document.getElementById('video-link').value.trim(),
-      type:        typeEl ? typeEl.value : 'feed',
-      platforms:   [...activePlatforms],
-      scheduledAt: document.getElementById('scheduled-at').value,
-      cover:       currentCoverBase64,
+      title:        document.getElementById('video-title').value.trim(),
+      scheduledAt:  document.getElementById('scheduled-at').value,
+      audioTiktok:  document.getElementById('audio-tiktok').value.trim(),
+      audioIg:      document.getElementById('audio-instagram').value.trim(),
+      notesTaina:   document.getElementById('notes-taina').value.trim(),
+      cover:        currentCoverBase64,
       captions: {
         instagram: document.getElementById('caption-instagram').value,
         tiktok:    document.getElementById('caption-tiktok').value,
         pinterest: document.getElementById('caption-pinterest').value,
-        youtube:   document.getElementById('caption-youtube').value,
       },
       hashtags: {
         instagram: document.getElementById('hashtag-instagram').value,
         tiktok:    document.getElementById('hashtag-tiktok').value,
         pinterest: document.getElementById('hashtag-pinterest').value,
-        youtube:   document.getElementById('hashtag-youtube').value,
       }
     };
   }
@@ -1201,20 +1124,17 @@
     const post = posts.find(p => p.id === id);
     if (!post) return;
     currentEditingId = id;
-    document.getElementById('video-link').value   = post.videoLink || '';
-    document.getElementById('scheduled-at').value = post.scheduledAt || '';
+    document.getElementById('video-title').value      = post.title       || '';
+    document.getElementById('scheduled-at').value     = post.scheduledAt || '';
+    document.getElementById('audio-tiktok').value     = post.audioTiktok || '';
+    document.getElementById('audio-instagram').value  = post.audioIg     || '';
+    document.getElementById('notes-taina').value      = post.notesTaina  || '';
     document.getElementById('caption-instagram').value = post.captions?.instagram || post.captions?.pt || '';
     document.getElementById('caption-tiktok').value    = post.captions?.tiktok    || '';
     document.getElementById('caption-pinterest').value = post.captions?.pinterest || '';
-    document.getElementById('caption-youtube').value   = post.captions?.youtube   || '';
     document.getElementById('hashtag-instagram').value = post.hashtags?.instagram || '';
     document.getElementById('hashtag-tiktok').value    = post.hashtags?.tiktok    || '';
     document.getElementById('hashtag-pinterest').value = post.hashtags?.pinterest || '';
-    document.getElementById('hashtag-youtube').value   = post.hashtags?.youtube   || '';
-    const typeInput = document.getElementById(`type-${post.type}`);
-    if (typeInput) typeInput.checked = true;
-    else document.getElementById('type-feed').checked = true;
-    setActivePlatforms(post.platforms || []);
     loadCover(post.cover || null);
     document.getElementById('editing-banner').classList.remove('hidden');
     switchTab('new-post');
@@ -1224,19 +1144,18 @@
   // ---- Reset ----
   function resetForm() {
     currentEditingId = null;
-    document.getElementById('video-link').value = '';
-    document.getElementById('scheduled-at').value = '';
+    document.getElementById('video-title').value      = '';
+    document.getElementById('scheduled-at').value     = '';
+    document.getElementById('audio-tiktok').value     = '';
+    document.getElementById('audio-instagram').value  = '';
+    document.getElementById('notes-taina').value      = '';
     document.getElementById('caption-instagram').value = '';
     document.getElementById('caption-tiktok').value    = '';
     document.getElementById('caption-pinterest').value = '';
-    document.getElementById('caption-youtube').value   = '';
     document.getElementById('hashtag-instagram').value = '';
     document.getElementById('hashtag-tiktok').value    = '';
     document.getElementById('hashtag-pinterest').value = '';
-    document.getElementById('hashtag-youtube').value   = '';
-    document.getElementById('type-feed').checked = true;
     document.getElementById('editing-banner').classList.add('hidden');
-    setActivePlatforms([]);
     loadCover(null);
     clearMsg();
   }
