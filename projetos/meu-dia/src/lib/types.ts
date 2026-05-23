@@ -41,18 +41,18 @@ export interface Project {
   updatedAt: string
 }
 
-// Paleta de cores para novos projetos
+// Paleta de cores para novos projetos — tons terrosos, apagados, Minaue
 export const PROJECT_COLORS = [
-  '#4ADE80', // verde
-  '#60A5FA', // azul
-  '#F472B6', // rosa
-  '#FB923C', // laranja
-  '#A78BFA', // violeta
-  '#34D399', // esmeralda
-  '#FBBF24', // âmbar
-  '#38BDF8', // céu
-  '#F87171', // vermelho
-  '#86EFAC', // verde claro
+  '#B8886A', // terracota
+  '#7A9E82', // sálvia
+  '#9B8EC0', // lavanda
+  '#7899B8', // azul aço
+  '#C4848C', // rosa apagado
+  '#8BB09A', // verde musgo suave
+  '#B89C5A', // ocre dourado
+  '#6B9BAA', // azul petróleo
+  '#A07860', // cobre
+  '#8A9E78', // verde folha
 ]
 
 export const STATUS_LABELS: Record<ProjectStatus, string> = {

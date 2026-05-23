@@ -5,47 +5,46 @@ const now = new Date().toISOString()
 function p(
   id: string,
   name: string,
-  emoji: string,
   color: string,
   order: number,
   parentId?: string
 ): Project {
-  return { id, name, emoji, color, order, parentId, status: 'em_andamento', createdAt: now, updatedAt: now }
+  return { id, name, color, order, parentId, status: 'em_andamento', createdAt: now, updatedAt: now }
 }
 
 export const SEED_PROJECTS: Project[] = [
   // ── Raiz ──────────────────────────────────────────────────────
-  p('glow-up',      'Glow Up',       '✨', '#F472B6', 0),
-  p('minaue',       'Minaue',        '🌸', '#4ADE80', 1),
-  p('planetazen',   'PlanetaZen',    '🌿', '#A78BFA', 2),
-  p('agentes-ia',   'Agentes de IA', '🤖', '#38BDF8', 3),
-  p('pessoal',      'Pessoal',       '🧡', '#FB923C', 4),
-  p('casa',         'Casa',          '🏠', '#86EFAC', 5),
-  p('financas',     'Finanças',      '💰', '#FBBF24', 6),
+  p('glow-up',      'Glow Up',       '#C4848C', 0),  // rosa apagado
+  p('minaue',       'Minaue',        '#7A9E82', 1),  // sálvia
+  p('planetazen',   'PlanetaZen',    '#9B8EC0', 2),  // lavanda
+  p('agentes-ia',   'Agentes de IA', '#7899B8', 3),  // azul aço
+  p('pessoal',      'Pessoal',       '#B8886A', 4),  // terracota
+  p('casa',         'Casa',          '#8BB09A', 5),  // verde musgo suave
+  p('financas',     'Finanças',      '#B89C5A', 6),  // ocre dourado
 
   // ── Minaue ────────────────────────────────────────────────────
-  p('minaue-pintar',    'Pintar Mandalas',            '🎨', '#4ADE80', 0, 'minaue'),
-  p('minaue-conteudo',  'Conteúdo Redes Sociais',     '📱', '#4ADE80', 1, 'minaue'),
-  p('minaue-curso-pt',  'Curso Português',            '🇧🇷', '#4ADE80', 2, 'minaue'),
-  p('minaue-curso-es',  'Curso — Espanhol',           '🇪🇸', '#4ADE80', 3, 'minaue'),
-  p('minaue-curso-en',  'Curso — Inglês',             '🇬🇧', '#4ADE80', 4, 'minaue'),
-  p('minaue-encomen',   'Encomendas',                 '📦', '#4ADE80', 5, 'minaue'),
-  p('minaue-estrat',    'Estratégia',                 '🎯', '#4ADE80', 6, 'minaue'),
-  p('minaue-sites',     'Sites',                      '🌐', '#4ADE80', 7, 'minaue'),
-  p('minaue-ebook',     'Ebook — Sua Mandala no Mundo','📖', '#4ADE80', 8, 'minaue'),
-  p('minaue-avancado',  'Curso Avançado',             '🚀', '#4ADE80', 9, 'minaue'),
+  p('minaue-pintar',    'Pintar Mandalas',             '#7A9E82', 0, 'minaue'),
+  p('minaue-conteudo',  'Conteúdo Redes Sociais',      '#7A9E82', 1, 'minaue'),
+  p('minaue-curso-pt',  'Curso Português',             '#7A9E82', 2, 'minaue'),
+  p('minaue-curso-es',  'Curso — Espanhol',            '#7A9E82', 3, 'minaue'),
+  p('minaue-curso-en',  'Curso — Inglês',              '#7A9E82', 4, 'minaue'),
+  p('minaue-encomen',   'Encomendas',                  '#7A9E82', 5, 'minaue'),
+  p('minaue-estrat',    'Estratégia',                  '#7A9E82', 6, 'minaue'),
+  p('minaue-sites',     'Sites',                       '#7A9E82', 7, 'minaue'),
+  p('minaue-ebook',     'Ebook — Sua Mandala no Mundo','#7A9E82', 8, 'minaue'),
+  p('minaue-avancado',  'Curso Avançado',              '#7A9E82', 9, 'minaue'),
 
   // ── PlanetaZen ────────────────────────────────────────────────
-  p('zen-producao',  'Produção',        '🏭', '#A78BFA', 0, 'planetazen'),
-  p('zen-novos',     'Novos Produtos',  '🆕', '#A78BFA', 1, 'planetazen'),
-  p('zen-plan',      'Planejamento',    '📋', '#A78BFA', 2, 'planetazen'),
-  p('zen-redes',     'Redes Sociais',   '📱', '#A78BFA', 3, 'planetazen'),
+  p('zen-producao',  'Produção',        '#9B8EC0', 0, 'planetazen'),
+  p('zen-novos',     'Novos Produtos',  '#9B8EC0', 1, 'planetazen'),
+  p('zen-plan',      'Planejamento',    '#9B8EC0', 2, 'planetazen'),
+  p('zen-redes',     'Redes Sociais',   '#9B8EC0', 3, 'planetazen'),
 
   // ── Pessoal ───────────────────────────────────────────────────
-  p('pessoal-europa', 'Projeto Europa', '✈️', '#FB923C', 0, 'pessoal'),
+  p('pessoal-europa', 'Projeto Europa', '#B8886A', 0, 'pessoal'),
 
   // ── Casa ──────────────────────────────────────────────────────
-  p('casa-refeicoes', 'Refeições da Semana', '🍽️', '#86EFAC', 0, 'casa'),
-  p('casa-limpeza',   'Rotinas de Limpeza',  '🧹', '#86EFAC', 1, 'casa'),
-  p('casa-compras',   'Compras',             '🛒', '#86EFAC', 2, 'casa'),
+  p('casa-refeicoes', 'Refeições da Semana', '#8BB09A', 0, 'casa'),
+  p('casa-limpeza',   'Rotinas de Limpeza',  '#8BB09A', 1, 'casa'),
+  p('casa-compras',   'Compras',             '#8BB09A', 2, 'casa'),
 ]

@@ -131,7 +131,7 @@ export const useStore = create<AppState>()(
         }))
       },
     }),
-    { name: 'meu-dia-v2' }
+    { name: 'meu-dia-v3' }
   )
 )
 
