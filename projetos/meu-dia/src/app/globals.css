@@ -4,123 +4,156 @@
 
 @custom-variant dark (&:is(.dark *));
 
-/* ── Design tokens ─────────────────────────────────────────────── */
+/* ── Paleta Minaue ─────────────────────────────────────────────── */
 :root {
-  --bg:          #0F0E0D;
-  --surface:     #161513;
-  --surface-2:   #1D1B19;
-  --border:      #262320;
-  --border-soft: #1D1B19;
-  --text:        #EDE8E3;
-  --text-muted:  #7A7470;
-  --text-faint:  #3D3A38;
-  --radius:      0.5rem;
+  /* Cores base */
+  --cream:      #EDEAE4;
+  --areia:      #D4C9B0;
+  --cimento:    #C8C4BC;
+  --tabaco:     #725637;
+  --musgo:      #3D5040;
+  --grafite:    #282F29;
+  --grafite-2:  #2F3830;
+  --grafite-3:  #353E36;
+  --gold:       #B8A070;
+  --gold-light: #D4BC8C;
+  --warm-white: #FAF8F4;
+
+  /* Tokens de UI */
+  --bg:          var(--grafite);
+  --surface:     var(--grafite-2);
+  --surface-2:   var(--grafite-3);
+  --border:      #3A4439;
+  --border-soft: #323A33;
+  --text:        var(--warm-white);
+  --text-muted:  var(--areia);
+  --text-faint:  #5E6E5F;
+  --accent:      var(--gold);
+  --accent-light:var(--gold-light);
+  --radius:      0.375rem;
 
   /* shadcn compat */
-  --background:           var(--bg);
-  --foreground:           var(--text);
-  --card:                 var(--surface);
-  --card-foreground:      var(--text);
-  --popover:              var(--surface-2);
-  --popover-foreground:   var(--text);
-  --primary:              #EDE8E3;
-  --primary-foreground:   #0F0E0D;
-  --secondary:            var(--surface-2);
-  --secondary-foreground: var(--text);
-  --muted:                var(--surface-2);
-  --muted-foreground:     var(--text-muted);
-  --accent:               var(--surface-2);
-  --accent-foreground:    var(--text);
-  --destructive:          #F87171;
-  --border:               var(--border);
-  --input:                var(--surface-2);
-  --ring:                 #4A4744;
+  --background:            var(--grafite);
+  --foreground:            var(--warm-white);
+  --card:                  var(--grafite-2);
+  --card-foreground:       var(--warm-white);
+  --popover:               var(--grafite-3);
+  --popover-foreground:    var(--warm-white);
+  --primary:               var(--gold-light);
+  --primary-foreground:    var(--grafite);
+  --secondary:             var(--grafite-3);
+  --secondary-foreground:  var(--warm-white);
+  --muted:                 var(--grafite-3);
+  --muted-foreground:      var(--areia);
+  --accent:                var(--grafite-3);
+  --accent-foreground:     var(--warm-white);
+  --destructive:           #C17B7B;
+  --border:                #3A4439;
+  --input:                 var(--grafite-3);
+  --ring:                  var(--gold);
 
-  --radius-sm:   calc(var(--radius) * 0.6);
-  --radius-md:   calc(var(--radius) * 0.8);
-  --radius-lg:   var(--radius);
-  --radius-xl:   calc(var(--radius) * 1.4);
-  --radius-2xl:  calc(var(--radius) * 1.8);
-  --radius-3xl:  calc(var(--radius) * 2.2);
-  --radius-4xl:  calc(var(--radius) * 2.6);
-
-  --font-sans: var(--font-geist), system-ui, sans-serif;
+  --radius-sm:  calc(var(--radius) * 0.6);
+  --radius-md:  calc(var(--radius) * 0.8);
+  --radius-lg:  var(--radius);
+  --radius-xl:  calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
 }
 
 @theme inline {
-  --color-background:        var(--background);
-  --color-foreground:        var(--foreground);
-  --color-card:              var(--card);
-  --color-card-foreground:   var(--card-foreground);
-  --color-popover:           var(--popover);
-  --color-popover-foreground:var(--popover-foreground);
-  --color-primary:           var(--primary);
-  --color-primary-foreground:var(--primary-foreground);
-  --color-secondary:         var(--secondary);
+  --color-background:         var(--background);
+  --color-foreground:         var(--foreground);
+  --color-card:               var(--card);
+  --color-card-foreground:    var(--card-foreground);
+  --color-popover:            var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary:            var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary:          var(--secondary);
   --color-secondary-foreground: var(--secondary-foreground);
-  --color-muted:             var(--muted);
-  --color-muted-foreground:  var(--muted-foreground);
-  --color-accent:            var(--accent);
-  --color-accent-foreground: var(--accent-foreground);
-  --color-destructive:       var(--destructive);
-  --color-border:            var(--border);
-  --color-input:             var(--input);
-  --color-ring:              var(--ring);
-  --font-sans:               var(--font-sans);
-  --font-mono:               var(--font-geist), monospace;
-  --font-heading:            var(--font-sans);
-  --radius-sm:               var(--radius-sm);
-  --radius-md:               var(--radius-md);
-  --radius-lg:               var(--radius-lg);
-  --radius-xl:               var(--radius-xl);
-  --radius-2xl:              var(--radius-2xl);
-  --radius-3xl:              var(--radius-3xl);
-  --radius-4xl:              var(--radius-4xl);
+  --color-muted:              var(--muted);
+  --color-muted-foreground:   var(--muted-foreground);
+  --color-accent:             var(--accent);
+  --color-accent-foreground:  var(--accent-foreground);
+  --color-destructive:        var(--destructive);
+  --color-border:             var(--border);
+  --color-input:              var(--input);
+  --color-ring:               var(--ring);
+  --font-sans:                var(--font-jost), Jost, system-ui, sans-serif;
+  --font-display:             var(--font-cormorant), "Cormorant Garamond", Georgia, serif;
+  --font-mono:                var(--font-jost), monospace;
+  --font-heading:             var(--font-display);
+  --radius-sm:                var(--radius-sm);
+  --radius-md:                var(--radius-md);
+  --radius-lg:                var(--radius-lg);
+  --radius-xl:                var(--radius-xl);
+  --radius-2xl:               var(--radius-2xl);
+  --radius-3xl:               var(--radius-3xl);
+  --radius-4xl:               var(--radius-4xl);
 }
 
 /* ── Base ─────────────────────────────────────────────────────── */
 @layer base {
-  * {
-    @apply border-border outline-ring/50;
-    box-sizing: border-box;
-  }
+  * { @apply border-border outline-ring/50; box-sizing: border-box; }
   body {
-    background: var(--bg);
-    color: var(--text);
+    background: var(--grafite);
+    color: var(--warm-white);
     font-family: var(--font-sans);
+    font-weight: 300;
     -webkit-font-smoothing: antialiased;
   }
+  h1, h2, h3 {
+    font-family: var(--font-display);
+    font-weight: 300;
+  }
 
-  /* Scrollbar */
-  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar { width: 5px; height: 5px; }
   ::-webkit-scrollbar-track { background: transparent; }
   ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
-  ::-webkit-scrollbar-thumb:hover { background: #3D3A38; }
+  ::-webkit-scrollbar-thumb:hover { background: #4A5B4B; }
 }
 
-/* ── Animations ───────────────────────────────────────────────── */
-@keyframes slide-down {
-  from { opacity: 0; transform: translateY(-4px); }
+/* ── Animações ────────────────────────────────────────────────── */
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(6px); }
   to   { opacity: 1; transform: translateY(0); }
 }
-
 @keyframes fade-in {
   from { opacity: 0; }
   to   { opacity: 1; }
 }
 
-.animate-slide-down { animation: slide-down 0.2s ease forwards; }
-.animate-fade-in    { animation: fade-in 0.15s ease forwards; }
+.animate-fade-up { animation: fade-up 0.3s ease forwards; }
+.animate-fade-in { animation: fade-in 0.2s ease forwards; }
 
-/* Sub-projects accordion */
+/* ── Accordion de sub-projetos ────────────────────────────────── */
 .subprojects-grid {
   display: grid;
   grid-template-rows: 0fr;
   transition: grid-template-rows 0.25s ease;
 }
-.subprojects-grid.open {
-  grid-template-rows: 1fr;
+.subprojects-grid.open { grid-template-rows: 1fr; }
+.subprojects-inner { overflow: hidden; }
+
+/* ── Botão estilo Minaue ──────────────────────────────────────── */
+.btn-minaue {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 28px;
+  background: transparent;
+  border: 1px solid var(--gold);
+  color: var(--gold-light);
+  font-family: var(--font-sans);
+  font-weight: 300;
+  font-size: 11px;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  transition: all 0.25s ease;
+  cursor: pointer;
 }
-.subprojects-inner {
-  overflow: hidden;
+.btn-minaue:hover {
+  background: var(--gold);
+  color: var(--grafite);
 }

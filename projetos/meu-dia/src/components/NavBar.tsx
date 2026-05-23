@@ -22,60 +22,92 @@ export function NavBar() {
 
   return (
     <>
-      {/* ── Desktop: sidebar esquerda ───────────────────────── */}
+      {/* ── Desktop sidebar ─────────────────────────────────── */}
       <aside
         className="hidden md:flex fixed inset-y-0 left-0 w-60 flex-col z-40 border-r"
-        style={{ background: '#0F0E0D', borderColor: '#1D1B19' }}
+        style={{ background: '#242B25', borderColor: '#3A4439' }}
       >
         {/* Logo */}
-        <div className="flex items-center gap-2.5 px-5 h-16 border-b" style={{ borderColor: '#1D1B19' }}>
-          <div
-            className="w-7 h-7 rounded-lg flex items-center justify-center text-sm font-bold"
-            style={{ background: '#FBBF24', color: '#0F0E0D' }}
-          >
-            M
+        <div
+          className="flex items-center gap-3 px-6 h-16 border-b"
+          style={{ borderColor: '#3A4439' }}
+        >
+          {/* Logotipo em texto cursivo como no site */}
+          <div>
+            <p
+              className="leading-none"
+              style={{
+                fontFamily: 'var(--font-cormorant), serif',
+                fontStyle: 'italic',
+                fontWeight: 300,
+                fontSize: '22px',
+                color: '#D4BC8C',
+                letterSpacing: '0.02em',
+              }}
+            >
+              Meu Dia
+            </p>
+            <p
+              className="text-[9px] tracking-[0.3em] uppercase mt-0.5"
+              style={{ color: '#5E6E5F', fontFamily: 'var(--font-jost), Jost, sans-serif', fontWeight: 300 }}
+            >
+              Minaue
+            </p>
           </div>
-          <span className="font-semibold text-base tracking-tight" style={{ color: '#EDE8E3' }}>
-            Meu Dia
-          </span>
         </div>
 
         {/* Nav links */}
-        <nav className="flex-1 px-3 py-4 space-y-0.5">
+        <nav className="flex-1 px-4 py-5 space-y-0.5">
           {NAV.map(({ href, label, icon: Icon }) => {
             const active = isActive(href)
             return (
               <Link
                 key={href}
                 href={href}
-                className={cn(
-                  'flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all',
-                  active
-                    ? 'text-[#EDE8E3]'
-                    : 'text-[#7A7470] hover:text-[#C0BBB6] hover:bg-white/5'
-                )}
-                style={active ? { background: '#1D1B19' } : {}}
+                className="flex items-center gap-3 px-3 py-2 rounded transition-all text-sm"
+                style={{
+                  color: active ? '#D4BC8C' : '#7A8E7B',
+                  background: active ? 'rgba(184,160,112,0.08)' : 'transparent',
+                  fontFamily: 'var(--font-jost), Jost, sans-serif',
+                  fontWeight: active ? 400 : 300,
+                  letterSpacing: '0.02em',
+                }}
+                onMouseEnter={(e) => {
+                  if (!active) (e.currentTarget as HTMLElement).style.color = '#B8A070'
+                }}
+                onMouseLeave={(e) => {
+                  if (!active) (e.currentTarget as HTMLElement).style.color = '#7A8E7B'
+                }}
               >
-                <Icon size={16} strokeWidth={active ? 2 : 1.5} />
+                <Icon size={15} strokeWidth={1.5} />
                 {label}
               </Link>
             )
           })}
         </nav>
 
-        {/* Bottom: user area */}
+        {/* Rodapé da sidebar */}
         <div
-          className="px-4 py-4 border-t text-xs"
-          style={{ borderColor: '#1D1B19', color: '#4A4744' }}
+          className="px-6 py-4 border-t"
+          style={{ borderColor: '#3A4439' }}
         >
-          Meu Dia · v2
+          <div
+            className="w-full h-px mb-3"
+            style={{ background: 'linear-gradient(to right, #B8A070, transparent)' }}
+          />
+          <p
+            className="text-[10px] tracking-[0.2em] uppercase"
+            style={{ color: '#5E6E5F', fontFamily: 'var(--font-jost), Jost, sans-serif', fontWeight: 300 }}
+          >
+            Mandalas que Florescem
+          </p>
         </div>
       </aside>
 
-      {/* ── Mobile: bottom tab bar ──────────────────────────── */}
+      {/* ── Mobile bottom tab ───────────────────────────────── */}
       <nav
         className="md:hidden fixed bottom-0 inset-x-0 z-40 flex border-t"
-        style={{ background: '#0F0E0D', borderColor: '#1D1B19' }}
+        style={{ background: '#242B25', borderColor: '#3A4439' }}
       >
         {NAV.map(({ href, label, icon: Icon }) => {
           const active = isActive(href)
@@ -83,11 +115,14 @@ export function NavBar() {
             <Link
               key={href}
               href={href}
-              className="flex-1 flex flex-col items-center justify-center py-2 gap-0.5 transition-colors"
-              style={{ color: active ? '#EDE8E3' : '#4A4744' }}
+              className="flex-1 flex flex-col items-center justify-center py-2.5 gap-1 transition-colors"
+              style={{
+                color: active ? '#D4BC8C' : '#4A5B4B',
+                fontFamily: 'var(--font-jost), Jost, sans-serif',
+              }}
             >
-              <Icon size={20} strokeWidth={active ? 2 : 1.5} />
-              <span className="text-[10px] font-medium">{label}</span>
+              <Icon size={18} strokeWidth={active ? 1.75 : 1.5} />
+              <span className="text-[9px] font-light tracking-wider uppercase">{label}</span>
             </Link>
           )
         })}

@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useRootProjects, useSubProjects, useProjectPendingCount, useStore } from '@/lib/store'
 import { Project, PROJECT_COLORS } from '@/lib/types'
-import { ChevronRight, Plus, MoreHorizontal, Pencil, Trash2, FolderPlus } from 'lucide-react'
+import { ChevronRight, Plus, MoreHorizontal, Pencil, Trash2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle,
@@ -14,7 +14,10 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Button } from '@/components/ui/button'
+
+// ── Tipografia helpers ─────────────────────────────────────────────────────
+const fontDisplay = 'var(--font-cormorant), "Cormorant Garamond", serif'
+const fontSans    = 'var(--font-jost), Jost, sans-serif'
 
 // ── Sub-project row ────────────────────────────────────────────────────────
 function SubRow({ project }: { project: Project }) {
@@ -24,16 +27,19 @@ function SubRow({ project }: { project: Project }) {
   return (
     <button
       onClick={() => router.push(`/projetos/${project.id}`)}
-      className="w-full flex items-center gap-3 pl-10 pr-4 py-2 text-left transition-colors hover:bg-white/[0.03] group"
+      className="w-full flex items-center gap-3 pl-11 pr-5 py-2 text-left transition-all group hover:bg-white/[0.02]"
     >
-      <span className="text-base leading-none">{project.emoji ?? '•'}</span>
-      <span className="flex-1 text-sm" style={{ color: '#C0BBB6' }}>
+      <span className="text-sm leading-none opacity-80">{project.emoji ?? '·'}</span>
+      <span
+        className="flex-1 text-[13px] tracking-wide transition-colors group-hover:text-[#D4C9B0]"
+        style={{ color: '#8A9E8B', fontFamily: fontSans, fontWeight: 300 }}
+      >
         {project.name}
       </span>
       {pending > 0 && (
         <span
-          className="text-[11px] font-medium tabular-nums px-1.5 py-0.5 rounded-full"
-          style={{ background: '#1D1B19', color: '#7A7470' }}
+          className="text-[10px] tabular-nums px-1.5 py-0.5 rounded-sm"
+          style={{ background: 'rgba(184,160,112,0.12)', color: '#B8A070', fontFamily: fontSans }}
         >
           {pending}
         </span>
@@ -43,7 +49,7 @@ function SubRow({ project }: { project: Project }) {
 }
 
 // ── Project row ────────────────────────────────────────────────────────────
-function ProjectRow({ project }: { project: Project }) {
+function ProjectRow({ project, index }: { project: Project; index: number }) {
   const router = useRouter()
   const subProjects = useSubProjects(project.id)
   const pending = useProjectPendingCount(project.id)
@@ -54,85 +60,91 @@ function ProjectRow({ project }: { project: Project }) {
   const hasChildren = subProjects.length > 0
 
   return (
-    <div className="group/row">
+    <div
+      className="group/row animate-fade-up"
+      style={{ animationDelay: `${index * 40}ms`, opacity: 0 }}
+    >
       {/* Main row */}
       <div
-        className="flex items-center gap-0 transition-colors hover:bg-white/[0.03]"
-        style={{ borderLeft: `3px solid ${project.color}` }}
+        className="flex items-center transition-colors hover:bg-white/[0.025]"
+        style={{ borderLeft: `2px solid ${project.color}` }}
       >
-        {/* Expand toggle (só se tem sub-projetos) */}
-        {hasChildren ? (
-          <button
-            onClick={() => setExpanded(!expanded)}
-            className="flex-shrink-0 w-8 h-10 flex items-center justify-center transition-transform"
-            style={{ color: '#4A4744' }}
-          >
-            <ChevronRight
-              size={14}
-              className="transition-transform duration-200"
-              style={{ transform: expanded ? 'rotate(90deg)' : 'rotate(0deg)' }}
-            />
-          </button>
-        ) : (
-          <div className="w-8 h-10" />
-        )}
+        {/* Chevron ou espaço */}
+        <button
+          onClick={() => setExpanded(!expanded)}
+          className="flex-shrink-0 w-9 h-11 flex items-center justify-center"
+          style={{ color: hasChildren ? '#5E6E5F' : 'transparent', cursor: hasChildren ? 'pointer' : 'default' }}
+        >
+          <ChevronRight
+            size={13}
+            className="transition-transform duration-200"
+            style={{ transform: expanded && hasChildren ? 'rotate(90deg)' : 'rotate(0deg)' }}
+          />
+        </button>
 
         {/* Emoji + nome */}
         <button
           onClick={() => hasChildren ? setExpanded(!expanded) : router.push(`/projetos/${project.id}`)}
-          className="flex-1 flex items-center gap-2.5 py-2.5 text-left min-w-0"
+          className="flex-1 flex items-center gap-2.5 py-3 text-left min-w-0"
         >
-          <span className="text-lg leading-none flex-shrink-0">{project.emoji ?? '📁'}</span>
-          <span className="text-[15px] font-medium tracking-tight truncate" style={{ color: '#EDE8E3' }}>
+          <span className="text-xl leading-none flex-shrink-0">{project.emoji ?? '📁'}</span>
+          <span
+            className="text-[17px] truncate"
+            style={{ color: '#EDE8E4', fontFamily: fontDisplay, fontWeight: 300, letterSpacing: '0.01em' }}
+          >
             {project.name}
           </span>
         </button>
 
-        {/* Contador de pendentes */}
+        {/* Badge de pendentes */}
         {pending > 0 && (
           <span
-            className="text-xs tabular-nums mr-2 px-2 py-0.5 rounded-full"
-            style={{ background: '#1D1B19', color: '#7A7470' }}
+            className="text-[10px] tabular-nums mr-2 px-2 py-0.5 rounded-sm"
+            style={{ background: 'rgba(184,160,112,0.1)', color: '#B8A070', fontFamily: fontSans, fontWeight: 300 }}
           >
             {pending}
           </span>
         )}
 
-        {/* Menu de ações */}
+        {/* Menu */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <button
-              className="w-8 h-10 flex items-center justify-center opacity-0 group-hover/row:opacity-100 transition-opacity"
-              style={{ color: '#4A4744' }}
+              className="w-9 h-11 flex items-center justify-center opacity-0 group-hover/row:opacity-100 transition-opacity"
+              style={{ color: '#5E6E5F' }}
             >
-              <MoreHorizontal size={15} />
+              <MoreHorizontal size={14} />
             </button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-44">
-            <DropdownMenuItem onClick={() => router.push(`/projetos/${project.id}`)}>
-              <Pencil size={13} className="mr-2" /> Abrir
+          <DropdownMenuContent align="end" className="w-40">
+            <DropdownMenuItem
+              onClick={() => router.push(`/projetos/${project.id}`)}
+              style={{ fontFamily: fontSans, fontSize: '13px' }}
+            >
+              Abrir
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => setEditing(true)}>
-              <Pencil size={13} className="mr-2" /> Renomear
+            <DropdownMenuItem
+              onClick={() => setEditing(true)}
+              style={{ fontFamily: fontSans, fontSize: '13px' }}
+            >
+              <Pencil size={12} className="mr-2 opacity-60" /> Editar
             </DropdownMenuItem>
             <DropdownMenuItem
               onClick={() => deleteProject(project.id)}
               className="text-red-400 focus:text-red-400"
+              style={{ fontFamily: fontSans, fontSize: '13px' }}
             >
-              <Trash2 size={13} className="mr-2" /> Excluir
+              <Trash2 size={12} className="mr-2 opacity-60" /> Excluir
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
 
-      {/* Sub-projects accordion */}
+      {/* Sub-projects */}
       {hasChildren && (
         <div className={cn('subprojects-grid', expanded && 'open')}>
           <div className="subprojects-inner">
-            <div
-              className="pb-1"
-              style={{ borderLeft: `3px solid ${project.color}20` }}
-            >
+            <div style={{ borderLeft: `2px solid ${project.color}18` }}>
               {subProjects.map((sp) => (
                 <SubRow key={sp.id} project={sp} />
               ))}
@@ -141,20 +153,16 @@ function ProjectRow({ project }: { project: Project }) {
         </div>
       )}
 
-      {/* Rename dialog */}
       {editing && (
-        <RenameDialog
-          project={project}
-          onClose={() => setEditing(false)}
-        />
+        <EditProjectDialog project={project} onClose={() => setEditing(false)} />
       )}
     </div>
   )
 }
 
-// ── Rename dialog ──────────────────────────────────────────────────────────
-function RenameDialog({ project, onClose }: { project: Project; onClose: () => void }) {
-  const [name, setName] = useState(project.name)
+// ── Edit dialog ────────────────────────────────────────────────────────────
+function EditProjectDialog({ project, onClose }: { project: Project; onClose: () => void }) {
+  const [name, setName]   = useState(project.name)
   const [emoji, setEmoji] = useState(project.emoji ?? '')
   const { updateProject } = useStore()
 
@@ -169,33 +177,30 @@ function RenameDialog({ project, onClose }: { project: Project; onClose: () => v
     <Dialog open onOpenChange={onClose}>
       <DialogContent className="max-w-sm">
         <DialogHeader>
-          <DialogTitle>Editar projeto</DialogTitle>
+          <DialogTitle style={{ fontFamily: fontDisplay, fontWeight: 300, fontSize: '22px' }}>
+            Editar projeto
+          </DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSave} className="space-y-3 pt-1">
-          <div className="grid grid-cols-[64px_1fr] gap-3">
-            <div className="space-y-1">
-              <Label className="text-xs" style={{ color: '#7A7470' }}>Emoji</Label>
-              <Input
-                value={emoji}
-                onChange={(e) => setEmoji(e.target.value)}
-                placeholder="🎯"
-                className="text-center text-lg"
-                maxLength={2}
-              />
+        <form onSubmit={handleSave} className="space-y-4 pt-1">
+          <div className="grid grid-cols-[72px_1fr] gap-3">
+            <div className="space-y-1.5">
+              <Label className="text-[11px] tracking-widest uppercase" style={{ color: '#7A8E7B', fontFamily: fontSans }}>
+                Emoji
+              </Label>
+              <Input value={emoji} onChange={(e) => setEmoji(e.target.value)} placeholder="🎯" className="text-center text-xl" maxLength={2} />
             </div>
-            <div className="space-y-1">
-              <Label className="text-xs" style={{ color: '#7A7470' }}>Nome</Label>
-              <Input
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                autoFocus
-                placeholder="Nome do projeto"
-              />
+            <div className="space-y-1.5">
+              <Label className="text-[11px] tracking-widest uppercase" style={{ color: '#7A8E7B', fontFamily: fontSans }}>
+                Nome
+              </Label>
+              <Input value={name} onChange={(e) => setName(e.target.value)} autoFocus placeholder="Nome do projeto" />
             </div>
           </div>
-          <div className="flex gap-2 pt-1">
-            <Button type="submit" className="flex-1">Salvar</Button>
-            <Button type="button" variant="outline" onClick={onClose}>Cancelar</Button>
+          <div className="flex gap-2 pt-2">
+            <button type="submit" className="btn-minaue flex-1 justify-center">Salvar</button>
+            <button type="button" className="btn-minaue" style={{ borderColor: '#3A4439', color: '#7A8E7B' }} onClick={onClose}>
+              Cancelar
+            </button>
           </div>
         </form>
       </DialogContent>
@@ -205,7 +210,7 @@ function RenameDialog({ project, onClose }: { project: Project; onClose: () => v
 
 // ── New project dialog ─────────────────────────────────────────────────────
 function NewProjectDialog({ onClose }: { onClose: () => void }) {
-  const [name, setName] = useState('')
+  const [name, setName]   = useState('')
   const [emoji, setEmoji] = useState('')
   const [color, setColor] = useState(PROJECT_COLORS[0])
   const { addProject, projects } = useStore()
@@ -213,13 +218,12 @@ function NewProjectDialog({ onClose }: { onClose: () => void }) {
   function handleSave(e: React.FormEvent) {
     e.preventDefault()
     if (!name.trim()) return
-    const rootProjects = projects.filter((p) => !p.parentId)
     addProject({
       name: name.trim(),
       emoji: emoji.trim() || undefined,
       color,
       status: 'em_andamento',
-      order: rootProjects.length,
+      order: projects.filter((p) => !p.parentId).length,
     })
     onClose()
   }
@@ -228,43 +232,39 @@ function NewProjectDialog({ onClose }: { onClose: () => void }) {
     <Dialog open onOpenChange={onClose}>
       <DialogContent className="max-w-sm">
         <DialogHeader>
-          <DialogTitle>Novo projeto</DialogTitle>
+          <DialogTitle style={{ fontFamily: fontDisplay, fontWeight: 300, fontSize: '22px' }}>
+            Novo projeto
+          </DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSave} className="space-y-4 pt-1">
-          <div className="grid grid-cols-[64px_1fr] gap-3">
-            <div className="space-y-1">
-              <Label className="text-xs" style={{ color: '#7A7470' }}>Emoji</Label>
-              <Input
-                value={emoji}
-                onChange={(e) => setEmoji(e.target.value)}
-                placeholder="📁"
-                className="text-center text-lg"
-                maxLength={2}
-              />
+          <div className="grid grid-cols-[72px_1fr] gap-3">
+            <div className="space-y-1.5">
+              <Label className="text-[11px] tracking-widest uppercase" style={{ color: '#7A8E7B', fontFamily: fontSans }}>
+                Emoji
+              </Label>
+              <Input value={emoji} onChange={(e) => setEmoji(e.target.value)} placeholder="📁" className="text-center text-xl" maxLength={2} />
             </div>
-            <div className="space-y-1">
-              <Label className="text-xs" style={{ color: '#7A7470' }}>Nome</Label>
-              <Input
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                autoFocus
-                placeholder="Nome do projeto"
-              />
+            <div className="space-y-1.5">
+              <Label className="text-[11px] tracking-widest uppercase" style={{ color: '#7A8E7B', fontFamily: fontSans }}>
+                Nome
+              </Label>
+              <Input value={name} onChange={(e) => setName(e.target.value)} autoFocus placeholder="Nome do projeto" />
             </div>
           </div>
 
-          <div className="space-y-1.5">
-            <Label className="text-xs" style={{ color: '#7A7470' }}>Cor</Label>
-            <div className="flex gap-2 flex-wrap">
+          <div className="space-y-2">
+            <Label className="text-[11px] tracking-widest uppercase" style={{ color: '#7A8E7B', fontFamily: fontSans }}>
+              Cor
+            </Label>
+            <div className="flex gap-2.5 flex-wrap">
               {PROJECT_COLORS.map((c) => (
                 <button
                   key={c}
                   type="button"
                   onClick={() => setColor(c)}
-                  className="w-6 h-6 rounded-full ring-2 ring-offset-2 transition-all"
+                  className="w-6 h-6 rounded-full transition-all"
                   style={{
                     backgroundColor: c,
-                    ringOffsetColor: '#0F0E0D',
                     outline: color === c ? `2px solid ${c}` : '2px solid transparent',
                     outlineOffset: '2px',
                   }}
@@ -273,9 +273,11 @@ function NewProjectDialog({ onClose }: { onClose: () => void }) {
             </div>
           </div>
 
-          <div className="flex gap-2 pt-1">
-            <Button type="submit" className="flex-1">Criar projeto</Button>
-            <Button type="button" variant="outline" onClick={onClose}>Cancelar</Button>
+          <div className="flex gap-2 pt-2">
+            <button type="submit" className="btn-minaue flex-1 justify-center">Criar projeto</button>
+            <button type="button" className="btn-minaue" style={{ borderColor: '#3A4439', color: '#7A8E7B' }} onClick={onClose}>
+              Cancelar
+            </button>
           </div>
         </form>
       </DialogContent>
@@ -289,53 +291,67 @@ export default function ProjetosPage() {
   const [creating, setCreating] = useState(false)
 
   return (
-    <div className="max-w-xl mx-auto px-0 py-0 min-h-screen flex flex-col">
+    <div className="max-w-xl mx-auto min-h-screen flex flex-col">
+
       {/* Header */}
       <div
-        className="flex items-center justify-between px-5 py-4 border-b sticky top-0 z-10"
-        style={{ background: '#0F0E0D', borderColor: '#1D1B19' }}
+        className="flex items-end justify-between px-6 pt-8 pb-5 border-b sticky top-0 z-10"
+        style={{ background: '#282F29', borderColor: '#3A4439' }}
       >
         <div>
-          <h1 className="text-lg font-semibold tracking-tight" style={{ color: '#EDE8E3' }}>
+          <h1
+            className="text-[32px] leading-none"
+            style={{ fontFamily: fontDisplay, fontWeight: 300, color: '#EDE8E4', letterSpacing: '0.01em' }}
+          >
             Projetos
           </h1>
-          <p className="text-xs mt-0.5" style={{ color: '#4A4744' }}>
-            {rootProjects.length} áreas
+          <p
+            className="mt-1.5 text-[11px] tracking-[0.2em] uppercase"
+            style={{ color: '#5E6E5F', fontFamily: fontSans, fontWeight: 300 }}
+          >
+            {rootProjects.length} áreas · {new Date().getFullYear()}
           </p>
         </div>
+
         <button
           onClick={() => setCreating(true)}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors hover:bg-white/[0.06]"
-          style={{ color: '#7A7470', border: '1px solid #262320' }}
+          className="btn-minaue"
+          style={{ padding: '8px 20px', fontSize: '10px' }}
         >
-          <Plus size={14} />
+          <Plus size={12} />
           Novo
         </button>
       </div>
 
-      {/* Project list */}
-      <div className="flex-1 py-2">
+      {/* Divisor dourado */}
+      <div style={{ height: '1px', background: 'linear-gradient(to right, #B8A070, transparent)', flexShrink: 0 }} />
+
+      {/* Lista de projetos */}
+      <div className="flex-1 py-3">
         {rootProjects.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-24 gap-3">
-            <FolderPlus size={36} style={{ color: '#2A2826' }} />
-            <p className="text-sm" style={{ color: '#4A4744' }}>
-              Nenhum projeto. Crie o primeiro!
-            </p>
-            <button
-              onClick={() => setCreating(true)}
-              className="text-sm px-4 py-2 rounded-lg transition-colors"
-              style={{ background: '#1D1B19', color: '#7A7470' }}
+          <div className="flex flex-col items-center justify-center py-28 gap-4">
+            <p
+              className="text-[28px]"
+              style={{ fontFamily: fontDisplay, fontStyle: 'italic', color: '#5E6E5F', fontWeight: 300 }}
             >
-              + Criar projeto
+              Nenhum projeto ainda.
+            </p>
+            <button onClick={() => setCreating(true)} className="btn-minaue" style={{ fontSize: '10px' }}>
+              + Criar primeiro projeto
             </button>
           </div>
         ) : (
-          <div className="divide-y" style={{ borderColor: '#1A1816' }}>
-            {rootProjects.map((project) => (
-              <ProjectRow key={project.id} project={project} />
+          <div className="divide-y" style={{ borderColor: '#2F3830' }}>
+            {rootProjects.map((project, i) => (
+              <ProjectRow key={project.id} project={project} index={i} />
             ))}
           </div>
         )}
+      </div>
+
+      {/* Rodapé decorativo */}
+      <div className="px-6 py-5">
+        <div style={{ height: '1px', background: 'linear-gradient(to right, transparent, #B8A07040, transparent)' }} />
       </div>
 
       {creating && <NewProjectDialog onClose={() => setCreating(false)} />}
