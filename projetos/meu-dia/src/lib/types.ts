@@ -56,6 +56,31 @@ export const PROJECT_COLORS = [
   '#8A9E78', // verde folha
 ]
 
+// ── Semana planejada ─────────────────────────────────────────────────────
+
+// Bloco recorrente de horário (academia, buscar filha, foco PlanetaZen…)
+export interface TimeBlock {
+  id: string
+  title: string
+  color: string
+  days: number[]          // 1=Seg … 7=Dom
+  startMinutes: number    // minutos a partir da meia-noite (420 = 7:00)
+  endMinutes: number
+  type: 'fixed' | 'thematic'  // fixed = compromisso, thematic = foco em projeto
+  projectId?: string
+  createdAt: string
+  updatedAt: string
+}
+
+// Tarefa marcada para uma semana específica
+export interface WeekTask {
+  id: string
+  taskId: string
+  dayOfWeek: number       // 1=Seg … 7=Dom
+  timeBlockId?: string    // bloco temático onde foi colocada
+  weekOf: string          // ISO date da segunda-feira da semana
+}
+
 export const STATUS_LABELS: Record<ProjectStatus, string> = {
   em_andamento: 'Em andamento',
   pausado: 'Pausado',

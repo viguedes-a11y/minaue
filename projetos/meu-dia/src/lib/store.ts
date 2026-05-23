@@ -3,7 +3,7 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { useShallow } from 'zustand/react/shallow'
-import { Project, Task, Subtask, TaskPriority, TaskStatus } from './types'
+import { Project, Task, Subtask, TaskPriority, TaskStatus, TimeBlock, WeekTask } from './types'
 import { SEED_PROJECTS } from './seedData'
 import { supabase } from './supabase'
 
@@ -65,6 +65,8 @@ function fromDbTask(row: Record<string, unknown>): Task {
 interface AppState {
   projects: Project[]
   tasks: Task[]
+  timeBlocks: TimeBlock[]
+  weekTasks: WeekTask[]
   isLoaded: boolean
 
   // Supabase
@@ -87,6 +89,16 @@ interface AppState {
   addSubtask: (taskId: string, title: string) => void
   toggleSubtask: (taskId: string, subtaskId: string) => void
   deleteSubtask: (taskId: string, subtaskId: string) => void
+
+  // Time blocks (blocos recorrentes da semana)
+  addTimeBlock: (data: Omit<TimeBlock, 'id' | 'createdAt' | 'updatedAt'>) => void
+  updateTimeBlock: (id: string, data: Partial<Omit<TimeBlock, 'id' | 'createdAt'>>) => void
+  deleteTimeBlock: (id: string) => void
+
+  // Week tasks (tarefas planejadas para uma semana)
+  addWeekTask: (data: Omit<WeekTask, 'id'>) => void
+  removeWeekTask: (id: string) => void
+  moveWeekTask: (id: string, dayOfWeek: number, timeBlockId?: string) => void
 }
 
 const PRIORITY_CYCLE: TaskPriority[] = ['alta', 'media', 'baixa', 'nenhuma']
@@ -96,6 +108,8 @@ export const useStore = create<AppState>()(
     (set, get) => ({
       projects: SEED_PROJECTS,
       tasks: [],
+      timeBlocks: [],
+      weekTasks: [],
       isLoaded: false,
 
       // ── Supabase sync ────────────────────────────────────────────
@@ -271,6 +285,45 @@ export const useStore = create<AppState>()(
           supabase.from('meudia_tasks').update({ subtasks: updated.subtasks }).eq('id', taskId)
             .then(({ error }) => { if (error) console.error('Supabase deleteSubtask error:', error) })
         }
+      },
+
+      // ── Time blocks ───────────────────────────────────────────────
+      addTimeBlock: (data) => {
+        const now = new Date().toISOString()
+        const block: TimeBlock = { ...data, id: generateId(), createdAt: now, updatedAt: now }
+        set((s) => ({ timeBlocks: [...s.timeBlocks, block] }))
+      },
+
+      updateTimeBlock: (id, data) => {
+        const now = new Date().toISOString()
+        set((s) => ({
+          timeBlocks: s.timeBlocks.map((b) => b.id === id ? { ...b, ...data, updatedAt: now } : b),
+        }))
+      },
+
+      deleteTimeBlock: (id) => {
+        set((s) => ({
+          timeBlocks: s.timeBlocks.filter((b) => b.id !== id),
+          weekTasks: s.weekTasks.map((wt) => wt.timeBlockId === id ? { ...wt, timeBlockId: undefined } : wt),
+        }))
+      },
+
+      // ── Week tasks ────────────────────────────────────────────────
+      addWeekTask: (data) => {
+        const wt: WeekTask = { ...data, id: generateId() }
+        set((s) => ({ weekTasks: [...s.weekTasks, wt] }))
+      },
+
+      removeWeekTask: (id) => {
+        set((s) => ({ weekTasks: s.weekTasks.filter((wt) => wt.id !== id) }))
+      },
+
+      moveWeekTask: (id, dayOfWeek, timeBlockId) => {
+        set((s) => ({
+          weekTasks: s.weekTasks.map((wt) =>
+            wt.id === id ? { ...wt, dayOfWeek, timeBlockId } : wt
+          ),
+        }))
       },
     }),
     { name: 'meu-dia-v4' }
