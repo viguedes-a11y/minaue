@@ -137,6 +137,27 @@
 .subprojects-grid.open { grid-template-rows: 1fr; }
 .subprojects-inner { overflow: hidden; }
 
+/* ── Project card buttons ─────────────────────────────────────── */
+.project-card {
+  transition: box-shadow 0.22s ease, transform 0.18s cubic-bezier(.34,1.56,.64,1);
+}
+.project-card:hover { box-shadow: 0 6px 24px rgba(40,47,41,0.11); }
+.project-card:active { transform: scale(0.99); }
+
+.sub-project-btn { transition: background 0.15s ease, color 0.15s ease; }
+
+/* ── Task card ────────────────────────────────────────────────── */
+.task-card {
+  transition: box-shadow 0.2s ease, transform 0.15s cubic-bezier(.34,1.56,.64,1);
+}
+.task-card:hover { box-shadow: 0 4px 16px rgba(40,47,41,0.09); }
+
+/* ── Status circle button ─────────────────────────────────────── */
+.status-circle {
+  transition: all 0.2s cubic-bezier(.34,1.56,.64,1);
+}
+.status-circle:hover { transform: scale(1.15); }
+
 /* ── Botão estilo Minaue ───────────────────────────────────────── */
 .btn-minaue {
   display: inline-flex;

@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useRootProjects, useSubProjects, useProjectPendingCount, useStore } from '@/lib/store'
 import { Project, PROJECT_COLORS } from '@/lib/types'
-import { ChevronRight, Plus, MoreHorizontal, Pencil, Trash2 } from 'lucide-react'
+import { ChevronRight, Plus, ArrowRight, Pencil, Trash2, MoreHorizontal } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle,
@@ -28,36 +28,54 @@ const labelStyle = {
 }
 
 // ── Sub-project row ────────────────────────────────────────────────────────
-function SubRow({ project }: { project: Project }) {
+function SubRow({ project, parentColor }: { project: Project; parentColor: string }) {
   const router  = useRouter()
   const pending = useProjectPendingCount(project.id)
+  const [hov, setHov] = useState(false)
 
   return (
     <button
       onClick={() => router.push(`/projetos/${project.id}`)}
-      className="w-full flex items-center justify-between gap-3 pl-12 pr-4 py-2.5 text-left transition-all group"
-      style={{ borderBottom: '1px solid #EDE8DF' }}
+      className="sub-project-btn w-full flex items-center gap-3 text-left"
+      style={{
+        padding: '11px 16px 11px 22px',
+        borderBottom: '1px solid rgba(216,210,200,0.45)',
+        background: hov ? `${parentColor}10` : 'transparent',
+      }}
+      onMouseEnter={() => setHov(true)}
+      onMouseLeave={() => setHov(false)}
     >
+      <div
+        style={{
+          width: '5px', height: '5px', borderRadius: '50%',
+          background: parentColor, opacity: 0.55, flexShrink: 0,
+        }}
+      />
       <span
-        className="flex-1 text-[13px] tracking-wide transition-colors group-hover:text-[#282F29]"
-        style={{ color: '#6B7A6C', fontFamily: fontSans, fontWeight: 300 }}
+        className="flex-1 truncate"
+        style={{
+          fontFamily: fontSans, fontSize: '13px', fontWeight: 300,
+          color: hov ? '#282F29' : '#4A5A4B', letterSpacing: '0.025em',
+        }}
       >
         {project.name}
       </span>
       {pending > 0 && (
         <span
-          className="text-[10px] tabular-nums px-1.5 py-0.5 rounded-sm"
-          style={{ background: 'rgba(184,160,112,0.12)', color: '#B8A070', fontFamily: fontSans }}
+          style={{
+            fontFamily: fontSans, fontSize: '11px', fontWeight: 300,
+            color: '#A09888', flexShrink: 0,
+          }}
         >
           {pending}
         </span>
       )}
-      <ChevronRight size={12} style={{ color: '#C8C4BC' }} />
+      <ChevronRight size={12} style={{ color: '#C8C4BC', flexShrink: 0 }} />
     </button>
   )
 }
 
-// ── Project row ────────────────────────────────────────────────────────────
+// ── Project card button ────────────────────────────────────────────────────
 function ProjectRow({ project, index }: { project: Project; index: number }) {
   const router      = useRouter()
   const subProjects = useSubProjects(project.id)
@@ -65,101 +83,128 @@ function ProjectRow({ project, index }: { project: Project; index: number }) {
   const { deleteProject } = useStore()
   const [expanded, setExpanded] = useState(true)
   const [editing, setEditing]   = useState(false)
+  const [hov, setHov]           = useState(false)
 
   const hasChildren = subProjects.length > 0
 
   return (
     <div
-      className="animate-fade-up"
-      style={{ animationDelay: `${index * 40}ms`, opacity: 0 }}
+      className="project-card animate-fade-up"
+      style={{
+        animationDelay: `${index * 55}ms`,
+        opacity: 0,
+        background: '#FAF8F4',
+        border: `1px solid ${hov ? project.color + '55' : '#D8D2C8'}`,
+        borderLeft: `6px solid ${project.color}`,
+        borderRadius: '12px',
+        overflow: 'hidden',
+        boxShadow: hov
+          ? `0 6px 24px ${project.color}20`
+          : '0 1px 5px rgba(40,47,41,0.05)',
+      }}
+      onMouseEnter={() => setHov(true)}
+      onMouseLeave={() => setHov(false)}
     >
-      {/* Button row */}
-      <div
-        className="group/row flex items-center transition-all"
-        style={{ borderBottom: '1px solid #E5E0D8' }}
-      >
-        {/* Chevron */}
-        <button
-          onClick={() => setExpanded(!expanded)}
-          className="flex-shrink-0 w-10 h-12 flex items-center justify-center"
-          style={{ color: hasChildren ? '#5E6E5F' : 'transparent', cursor: hasChildren ? 'pointer' : 'default' }}
-          tabIndex={hasChildren ? 0 : -1}
-        >
-          <ChevronRight
-            size={13}
-            className="transition-transform duration-200"
-            style={{ transform: expanded && hasChildren ? 'rotate(90deg)' : 'rotate(0deg)' }}
-          />
-        </button>
-
-        {/* Color bar + name button */}
+      {/* Main clickable row */}
+      <div className="flex items-center">
         <button
           onClick={() => hasChildren ? setExpanded(!expanded) : router.push(`/projetos/${project.id}`)}
-          className="flex-1 flex items-center gap-3 py-3 text-left min-w-0 transition-opacity active:opacity-70"
+          className="flex-1 flex items-center gap-4 text-left min-w-0"
+          style={{ padding: '15px 12px 15px 18px' }}
         >
-          <div
-            className="w-2 h-2 rounded-full flex-shrink-0"
-            style={{ background: project.color }}
-          />
           <span
-            className="text-[16px] truncate"
-            style={{ color: '#282F29', fontFamily: fontDisplay, fontWeight: 300, letterSpacing: '0.02em' }}
+            className="flex-1 truncate"
+            style={{
+              fontFamily: fontDisplay, fontSize: '19px', fontWeight: 400,
+              color: '#282F29', letterSpacing: '0.01em',
+            }}
           >
             {project.name}
           </span>
+
+          {pending > 0 && (
+            <span
+              style={{
+                background: 'rgba(184,160,112,0.13)',
+                color: '#8B7550',
+                border: '1px solid rgba(184,160,112,0.3)',
+                borderRadius: '20px',
+                padding: '2px 10px',
+                fontFamily: fontSans, fontSize: '11px', fontWeight: 400,
+                flexShrink: 0,
+              }}
+            >
+              {pending}
+            </span>
+          )}
+
+          {hasChildren ? (
+            <ChevronRight
+              size={16}
+              style={{
+                color: '#A09888', flexShrink: 0,
+                transform: expanded ? 'rotate(90deg)' : 'rotate(0deg)',
+                transition: 'transform 0.22s ease',
+              }}
+            />
+          ) : (
+            <ArrowRight
+              size={15}
+              style={{
+                color: project.color, flexShrink: 0,
+                opacity: hov ? 1 : 0.45,
+                transition: 'opacity 0.2s ease',
+              }}
+            />
+          )}
         </button>
 
-        {/* Pending badge */}
-        {pending > 0 && (
-          <span
-            className="text-[10px] tabular-nums mr-2 px-2 py-0.5 rounded-sm"
-            style={{ background: 'rgba(184,160,112,0.1)', color: '#B8A070', fontFamily: fontSans, fontWeight: 300 }}
-          >
-            {pending}
-          </span>
-        )}
-
-        {/* Menu */}
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <button
-              className="w-9 h-12 flex items-center justify-center opacity-0 group-hover/row:opacity-100 transition-opacity"
-              style={{ color: '#5E6E5F' }}
-            >
-              <MoreHorizontal size={14} />
-            </button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-40">
-            <DropdownMenuItem
-              onClick={() => router.push(`/projetos/${project.id}`)}
-              style={{ fontFamily: fontSans, fontSize: '13px' }}
-            >
-              Abrir
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              onClick={() => setEditing(true)}
-              style={{ fontFamily: fontSans, fontSize: '13px' }}
-            >
-              <Pencil size={12} className="mr-2 opacity-60" /> Editar
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              onClick={() => deleteProject(project.id)}
-              className="text-red-400 focus:text-red-400"
-              style={{ fontFamily: fontSans, fontSize: '13px' }}
-            >
-              <Trash2 size={12} className="mr-2 opacity-60" /> Excluir
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        {/* Context menu */}
+        <div style={{ paddingRight: '10px' }}>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button
+                className="w-8 h-8 flex items-center justify-center rounded opacity-0 group-hover:opacity-100 transition-opacity"
+                style={{ color: '#A09888' }}
+                onClick={(e) => e.stopPropagation()}
+              >
+                <MoreHorizontal size={15} />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-40">
+              <DropdownMenuItem
+                onClick={() => router.push(`/projetos/${project.id}`)}
+                style={{ fontFamily: fontSans, fontSize: '13px' }}
+              >
+                Abrir
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => setEditing(true)}
+                style={{ fontFamily: fontSans, fontSize: '13px' }}
+              >
+                <Pencil size={12} className="mr-2 opacity-60" /> Editar
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => deleteProject(project.id)}
+                className="text-red-400 focus:text-red-400"
+                style={{ fontFamily: fontSans, fontSize: '13px' }}
+              >
+                <Trash2 size={12} className="mr-2 opacity-60" /> Excluir
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       </div>
 
       {/* Sub-projects accordion */}
       {hasChildren && (
-        <div className={cn('subprojects-grid', expanded && 'open')} style={{ background: '#F5F1EA' }}>
+        <div className={cn('subprojects-grid', expanded && 'open')}>
           <div className="subprojects-inner">
-            {subProjects.map((sp) => (
-              <SubRow key={sp.id} project={sp} />
-            ))}
+            <div style={{ borderTop: `1px solid ${project.color}22`, background: '#F5F1EA' }}>
+              {subProjects.map((sp) => (
+                <SubRow key={sp.id} project={sp} parentColor={project.color} />
+              ))}
+            </div>
           </div>
         </div>
       )}
@@ -301,46 +346,73 @@ export default function ProjetosPage() {
   return (
     <div className="max-w-xl mx-auto min-h-screen flex flex-col">
 
-      {/* Header */}
+      {/* ── Dark editorial header ── */}
       <div
-        className="flex items-end justify-between px-6 pt-8 pb-5 border-b sticky top-0 z-10"
-        style={{ background: '#EDEAE4', borderColor: '#D8D2C8' }}
+        className="sticky top-0 z-10 px-6 pt-8 pb-6"
+        style={{
+          background: 'linear-gradient(135deg, #1e2a1e 0%, #282F29 60%, #1a241a 100%)',
+          position: 'relative',
+          overflow: 'hidden',
+        }}
       >
-        <div>
-          <h1
-            className="text-[32px] leading-none"
-            style={{ fontFamily: fontDisplay, fontWeight: 300, color: '#282F29', letterSpacing: '0.01em' }}
-          >
-            Projetos
-          </h1>
-          <p
-            className="mt-1.5 text-[11px] tracking-[0.2em] uppercase"
-            style={{ color: '#5E6E5F', fontFamily: fontSans, fontWeight: 300 }}
-          >
-            {rootProjects.length} áreas · {new Date().getFullYear()}
-          </p>
-        </div>
+        {/* Gold orb ornament */}
+        <div
+          style={{
+            position: 'absolute', top: '-30px', right: '-30px',
+            width: '160px', height: '160px', borderRadius: '50%',
+            background: 'radial-gradient(circle, rgba(184,160,112,0.22) 0%, transparent 70%)',
+            pointerEvents: 'none',
+          }}
+        />
+        {/* Bottom gold line */}
+        <div
+          style={{
+            position: 'absolute', bottom: 0, left: 0, right: 0, height: '1px',
+            background: 'linear-gradient(to right, #B8A070, rgba(184,160,112,0.3), transparent)',
+          }}
+        />
 
-        <button
-          onClick={() => setCreating(true)}
-          className="btn-minaue"
-          style={{ padding: '8px 20px', fontSize: '10px' }}
-        >
-          <Plus size={12} />
-          Novo
-        </button>
+        <div className="relative flex items-end justify-between">
+          <div>
+            <h1
+              style={{
+                fontFamily: fontDisplay, fontStyle: 'italic', fontWeight: 300,
+                fontSize: '42px', color: '#D4BC8C', letterSpacing: '0.01em', lineHeight: 1,
+              }}
+            >
+              Projetos
+            </h1>
+            <p
+              style={{
+                marginTop: '6px', fontFamily: fontSans, fontSize: '10px',
+                letterSpacing: '0.3em', textTransform: 'uppercase',
+                color: '#5E6E5F', fontWeight: 300,
+              }}
+            >
+              {rootProjects.length} áreas · {new Date().getFullYear()}
+            </p>
+          </div>
+
+          <button
+            onClick={() => setCreating(true)}
+            className="btn-minaue"
+            style={{ padding: '8px 18px', fontSize: '10px', borderColor: 'rgba(184,160,112,0.6)', color: '#D4BC8C' }}
+          >
+            <Plus size={11} />
+            Novo
+          </button>
+        </div>
       </div>
 
-      {/* Divisor dourado */}
-      <div style={{ height: '1px', background: 'linear-gradient(to right, #B8A070, transparent)', flexShrink: 0 }} />
-
-      {/* Lista de projetos */}
-      <div className="flex-1 py-3">
+      {/* ── Project cards list ── */}
+      <div className="flex-1 px-4 py-5 space-y-3">
         {rootProjects.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-28 gap-4">
             <p
-              className="text-[28px]"
-              style={{ fontFamily: fontDisplay, fontStyle: 'italic', color: '#5E6E5F', fontWeight: 300 }}
+              style={{
+                fontFamily: fontDisplay, fontStyle: 'italic', color: '#5E6E5F',
+                fontWeight: 300, fontSize: '28px',
+              }}
             >
               Nenhum projeto ainda.
             </p>
@@ -349,11 +421,9 @@ export default function ProjetosPage() {
             </button>
           </div>
         ) : (
-          <div>
-            {rootProjects.map((project, i) => (
-              <ProjectRow key={project.id} project={project} index={i} />
-            ))}
-          </div>
+          rootProjects.map((project, i) => (
+            <ProjectRow key={project.id} project={project} index={i} />
+          ))
         )}
       </div>
 

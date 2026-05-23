@@ -1,16 +1,4 @@
 {
-  "hooks": {
-    "Stop": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash -c 'git rev-parse --git-dir >/dev/null 2>&1 || exit 0; git remote get-url origin >/dev/null 2>&1 || exit 0; git add -A >/dev/null 2>&1; git diff --staged --quiet && exit 0; git commit -m \"auto-sync: $(date +\"%Y-%m-%d %H:%M\")\" >/dev/null 2>&1; git push --quiet >/dev/null 2>&1; true'"
-          }
-        ]
-      }
-    ]
-  },
   "permissions": {
     "allow": [
       "WebSearch",
@@ -31,7 +19,20 @@
       "PowerShell($env:NETLIFY_AUTH_TOKEN = \"nfp_L8f62tZZGcRN3D6ozGTzqTGE5eM39Aejec49\"; netlify deploy --prod --dir \"C:\\\\Users\\\\Viviane\\\\OneDrive\\\\Documentos\\\\MINAUE\\\\site\" --site d8a5463b-d1db-4cb9-b316-d870373eeebe 2>&1)",
       "WebFetch(domain:publer.com)",
       "Bash(code \"c:\\\\Users\\\\Viviane\\\\OneDrive\\\\Documentos\\\\MINAUE\\\\ccos-ratos\")",
-      "PowerShell(& \"C:\\\\Users\\\\Viviane\\\\AppData\\\\Local\\\\Programs\\\\Microsoft VS Code\\\\bin\\\\code.cmd\" \"c:\\\\Users\\\\Viviane\\\\OneDrive\\\\Documentos\\\\MINAUE\\\\ccos-ratos\")"
+      "PowerShell(& \"C:\\\\Users\\\\Viviane\\\\AppData\\\\Local\\\\Programs\\\\Microsoft VS Code\\\\bin\\\\code.cmd\" \"c:\\\\Users\\\\Viviane\\\\OneDrive\\\\Documentos\\\\MINAUE\\\\ccos-ratos\")",
+      "WebFetch(domain:viguedes-a11y.github.io)"
+    ]
+  },
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash -c 'git rev-parse --git-dir >/dev/null 2>&1 || exit 0; git remote get-url origin >/dev/null 2>&1 || exit 0; git add -A >/dev/null 2>&1; git diff --staged --quiet && exit 0; git commit -m \"auto-sync: $(date +\"%Y-%m-%d %H:%M\")\" >/dev/null 2>&1; git push --quiet >/dev/null 2>&1; true'"
+          }
+        ]
+      }
     ]
   }
 }
