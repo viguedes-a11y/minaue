@@ -6,55 +6,40 @@ import { useStore } from '@/lib/store'
 import { useShallow } from 'zustand/react/shallow'
 import { TaskList } from '@/components/tarefas/TaskList'
 import { TaskForm } from '@/components/tarefas/TaskForm'
-import { ProjectForm } from '@/components/projetos/ProjectForm'
-import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
-import { Badge } from '@/components/ui/badge'
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog'
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
+  Sheet, SheetContent, SheetHeader, SheetTitle,
 } from '@/components/ui/sheet'
-import { Task, Project, STATUS_LABELS } from '@/lib/types'
-import {
-  ArrowLeft,
-  Plus,
-  Pencil,
-  Trash2,
-  CalendarDays,
-} from 'lucide-react'
+import { Task } from '@/lib/types'
+import { ArrowLeft, Plus, Pencil, Trash2, CalendarDays } from 'lucide-react'
 import { format, parseISO } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
 
-export default function ProjectDetailPage() {
-  const params = useParams()
-  const router = useRouter()
-  const id = params.id as string
+const fontDisplay = 'var(--font-cormorant), "Cormorant Garamond", serif'
+const fontSans    = 'var(--font-jost), Jost, sans-serif'
 
-  const project = useStore((s) => s.projects.find((p) => p.id === id))
-  const tasks = useStore(useShallow((s) => s.tasks.filter((t) => t.projectId === id)))
-  const totalTasks = tasks.length
-  const doneTasks = tasks.filter((t) => t.status === 'concluida').length
-  const progress = totalTasks === 0 ? 0 : Math.round((doneTasks / totalTasks) * 100)
-  const { addTask, updateProject, deleteProject } = useStore()
+export default function ProjectDetailPage() {
+  const params  = useParams()
+  const router  = useRouter()
+  const id      = params.id as string
+
+  const project  = useStore((s) => s.projects.find((p) => p.id === id))
+  const tasks    = useStore(useShallow((s) => s.tasks.filter((t) => t.projectId === id)))
+  const total    = tasks.length
+  const done     = tasks.filter((t) => t.status === 'concluida').length
+  const progress = total === 0 ? 0 : Math.round((done / total) * 100)
+  const pending  = tasks.filter((t) => t.status !== 'concluida').length
+  const { addTask, deleteProject } = useStore()
 
   const [addingTask, setAddingTask] = useState(false)
-  const [editingProject, setEditingProject] = useState(false)
 
   if (!project) {
     return (
-      <div className="max-w-2xl mx-auto px-4 py-20 text-center">
-        <p className="text-gray-400">Projeto não encontrado.</p>
-        <Button variant="outline" className="mt-4" onClick={() => router.push('/projetos')}>
-          Voltar
-        </Button>
+      <div className="max-w-2xl mx-auto px-6 py-20 text-center">
+        <p style={{ color: '#6B7A6C', fontFamily: fontSans }}>Projeto não encontrado.</p>
+        <button className="btn-minaue mt-6" onClick={() => router.push('/projetos')}>
+          ← Voltar
+        </button>
       </div>
     )
   }
@@ -64,96 +49,137 @@ export default function ProjectDetailPage() {
     setAddingTask(false)
   }
 
-  function handleEditProject(data: Omit<Project, 'id' | 'createdAt' | 'updatedAt'>) {
-    updateProject(id, data)
-    setEditingProject(false)
-  }
-
   function handleDelete() {
     if (!confirm(`Deletar "${project!.name}" e todas as tarefas?`)) return
     deleteProject(id)
     router.push('/projetos')
   }
 
-  const pendingCount = tasks.filter((t) => t.status !== 'concluida').length
-
   return (
-    <div className="max-w-2xl mx-auto px-4 py-6 space-y-5">
-      {/* Back */}
-      <button
-        onClick={() => router.push('/projetos')}
-        className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-800 transition-colors"
-      >
-        <ArrowLeft size={16} />
-        Projetos
-      </button>
+    <div className="max-w-xl mx-auto min-h-screen flex flex-col">
 
-      {/* Project header */}
-      <div className="bg-white rounded-2xl border border-gray-200 p-5 space-y-4">
-        <div className="flex items-start justify-between gap-3">
-          <div className="flex items-center gap-2.5">
-            <span
-              className="w-4 h-4 rounded-full flex-shrink-0"
-              style={{ backgroundColor: project.color }}
+      {/* Header */}
+      <div
+        className="sticky top-0 z-10 px-6 pt-6 pb-5 border-b"
+        style={{ background: '#EDEAE4', borderColor: '#D8D2C8' }}
+      >
+        {/* Voltar */}
+        <button
+          onClick={() => router.push('/projetos')}
+          className="flex items-center gap-1.5 text-xs tracking-widest uppercase mb-5 transition-colors"
+          style={{ color: '#A09888', fontFamily: fontSans, fontWeight: 300 }}
+          onMouseEnter={(e) => (e.currentTarget.style.color = '#282F29')}
+          onMouseLeave={(e) => (e.currentTarget.style.color = '#A09888')}
+        >
+          <ArrowLeft size={13} />
+          Projetos
+        </button>
+
+        {/* Project identity */}
+        <div className="flex items-start justify-between gap-4">
+          <div className="flex items-center gap-3 min-w-0">
+            <div
+              className="w-1 self-stretch rounded-full flex-shrink-0"
+              style={{ background: project.color, minHeight: '32px' }}
             />
-            <h1 className="text-xl font-bold text-gray-900">{project.name}</h1>
+            <div className="min-w-0">
+              <h1
+                className="text-[28px] leading-tight truncate"
+                style={{ fontFamily: fontDisplay, fontWeight: 300, color: '#282F29' }}
+              >
+                {project.emoji && <span className="mr-2 text-[22px]">{project.emoji}</span>}
+                {project.name}
+              </h1>
+              <div className="flex items-center gap-3 mt-1 flex-wrap">
+                <span
+                  className="text-[11px] tracking-[0.15em] uppercase"
+                  style={{ color: '#6B7A6C', fontFamily: fontSans, fontWeight: 300 }}
+                >
+                  {pending} pendente{pending !== 1 ? 's' : ''}
+                </span>
+                {project.deadline && (
+                  <span
+                    className="flex items-center gap-1 text-[11px] tracking-[0.1em]"
+                    style={{ color: '#A09888', fontFamily: fontSans, fontWeight: 300 }}
+                  >
+                    <CalendarDays size={11} />
+                    {format(parseISO(project.deadline), "dd 'de' MMMM", { locale: ptBR })}
+                  </span>
+                )}
+              </div>
+            </div>
           </div>
-          <div className="flex items-center gap-1">
-            <button
-              onClick={() => setEditingProject(true)}
-              className="p-1.5 text-gray-400 hover:text-gray-700 transition-colors"
-            >
-              <Pencil size={15} />
-            </button>
+
+          <div className="flex items-center gap-1 flex-shrink-0">
             <button
               onClick={handleDelete}
-              className="p-1.5 text-gray-400 hover:text-red-500 transition-colors"
+              className="p-2 rounded transition-colors"
+              style={{ color: '#C8C4BC' }}
+              onMouseEnter={(e) => (e.currentTarget.style.color = '#B85050')}
+              onMouseLeave={(e) => (e.currentTarget.style.color = '#C8C4BC')}
             >
-              <Trash2 size={15} />
+              <Trash2 size={14} />
             </button>
           </div>
         </div>
 
-        <div className="flex items-center gap-3 flex-wrap">
-          <Badge variant="secondary">{STATUS_LABELS[project.status]}</Badge>
-          {project.deadline && (
-            <span className="flex items-center gap-1 text-xs text-gray-500">
-              <CalendarDays size={13} />
-              {format(parseISO(project.deadline), "dd 'de' MMMM", { locale: ptBR })}
-            </span>
-          )}
-          <span className="text-xs text-gray-500">
-            {pendingCount} tarefa{pendingCount !== 1 ? 's' : ''} pendente{pendingCount !== 1 ? 's' : ''}
-          </span>
-        </div>
-
-        <div className="space-y-1.5">
-          <div className="flex justify-between text-xs text-gray-500">
-            <span>Progresso geral</span>
-            <span>{progress}%</span>
+        {/* Progress */}
+        {total > 0 && (
+          <div className="mt-4 space-y-1.5">
+            <div className="flex justify-between" style={{ fontFamily: fontSans }}>
+              <span className="text-[10px] tracking-[0.2em] uppercase" style={{ color: '#A09888', fontWeight: 300 }}>
+                Progresso
+              </span>
+              <span className="text-[11px] font-light" style={{ color: '#B8A070' }}>
+                {done}/{total} · {progress}%
+              </span>
+            </div>
+            <div className="h-1 rounded-full overflow-hidden" style={{ background: '#D8D2C8' }}>
+              <div
+                className="h-full rounded-full transition-all duration-500"
+                style={{ width: `${progress}%`, background: `linear-gradient(to right, ${project.color}, ${project.color}99)` }}
+              />
+            </div>
           </div>
-          <Progress value={progress} className="h-2" />
-        </div>
+        )}
       </div>
 
-      {/* Tasks */}
-      <div className="space-y-3">
+      {/* Linha dourada */}
+      <div style={{ height: '1px', background: 'linear-gradient(to right, #B8A070, transparent)', flexShrink: 0 }} />
+
+      {/* Tasks section */}
+      <div className="flex-1 px-6 py-5 space-y-4">
         <div className="flex items-center justify-between">
-          <h2 className="font-semibold text-gray-900">Tarefas</h2>
-          <Button onClick={() => setAddingTask(true)} size="sm" className="gap-1.5">
-            <Plus size={15} />
+          <h2
+            className="text-[22px]"
+            style={{ fontFamily: fontDisplay, fontWeight: 300, color: '#282F29' }}
+          >
+            Tarefas
+          </h2>
+          <button
+            onClick={() => setAddingTask(true)}
+            className="btn-minaue"
+            style={{ padding: '7px 18px', fontSize: '10px' }}
+          >
+            <Plus size={11} />
             Adicionar
-          </Button>
+          </button>
         </div>
 
-        <TaskList tasks={tasks} />
+        <TaskList tasks={tasks} projectColor={project.color} />
       </div>
 
-      {/* Add task sheet (bottom sheet on mobile) */}
+      {/* Add task — sheet no mobile */}
       <Sheet open={addingTask} onOpenChange={setAddingTask}>
-        <SheetContent side="bottom" className="rounded-t-2xl max-h-[90vh] overflow-y-auto">
+        <SheetContent
+          side="bottom"
+          className="rounded-t-2xl max-h-[90vh] overflow-y-auto"
+          style={{ background: '#FAF8F4' }}
+        >
           <SheetHeader>
-            <SheetTitle>Nova tarefa</SheetTitle>
+            <SheetTitle style={{ fontFamily: fontDisplay, fontWeight: 300, fontSize: '22px', color: '#282F29' }}>
+              Nova tarefa
+            </SheetTitle>
           </SheetHeader>
           <div className="mt-4">
             <TaskForm
@@ -164,20 +190,6 @@ export default function ProjectDetailPage() {
           </div>
         </SheetContent>
       </Sheet>
-
-      {/* Edit project dialog */}
-      <Dialog open={editingProject} onOpenChange={setEditingProject}>
-        <DialogContent className="max-w-md">
-          <DialogHeader>
-            <DialogTitle>Editar projeto</DialogTitle>
-          </DialogHeader>
-          <ProjectForm
-            initial={project}
-            onSave={handleEditProject}
-            onCancel={() => setEditingProject(false)}
-          />
-        </DialogContent>
-      </Dialog>
     </div>
   )
 }

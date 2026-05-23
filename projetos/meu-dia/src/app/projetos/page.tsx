@@ -15,24 +15,32 @@ import {
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 
-// ── Tipografia helpers ─────────────────────────────────────────────────────
 const fontDisplay = 'var(--font-cormorant), "Cormorant Garamond", serif'
 const fontSans    = 'var(--font-jost), Jost, sans-serif'
 
+const labelStyle = {
+  fontFamily: fontSans,
+  fontSize: '10px',
+  letterSpacing: '0.18em',
+  textTransform: 'uppercase' as const,
+  color: '#7A8E7B',
+  fontWeight: 300,
+}
+
 // ── Sub-project row ────────────────────────────────────────────────────────
 function SubRow({ project }: { project: Project }) {
-  const router = useRouter()
+  const router  = useRouter()
   const pending = useProjectPendingCount(project.id)
 
   return (
     <button
       onClick={() => router.push(`/projetos/${project.id}`)}
-      className="w-full flex items-center gap-3 pl-11 pr-5 py-2 text-left transition-all group hover:bg-white/[0.02]"
+      className="w-full flex items-center justify-between gap-3 pl-12 pr-4 py-2.5 text-left transition-all group"
+      style={{ borderBottom: '1px solid #EDE8DF' }}
     >
-      <span className="text-sm leading-none opacity-80">{project.emoji ?? '·'}</span>
       <span
-        className="flex-1 text-[13px] tracking-wide transition-colors group-hover:text-[#D4C9B0]"
-        style={{ color: '#8A9E8B', fontFamily: fontSans, fontWeight: 300 }}
+        className="flex-1 text-[13px] tracking-wide transition-colors group-hover:text-[#282F29]"
+        style={{ color: '#6B7A6C', fontFamily: fontSans, fontWeight: 300 }}
       >
         {project.name}
       </span>
@@ -44,36 +52,38 @@ function SubRow({ project }: { project: Project }) {
           {pending}
         </span>
       )}
+      <ChevronRight size={12} style={{ color: '#C8C4BC' }} />
     </button>
   )
 }
 
 // ── Project row ────────────────────────────────────────────────────────────
 function ProjectRow({ project, index }: { project: Project; index: number }) {
-  const router = useRouter()
+  const router      = useRouter()
   const subProjects = useSubProjects(project.id)
-  const pending = useProjectPendingCount(project.id)
+  const pending     = useProjectPendingCount(project.id)
   const { deleteProject } = useStore()
   const [expanded, setExpanded] = useState(true)
-  const [editing, setEditing] = useState(false)
+  const [editing, setEditing]   = useState(false)
 
   const hasChildren = subProjects.length > 0
 
   return (
     <div
-      className="group/row animate-fade-up"
+      className="animate-fade-up"
       style={{ animationDelay: `${index * 40}ms`, opacity: 0 }}
     >
-      {/* Main row */}
+      {/* Button row */}
       <div
-        className="flex items-center transition-colors hover:bg-white/[0.025]"
-        style={{ borderLeft: `2px solid ${project.color}` }}
+        className="group/row flex items-center transition-all"
+        style={{ borderBottom: '1px solid #E5E0D8' }}
       >
-        {/* Chevron ou espaço */}
+        {/* Chevron */}
         <button
           onClick={() => setExpanded(!expanded)}
-          className="flex-shrink-0 w-9 h-11 flex items-center justify-center"
+          className="flex-shrink-0 w-10 h-12 flex items-center justify-center"
           style={{ color: hasChildren ? '#5E6E5F' : 'transparent', cursor: hasChildren ? 'pointer' : 'default' }}
+          tabIndex={hasChildren ? 0 : -1}
         >
           <ChevronRight
             size={13}
@@ -82,21 +92,24 @@ function ProjectRow({ project, index }: { project: Project; index: number }) {
           />
         </button>
 
-        {/* Emoji + nome */}
+        {/* Color bar + name button */}
         <button
           onClick={() => hasChildren ? setExpanded(!expanded) : router.push(`/projetos/${project.id}`)}
-          className="flex-1 flex items-center gap-2.5 py-3 text-left min-w-0"
+          className="flex-1 flex items-center gap-3 py-3 text-left min-w-0 transition-opacity active:opacity-70"
         >
-          <span className="text-xl leading-none flex-shrink-0">{project.emoji ?? '📁'}</span>
+          <div
+            className="w-2 h-2 rounded-full flex-shrink-0"
+            style={{ background: project.color }}
+          />
           <span
-            className="text-[17px] truncate"
-            style={{ color: '#EDE8E4', fontFamily: fontDisplay, fontWeight: 300, letterSpacing: '0.01em' }}
+            className="text-[16px] truncate"
+            style={{ color: '#282F29', fontFamily: fontDisplay, fontWeight: 300, letterSpacing: '0.02em' }}
           >
             {project.name}
           </span>
         </button>
 
-        {/* Badge de pendentes */}
+        {/* Pending badge */}
         {pending > 0 && (
           <span
             className="text-[10px] tabular-nums mr-2 px-2 py-0.5 rounded-sm"
@@ -110,7 +123,7 @@ function ProjectRow({ project, index }: { project: Project; index: number }) {
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <button
-              className="w-9 h-11 flex items-center justify-center opacity-0 group-hover/row:opacity-100 transition-opacity"
+              className="w-9 h-12 flex items-center justify-center opacity-0 group-hover/row:opacity-100 transition-opacity"
               style={{ color: '#5E6E5F' }}
             >
               <MoreHorizontal size={14} />
@@ -140,15 +153,13 @@ function ProjectRow({ project, index }: { project: Project; index: number }) {
         </DropdownMenu>
       </div>
 
-      {/* Sub-projects */}
+      {/* Sub-projects accordion */}
       {hasChildren && (
-        <div className={cn('subprojects-grid', expanded && 'open')}>
+        <div className={cn('subprojects-grid', expanded && 'open')} style={{ background: '#F5F1EA' }}>
           <div className="subprojects-inner">
-            <div style={{ borderLeft: `2px solid ${project.color}18` }}>
-              {subProjects.map((sp) => (
-                <SubRow key={sp.id} project={sp} />
-              ))}
-            </div>
+            {subProjects.map((sp) => (
+              <SubRow key={sp.id} project={sp} />
+            ))}
           </div>
         </div>
       )}
@@ -162,43 +173,43 @@ function ProjectRow({ project, index }: { project: Project; index: number }) {
 
 // ── Edit dialog ────────────────────────────────────────────────────────────
 function EditProjectDialog({ project, onClose }: { project: Project; onClose: () => void }) {
-  const [name, setName]   = useState(project.name)
-  const [emoji, setEmoji] = useState(project.emoji ?? '')
+  const [name, setName] = useState(project.name)
   const { updateProject } = useStore()
 
   function handleSave(e: React.FormEvent) {
     e.preventDefault()
     if (!name.trim()) return
-    updateProject(project.id, { name: name.trim(), emoji: emoji.trim() || undefined })
+    updateProject(project.id, { name: name.trim() })
     onClose()
   }
 
   return (
     <Dialog open onOpenChange={onClose}>
-      <DialogContent className="max-w-sm">
+      <DialogContent className="max-w-sm" style={{ background: '#FAF8F4' }}>
         <DialogHeader>
-          <DialogTitle style={{ fontFamily: fontDisplay, fontWeight: 300, fontSize: '22px' }}>
+          <DialogTitle style={{ fontFamily: fontDisplay, fontWeight: 300, fontSize: '22px', color: '#282F29' }}>
             Editar projeto
           </DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSave} className="space-y-4 pt-1">
-          <div className="grid grid-cols-[72px_1fr] gap-3">
-            <div className="space-y-1.5">
-              <Label className="text-[11px] tracking-widest uppercase" style={{ color: '#7A8E7B', fontFamily: fontSans }}>
-                Emoji
-              </Label>
-              <Input value={emoji} onChange={(e) => setEmoji(e.target.value)} placeholder="🎯" className="text-center text-xl" maxLength={2} />
-            </div>
-            <div className="space-y-1.5">
-              <Label className="text-[11px] tracking-widest uppercase" style={{ color: '#7A8E7B', fontFamily: fontSans }}>
-                Nome
-              </Label>
-              <Input value={name} onChange={(e) => setName(e.target.value)} autoFocus placeholder="Nome do projeto" />
-            </div>
+          <div className="space-y-1.5">
+            <Label style={labelStyle}>Nome</Label>
+            <Input
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              autoFocus
+              placeholder="Nome do projeto"
+              style={{ fontFamily: fontSans, color: '#282F29' }}
+            />
           </div>
           <div className="flex gap-2 pt-2">
             <button type="submit" className="btn-minaue flex-1 justify-center">Salvar</button>
-            <button type="button" className="btn-minaue" style={{ borderColor: '#3A4439', color: '#7A8E7B' }} onClick={onClose}>
+            <button
+              type="button"
+              className="btn-minaue"
+              style={{ borderColor: '#D8D2C8', color: '#7A8E7B' }}
+              onClick={onClose}
+            >
               Cancelar
             </button>
           </div>
@@ -211,7 +222,6 @@ function EditProjectDialog({ project, onClose }: { project: Project; onClose: ()
 // ── New project dialog ─────────────────────────────────────────────────────
 function NewProjectDialog({ onClose }: { onClose: () => void }) {
   const [name, setName]   = useState('')
-  const [emoji, setEmoji] = useState('')
   const [color, setColor] = useState(PROJECT_COLORS[0])
   const { addProject, projects } = useStore()
 
@@ -220,7 +230,6 @@ function NewProjectDialog({ onClose }: { onClose: () => void }) {
     if (!name.trim()) return
     addProject({
       name: name.trim(),
-      emoji: emoji.trim() || undefined,
       color,
       status: 'em_andamento',
       order: projects.filter((p) => !p.parentId).length,
@@ -230,32 +239,26 @@ function NewProjectDialog({ onClose }: { onClose: () => void }) {
 
   return (
     <Dialog open onOpenChange={onClose}>
-      <DialogContent className="max-w-sm">
+      <DialogContent className="max-w-sm" style={{ background: '#FAF8F4' }}>
         <DialogHeader>
-          <DialogTitle style={{ fontFamily: fontDisplay, fontWeight: 300, fontSize: '22px' }}>
+          <DialogTitle style={{ fontFamily: fontDisplay, fontWeight: 300, fontSize: '22px', color: '#282F29' }}>
             Novo projeto
           </DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSave} className="space-y-4 pt-1">
-          <div className="grid grid-cols-[72px_1fr] gap-3">
-            <div className="space-y-1.5">
-              <Label className="text-[11px] tracking-widest uppercase" style={{ color: '#7A8E7B', fontFamily: fontSans }}>
-                Emoji
-              </Label>
-              <Input value={emoji} onChange={(e) => setEmoji(e.target.value)} placeholder="📁" className="text-center text-xl" maxLength={2} />
-            </div>
-            <div className="space-y-1.5">
-              <Label className="text-[11px] tracking-widest uppercase" style={{ color: '#7A8E7B', fontFamily: fontSans }}>
-                Nome
-              </Label>
-              <Input value={name} onChange={(e) => setName(e.target.value)} autoFocus placeholder="Nome do projeto" />
-            </div>
+          <div className="space-y-1.5">
+            <Label style={labelStyle}>Nome</Label>
+            <Input
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              autoFocus
+              placeholder="Nome do projeto"
+              style={{ fontFamily: fontSans, color: '#282F29' }}
+            />
           </div>
 
           <div className="space-y-2">
-            <Label className="text-[11px] tracking-widest uppercase" style={{ color: '#7A8E7B', fontFamily: fontSans }}>
-              Cor
-            </Label>
+            <Label style={labelStyle}>Cor</Label>
             <div className="flex gap-2.5 flex-wrap">
               {PROJECT_COLORS.map((c) => (
                 <button
@@ -275,7 +278,12 @@ function NewProjectDialog({ onClose }: { onClose: () => void }) {
 
           <div className="flex gap-2 pt-2">
             <button type="submit" className="btn-minaue flex-1 justify-center">Criar projeto</button>
-            <button type="button" className="btn-minaue" style={{ borderColor: '#3A4439', color: '#7A8E7B' }} onClick={onClose}>
+            <button
+              type="button"
+              className="btn-minaue"
+              style={{ borderColor: '#D8D2C8', color: '#7A8E7B' }}
+              onClick={onClose}
+            >
               Cancelar
             </button>
           </div>
@@ -296,12 +304,12 @@ export default function ProjetosPage() {
       {/* Header */}
       <div
         className="flex items-end justify-between px-6 pt-8 pb-5 border-b sticky top-0 z-10"
-        style={{ background: '#282F29', borderColor: '#3A4439' }}
+        style={{ background: '#EDEAE4', borderColor: '#D8D2C8' }}
       >
         <div>
           <h1
             className="text-[32px] leading-none"
-            style={{ fontFamily: fontDisplay, fontWeight: 300, color: '#EDE8E4', letterSpacing: '0.01em' }}
+            style={{ fontFamily: fontDisplay, fontWeight: 300, color: '#282F29', letterSpacing: '0.01em' }}
           >
             Projetos
           </h1>
@@ -341,7 +349,7 @@ export default function ProjetosPage() {
             </button>
           </div>
         ) : (
-          <div className="divide-y" style={{ borderColor: '#2F3830' }}>
+          <div>
             {rootProjects.map((project, i) => (
               <ProjectRow key={project.id} project={project} index={i} />
             ))}

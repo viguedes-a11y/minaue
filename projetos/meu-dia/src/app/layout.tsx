@@ -31,7 +31,7 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="pt-BR" className={`${cormorant.variable} ${jost.variable} h-full`}>
-      <body className="min-h-full antialiased" style={{ background: '#282F29', color: '#FAF8F4' }}>
+      <body className="min-h-full antialiased" style={{ background: '#EDEAE4', color: '#282F29' }}>
         <NavBar />
         <main className="pb-20 md:pb-0 md:pl-60">{children}</main>
       </body>
