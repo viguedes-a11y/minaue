@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useRootProjects, useSubProjects, useProjectPendingCount, useStore } from '@/lib/store'
 import { Project, PROJECT_COLORS } from '@/lib/types'
-import { ChevronRight, Plus, ArrowRight, Pencil, Trash2, MoreHorizontal } from 'lucide-react'
+import { ChevronRight, Plus, ArrowRight, Pencil, Trash2, MoreHorizontal, FolderPlus } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle,
@@ -81,9 +81,10 @@ function ProjectRow({ project, index }: { project: Project; index: number }) {
   const subProjects = useSubProjects(project.id)
   const pending     = useProjectPendingCount(project.id)
   const { deleteProject } = useStore()
-  const [expanded, setExpanded] = useState(true)
-  const [editing, setEditing]   = useState(false)
-  const [hov, setHov]           = useState(false)
+  const [expanded, setExpanded]       = useState(true)
+  const [editing, setEditing]         = useState(false)
+  const [addingSub, setAddingSub]     = useState(false)
+  const [hov, setHov]                 = useState(false)
 
   const hasChildren = subProjects.length > 0
 
@@ -177,6 +178,12 @@ function ProjectRow({ project, index }: { project: Project; index: number }) {
                 Abrir
               </DropdownMenuItem>
               <DropdownMenuItem
+                onClick={() => setAddingSub(true)}
+                style={{ fontFamily: fontSans, fontSize: '13px' }}
+              >
+                <FolderPlus size={12} className="mr-2 opacity-60" /> Nova subpasta
+              </DropdownMenuItem>
+              <DropdownMenuItem
                 onClick={() => setEditing(true)}
                 style={{ fontFamily: fontSans, fontSize: '13px' }}
               >
@@ -209,6 +216,9 @@ function ProjectRow({ project, index }: { project: Project; index: number }) {
 
       {editing && (
         <EditProjectDialog project={project} onClose={() => setEditing(false)} />
+      )}
+      {addingSub && (
+        <NewSubProjectDialog parentProject={project} onClose={() => setAddingSub(false)} />
       )}
     </div>
   )
@@ -247,6 +257,83 @@ function EditProjectDialog({ project, onClose }: { project: Project; onClose: ()
           </div>
           <div className="flex gap-2 pt-2">
             <button type="submit" className="btn-minaue flex-1 justify-center">Salvar</button>
+            <button
+              type="button"
+              className="btn-minaue"
+              style={{ borderColor: '#D8D2C8', color: '#7A8E7B' }}
+              onClick={onClose}
+            >
+              Cancelar
+            </button>
+          </div>
+        </form>
+      </DialogContent>
+    </Dialog>
+  )
+}
+
+// ── New sub-project dialog ─────────────────────────────────────────────────
+function NewSubProjectDialog({ parentProject, onClose }: { parentProject: Project; onClose: () => void }) {
+  const [name, setName]   = useState('')
+  const [color, setColor] = useState(parentProject.color)
+  const { addProject, projects } = useStore()
+
+  function handleSave(e: React.FormEvent) {
+    e.preventDefault()
+    if (!name.trim()) return
+    addProject({
+      name: name.trim(),
+      color,
+      status: 'em_andamento',
+      parentId: parentProject.id,
+      order: projects.filter((p) => p.parentId === parentProject.id).length,
+    })
+    onClose()
+  }
+
+  return (
+    <Dialog open onOpenChange={onClose}>
+      <DialogContent className="max-w-sm" style={{ background: '#FAF8F4' }}>
+        <DialogHeader>
+          <DialogTitle style={{ fontFamily: fontDisplay, fontWeight: 300, fontSize: '22px', color: '#282F29' }}>
+            Nova subpasta
+          </DialogTitle>
+        </DialogHeader>
+        <p style={{ fontFamily: fontSans, fontSize: '12px', color: '#A09888', fontWeight: 300, marginBottom: '4px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: parentProject.color, display: 'inline-block' }} />
+          dentro de <strong style={{ color: '#282F29', fontWeight: 400 }}>{parentProject.name}</strong>
+        </p>
+        <form onSubmit={handleSave} className="space-y-4 pt-1">
+          <div className="space-y-1.5">
+            <Label style={labelStyle}>Nome</Label>
+            <Input
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              autoFocus
+              placeholder="Nome da subpasta"
+              style={{ fontFamily: fontSans, color: '#282F29' }}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label style={labelStyle}>Cor</Label>
+            <div className="flex gap-2.5 flex-wrap">
+              {PROJECT_COLORS.map((c) => (
+                <button
+                  key={c}
+                  type="button"
+                  onClick={() => setColor(c)}
+                  className="w-6 h-6 rounded-full transition-all"
+                  style={{
+                    backgroundColor: c,
+                    outline: color === c ? `2px solid ${c}` : '2px solid transparent',
+                    outlineOffset: '2px',
+                  }}
+                />
+              ))}
+            </div>
+          </div>
+          <div className="flex gap-2 pt-2">
+            <button type="submit" className="btn-minaue flex-1 justify-center">Criar subpasta</button>
             <button
               type="button"
               className="btn-minaue"
