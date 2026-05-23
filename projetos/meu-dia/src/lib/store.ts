@@ -153,8 +153,8 @@ export const useStore = create<AppState>()(
         const [
           { data: dbProjects, error: pe },
           { data: dbTasks, error: te },
-          { data: dbBlocks },
-          { data: dbWeekTasks },
+          { data: dbBlocks, error: be },
+          { data: dbWeekTasks, error: we },
         ] = await Promise.all([
           supabase.from('meudia_projects').select('*'),
           supabase.from('meudia_tasks').select('*'),
@@ -167,23 +167,25 @@ export const useStore = create<AppState>()(
           set({ isLoaded: true })
           return
         }
+        if (be) console.error('Supabase time_blocks error:', be)
+        if (we) console.error('Supabase week_tasks error:', we)
 
         if (dbProjects && dbProjects.length > 0) {
           const { timeBlocks: localBlocks, weekTasks: localWeekTasks } = get()
 
           // Se Supabase não tem blocos mas localStorage tem, sobe os dados locais
-          if ((!dbBlocks || dbBlocks.length === 0) && localBlocks.length > 0) {
+          if (!be && (!dbBlocks || dbBlocks.length === 0) && localBlocks.length > 0) {
             await supabase.from('meudia_time_blocks').upsert(localBlocks.map(toDbTimeBlock))
           }
-          if ((!dbWeekTasks || dbWeekTasks.length === 0) && localWeekTasks.length > 0) {
+          if (!we && (!dbWeekTasks || dbWeekTasks.length === 0) && localWeekTasks.length > 0) {
             await supabase.from('meudia_week_tasks').upsert(localWeekTasks.map(toDbWeekTask))
           }
 
           set({
             projects: dbProjects.map(fromDbProject),
             tasks: (dbTasks ?? []).map(fromDbTask),
-            timeBlocks: (dbBlocks && dbBlocks.length > 0) ? dbBlocks.map(fromDbTimeBlock) : localBlocks,
-            weekTasks: (dbWeekTasks && dbWeekTasks.length > 0) ? dbWeekTasks.map(fromDbWeekTask) : localWeekTasks,
+            timeBlocks: (!be && dbBlocks && dbBlocks.length > 0) ? dbBlocks.map(fromDbTimeBlock) : localBlocks,
+            weekTasks: (!we && dbWeekTasks && dbWeekTasks.length > 0) ? dbWeekTasks.map(fromDbWeekTask) : localWeekTasks,
             isLoaded: true,
           })
         } else {

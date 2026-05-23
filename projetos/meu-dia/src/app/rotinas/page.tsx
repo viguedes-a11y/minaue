@@ -473,26 +473,31 @@ function WeekGrid({
                   </span>
                 </div>
 
-                {/* Grid column — full column is the free drop zone */}
-                <DroppableCell
-                  id={`${dayIdx}::free`}
-                  style={{ position: 'relative', height: `${TOTAL_PX}px`, borderLeft: '1px solid #E5E0D8' }}
-                >
+                {/* Grid column — plain div, NOT droppable (avoids nested-droppable conflict) */}
+                <div style={{ position: 'relative', height: `${TOTAL_PX}px`, borderLeft: '1px solid #E5E0D8' }}>
                   {/* Hour lines */}
                   {hours.map((h) => (
                     <div key={h} style={{ position: 'absolute', top: `${(h - HOUR_START) * HOUR_PX}px`, left: 0, right: 0, borderTop: '1px solid #F0EDE7', pointerEvents: 'none' }} />
                   ))}
 
-                  {/* Free tasks float at top of column */}
+                  {/* Free drop zone — sibling to blocks, behind them (zIndex 1) */}
+                  <DroppableCell
+                    id={`${dayIdx}::free`}
+                    style={{ position: 'absolute', inset: 0, zIndex: 1 }}
+                  />
+
+                  {/* Free tasks rendered above the zone (zIndex 2) */}
                   {freeTasks.length > 0 && (
-                    <div style={{ position: 'absolute', top: '4px', left: '3px', right: '3px', zIndex: 2 }}>
+                    <div style={{ position: 'absolute', top: '4px', left: '3px', right: '3px', zIndex: 2, pointerEvents: 'none' }}>
                       {freeTasks.map(({ wt, task }) => task && (
-                        <DraggableTask key={wt.id} id={wt.id} title={task.title} color={projects.find((p) => p.id === task.projectId)?.color ?? '#B8A070'} done={task.status === 'concluida'} />
+                        <div key={wt.id} style={{ pointerEvents: 'auto' }}>
+                          <DraggableTask id={wt.id} title={task.title} color={projects.find((p) => p.id === task.projectId)?.color ?? '#B8A070'} done={task.status === 'concluida'} />
+                        </div>
                       ))}
                     </div>
                   )}
 
-                  {/* Time blocks on top */}
+                  {/* Time blocks — siblings to free zone, above it (zIndex 4) */}
                   {(() => {
                     const blockLayout = layoutBlocks(dayBlocks)
                     return dayBlocks.map((block) => {
@@ -514,7 +519,7 @@ function WeekGrid({
                             background: `${block.color}18`,
                             borderLeft: `3px solid ${block.color}`,
                             borderRadius: '6px',
-                            padding: '3px 4px', zIndex: 3,
+                            padding: '3px 4px', zIndex: 4,
                           }}
                         >
                           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -540,7 +545,7 @@ function WeekGrid({
                       )
                     })
                   })()}
-                </DroppableCell>
+                </div>
               </div>
             )
           })}
