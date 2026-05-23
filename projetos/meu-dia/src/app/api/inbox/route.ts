@@ -55,9 +55,10 @@ Retorne APENAS um JSON válido (sem markdown, sem explicação) com esta estrutu
 
   const data = await res.json()
   const raw = data.content?.[0]?.text?.trim() ?? ''
+  const cleaned = raw.replace(/^```[a-z]*\n?/i, '').replace(/```$/i, '').trim()
 
   try {
-    return NextResponse.json(JSON.parse(raw))
+    return NextResponse.json(JSON.parse(cleaned))
   } catch {
     return NextResponse.json({ error: 'Falha ao parsear resposta da IA', raw }, { status: 500 })
   }
