@@ -1,22 +1,23 @@
 import Anthropic from '@anthropic-ai/sdk'
 import { NextRequest, NextResponse } from 'next/server'
 
-const client = new Anthropic()
-
 export async function POST(req: NextRequest) {
+  const apiKey = process.env.ANTHROPIC_API_KEY
+  if (!apiKey) {
+    return NextResponse.json({ error: 'ANTHROPIC_API_KEY não configurada no servidor' }, { status: 500 })
+  }
+
   const { text, projects } = await req.json()
 
   if (!text?.trim()) {
     return NextResponse.json({ error: 'Texto vazio' }, { status: 400 })
   }
 
+  const client = new Anthropic({ apiKey })
+
   const projectList = projects
     .map((p: { id: string; name: string }) => `- id: "${p.id}", nome: "${p.name}"`)
     .join('\n')
-
-  if (!process.env.ANTHROPIC_API_KEY) {
-    return NextResponse.json({ error: 'ANTHROPIC_API_KEY não configurada no servidor' }, { status: 500 })
-  }
 
   const message = await client.messages.create({
     model: 'claude-haiku-4-5-20251001',
