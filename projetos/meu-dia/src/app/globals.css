@@ -96,6 +96,9 @@
 @layer base {
   * { @apply border-border outline-ring/50; box-sizing: border-box; }
 
+  /* Impede auto-zoom no iOS ao focar inputs */
+  input, textarea, select { font-size: max(16px, 1em); }
+
   body {
     background: var(--cream);
     color: var(--grafite);
