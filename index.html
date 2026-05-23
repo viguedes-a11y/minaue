@@ -41,7 +41,8 @@
     }
 
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    html, body { overflow-x: hidden; max-width: 100%; }
+    html { overflow-x: hidden; }
+    body { overflow-x: hidden; width: 100%; max-width: 100vw; position: relative; }
 
     body {
       font-family: 'Inter', -apple-system, sans-serif;
@@ -658,7 +659,7 @@
       .tabs { order: 3; width: 100%; border-top: 1px solid rgba(255,255,255,0.1); padding: 4px 0 6px; justify-content: space-around; flex: none; gap: 2px; }
       .tab { padding: 5px 10px; font-size: 12px; }
       body { padding-top: 108px; }
-      main { padding: 16px 12px; }
+      .tab-content { padding: 16px 12px 90px; }
       .post-form { gap: 0; }
       .grid-2 { grid-template-columns: 1fr; }
       .form-footer { padding: 12px 16px; gap: 8px; }
@@ -673,8 +674,9 @@
 
     /* Foto miniatura da mandala ao lado do título */
     .title-with-thumb {
-      display: flex; align-items: flex-end; gap: 12px;
+      display: flex; align-items: flex-end; gap: 12px; min-width: 0;
     }
+    .title-with-thumb > div:last-child { min-width: 0; flex: 1; }
     .mandala-thumb-wrap { flex-shrink: 0; }
     .mandala-thumb {
       width: 68px; height: 68px; border-radius: 10px;
@@ -689,6 +691,7 @@
     /* Blocos de legenda por plataforma */
     .platform-caption-block {
       border: 1px solid var(--border);
+      overflow: hidden;
       border-radius: 10px;
       padding: 12px 14px;
       margin-bottom: 12px;
@@ -963,8 +966,8 @@
       </div>
     </div>
     <div class="modal-footer">
-      <button class="btn btn-secondary" onclick="closeNewMandalaModal()">Cancelar</button>
-      <button class="btn btn-primary" onclick="saveNewMandala()">Criar</button>
+      <button type="button" class="btn btn-secondary" onclick="closeNewMandalaModal()">Cancelar</button>
+      <button type="button" class="btn btn-primary" onclick="saveNewMandala()">Criar</button>
     </div>
   </div>
 </div>
@@ -1034,10 +1037,13 @@
     try { return JSON.parse(localStorage.getItem('minaue_mandalas') || '[]'); } catch { return []; }
   }
   function upsertLocalMandala(m) {
-    const list = getLocalMandalas();
-    const idx = list.findIndex(x => x.id === m.id);
-    if (idx !== -1) list[idx] = m; else list.unshift(m); // mais nova no topo
-    localStorage.setItem('minaue_mandalas', JSON.stringify(list));
+    try {
+      const list = getLocalMandalas();
+      const idx = list.findIndex(x => x.id === m.id);
+      if (idx !== -1) list[idx] = m; else list.unshift(m);
+      localStorage.setItem('minaue_mandalas', JSON.stringify(list));
+      return true;
+    } catch(e) { return false; }
   }
 
   function openNewMandalaModal() {
@@ -1067,11 +1073,9 @@
   }
   function saveNewMandala() {
     const name = document.getElementById('new-mandala-name-input').value.trim();
-    if (!name) {
-      document.getElementById('new-mandala-name-input').focus();
-      return;
-    }
-    upsertLocalMandala({ id: uid(), name, thumb: newMandalaPhotoBase64, createdAt: new Date().toISOString() });
+    if (!name) { document.getElementById('new-mandala-name-input').focus(); return; }
+    const ok = upsertLocalMandala({ id: uid(), name, thumb: newMandalaPhotoBase64, createdAt: new Date().toISOString() });
+    if (!ok) { alert('Não foi possível salvar. Tente novamente.'); return; }
     closeNewMandalaModal();
     renderMandalas();
   }
