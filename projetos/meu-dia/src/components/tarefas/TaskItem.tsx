@@ -124,8 +124,8 @@ export function TaskItem({ task, projectColor }: Props) {
                 fontFamily: fontDisplay, fontWeight: 400, fontSize: '15px',
                 color: task.status === 'concluida' ? '#A09888' : '#282F29',
                 textDecoration: task.status === 'concluida' ? 'line-through' : 'none',
-                lineHeight: '1.25',
-                overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+                lineHeight: '1.3',
+                wordBreak: 'break-word',
               }}
             >
               {task.title}
