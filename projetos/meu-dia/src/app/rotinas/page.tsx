@@ -4,7 +4,7 @@ import { useState, useRef } from 'react'
 import { useStore } from '@/lib/store'
 import { useShallow } from 'zustand/react/shallow'
 import { TimeBlock, WeekTask, PROJECT_COLORS } from '@/lib/types'
-import { DndContext, DragEndEvent, DragOverlay, DragStartEvent, PointerSensor, TouchSensor, useSensor, useSensors, useDroppable, useDraggable } from '@dnd-kit/core'
+import { DndContext, DragEndEvent, DragOverlay, DragStartEvent, PointerSensor, TouchSensor, useSensor, useSensors, useDroppable, useDraggable, Active } from '@dnd-kit/core'
 import { CSS } from '@dnd-kit/utilities'
 import { format, startOfWeek, addDays, addWeeks, subWeeks, isSameDay } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
@@ -360,7 +360,8 @@ function WeekGrid({
   const projects    = useStore(useShallow((s) => s.projects))
   const { moveWeekTask } = useStore()
 
-  const [editBlock, setEditBlock]   = useState<TimeBlock | null>(null)
+  const [editBlock, setEditBlock]     = useState<TimeBlock | null>(null)
+  const [activeItem, setActiveItem]   = useState<Active | null>(null)
   const { updateTimeBlock, deleteTimeBlock } = useStore()
 
   const sensors = useSensors(
@@ -374,7 +375,12 @@ function WeekGrid({
 
   const hours = Array.from({ length: HOUR_END - HOUR_START }, (_, i) => HOUR_START + i)
 
+  function handleDragStart(event: DragStartEvent) {
+    setActiveItem(event.active)
+  }
+
   function handleDragEnd(event: DragEndEvent) {
+    setActiveItem(null)
     const { active, over } = event
     if (!over) return
     const [dayStr, blockStr] = (over.id as string).split('::')
@@ -411,10 +417,15 @@ function WeekGrid({
       .filter((x) => x.task)
   }
 
+  const activeWeekTask = activeItem ? weekTasks.find((wt) => wt.id === activeItem.id) : null
+  const activeTask = activeWeekTask ? tasks.find((t) => t.id === activeWeekTask.taskId) : null
+  const activeColor = activeTask ? (projects.find((p) => p.id === activeTask.projectId)?.color ?? '#B8A070') : '#B8A070'
+
   return (
     <>
       <DndContext
         sensors={sensors}
+        onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
       >
         <div style={{ display: 'flex', overflow: 'auto' }}>
@@ -453,78 +464,93 @@ function WeekGrid({
                   </span>
                 </div>
 
-                {/* Grid column */}
-                <div style={{ position: 'relative', height: `${TOTAL_PX}px`, borderLeft: '1px solid #E5E0D8' }}>
+                {/* Grid column — full column is the free drop zone */}
+                <DroppableCell
+                  id={`${dayIdx}::free`}
+                  style={{ position: 'relative', height: `${TOTAL_PX}px`, borderLeft: '1px solid #E5E0D8' }}
+                >
                   {/* Hour lines */}
                   {hours.map((h) => (
                     <div key={h} style={{ position: 'absolute', top: `${(h - HOUR_START) * HOUR_PX}px`, left: 0, right: 0, borderTop: '1px solid #F0EDE7', pointerEvents: 'none' }} />
                   ))}
 
-                  {/* Time blocks */}
+                  {/* Free tasks float at top of column */}
+                  {freeTasks.length > 0 && (
+                    <div style={{ position: 'absolute', top: '4px', left: '3px', right: '3px', zIndex: 2 }}>
+                      {freeTasks.map(({ wt, task }) => task && (
+                        <DraggableTask key={wt.id} id={wt.id} title={task.title} color={projects.find((p) => p.id === task.projectId)?.color ?? '#B8A070'} done={task.status === 'concluida'} />
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Time blocks on top */}
                   {(() => {
                     const blockLayout = layoutBlocks(dayBlocks)
                     return dayBlocks.map((block) => {
-                    const top = minutesToPx(block.startMinutes)
-                    const height = minutesToPx(block.endMinutes) - top
-                    const blockTasks = getTasksForDayBlock(dayIdx, block.id)
-                    const { col, totalCols } = blockLayout.get(block.id) ?? { col: 0, totalCols: 1 }
-                    const colWidth = `calc((100% - 4px) / ${totalCols})`
-                    const colLeft = `calc(2px + ${col} * (100% - 4px) / ${totalCols})`
+                      const top = minutesToPx(block.startMinutes)
+                      const height = minutesToPx(block.endMinutes) - top
+                      const blockTasks = getTasksForDayBlock(dayIdx, block.id)
+                      const { col, totalCols } = blockLayout.get(block.id) ?? { col: 0, totalCols: 1 }
+                      const colWidth = `calc((100% - 4px) / ${totalCols})`
+                      const colLeft = `calc(2px + ${col} * (100% - 4px) / ${totalCols})`
 
-                    return (
-                      <DroppableCell
-                        key={block.id}
-                        id={`${dayIdx}::${block.id}`}
-                        style={{
-                          position: 'absolute', top: `${top}px`,
-                          left: colLeft, width: colWidth,
-                          height: `${Math.max(height, 24)}px`,
-                          background: `${block.color}18`,
-                          borderLeft: `3px solid ${block.color}`,
-                          borderRadius: '6px',
-                          padding: '3px 4px', overflow: 'hidden',
-                        }}
-                      >
-                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                          <span style={{ fontFamily: fontSans, fontSize: '9px', fontWeight: 400, color: block.color, letterSpacing: '0.05em', textTransform: 'uppercase', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                            {block.title}
-                          </span>
-                          <button
-                            onClick={(e) => { e.stopPropagation(); setEditBlock(block) }}
-                            style={{ color: block.color, background: 'rgba(255,255,255,0.5)', border: 'none', cursor: 'pointer', padding: '4px 6px', display: 'flex', borderRadius: '4px', flexShrink: 0, zIndex: 10, position: 'relative' }}
-                          >
-                            <Pencil size={10} />
-                          </button>
-                        </div>
-                        {height >= 36 && (
-                          <span style={{ fontFamily: fontSans, fontSize: '8px', color: `${block.color}90`, fontWeight: 300 }}>
-                            {minToTime(block.startMinutes)}–{minToTime(block.endMinutes)}
-                          </span>
-                        )}
-                        {blockTasks.map(({ wt, task }) => task && (
-                          <DraggableTask key={wt.id} id={wt.id} title={task.title} color={projects.find((p) => p.id === task.projectId)?.color ?? '#B8A070'} done={task.status === 'concluida'} />
-                        ))}
-                      </DroppableCell>
-                    )
-                  })})()}
-
-                  {/* Free tasks (no block) */}
-                  <DroppableCell
-                    id={`${dayIdx}::free`}
-                    style={{
-                      position: 'absolute', bottom: 0, left: '2px', right: '2px',
-                      minHeight: '40px', background: 'transparent',
-                    }}
-                  >
-                    {freeTasks.map(({ wt, task }) => task && (
-                      <DraggableTask key={wt.id} id={wt.id} title={task.title} color={projects.find((p) => p.id === task.projectId)?.color ?? '#B8A070'} done={task.status === 'concluida'} />
-                    ))}
-                  </DroppableCell>
-                </div>
+                      return (
+                        <DroppableCell
+                          key={block.id}
+                          id={`${dayIdx}::${block.id}`}
+                          style={{
+                            position: 'absolute', top: `${top}px`,
+                            left: colLeft, width: colWidth,
+                            height: `${Math.max(height, 24)}px`,
+                            background: `${block.color}18`,
+                            borderLeft: `3px solid ${block.color}`,
+                            borderRadius: '6px',
+                            padding: '3px 4px', overflow: 'hidden', zIndex: 3,
+                          }}
+                        >
+                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                            <span style={{ fontFamily: fontSans, fontSize: '9px', fontWeight: 400, color: block.color, letterSpacing: '0.05em', textTransform: 'uppercase', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                              {block.title}
+                            </span>
+                            <button
+                              onClick={(e) => { e.stopPropagation(); setEditBlock(block) }}
+                              style={{ color: block.color, background: 'rgba(255,255,255,0.5)', border: 'none', cursor: 'pointer', padding: '4px 6px', display: 'flex', borderRadius: '4px', flexShrink: 0, zIndex: 10, position: 'relative' }}
+                            >
+                              <Pencil size={10} />
+                            </button>
+                          </div>
+                          {height >= 36 && (
+                            <span style={{ fontFamily: fontSans, fontSize: '8px', color: `${block.color}90`, fontWeight: 300 }}>
+                              {minToTime(block.startMinutes)}–{minToTime(block.endMinutes)}
+                            </span>
+                          )}
+                          {blockTasks.map(({ wt, task }) => task && (
+                            <DraggableTask key={wt.id} id={wt.id} title={task.title} color={projects.find((p) => p.id === task.projectId)?.color ?? '#B8A070'} done={task.status === 'concluida'} />
+                          ))}
+                        </DroppableCell>
+                      )
+                    })
+                  })()}
+                </DroppableCell>
               </div>
             )
           })}
         </div>
+
+        <DragOverlay dropAnimation={null}>
+          {activeTask && (
+            <div style={{
+              padding: '5px 9px', borderRadius: '6px',
+              background: '#FAF8F4', border: `1px solid ${activeColor}60`,
+              borderLeft: `3px solid ${activeColor}`,
+              fontFamily: fontDisplay, fontSize: '13px', color: '#282F29',
+              boxShadow: '0 4px 16px rgba(40,47,41,0.18)',
+              pointerEvents: 'none', whiteSpace: 'nowrap',
+            }}>
+              {activeTask.title}
+            </div>
+          )}
+        </DragOverlay>
       </DndContext>
 
       {editBlock && (
