@@ -1,4 +1,3 @@
-import Anthropic from '@anthropic-ai/sdk'
 import { NextRequest, NextResponse } from 'next/server'
 
 export async function POST(req: NextRequest) {
@@ -8,24 +7,28 @@ export async function POST(req: NextRequest) {
   }
 
   const { text, projects } = await req.json()
-
   if (!text?.trim()) {
     return NextResponse.json({ error: 'Texto vazio' }, { status: 400 })
   }
-
-  const client = new Anthropic({ apiKey })
 
   const projectList = projects
     .map((p: { id: string; name: string }) => `- id: "${p.id}", nome: "${p.name}"`)
     .join('\n')
 
-  const message = await client.messages.create({
-    model: 'claude-haiku-4-5-20251001',
-    max_tokens: 512,
-    messages: [
-      {
-        role: 'user',
-        content: `Você é um assistente de organização pessoal. Analise a tarefa abaixo e retorne um JSON com os campos indicados.
+  const res = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': apiKey,
+      'anthropic-version': '2023-06-01',
+    },
+    body: JSON.stringify({
+      model: 'claude-haiku-4-5-20251001',
+      max_tokens: 512,
+      messages: [
+        {
+          role: 'user',
+          content: `Você é um assistente de organização pessoal. Analise a tarefa abaixo e retorne um JSON com os campos indicados.
 
 Projetos disponíveis:
 ${projectList}
@@ -40,15 +43,21 @@ Retorne APENAS um JSON válido (sem markdown, sem explicação) com esta estrutu
   "deadline": "YYYY-MM-DD ou null se não mencionado",
   "description": "detalhes adicionais se houver, senão null"
 }`,
-      },
-    ],
+        },
+      ],
+    }),
   })
 
-  const raw = (message.content[0] as { type: string; text: string }).text.trim()
+  if (!res.ok) {
+    const err = await res.text()
+    return NextResponse.json({ error: `Erro da API Anthropic: ${res.status} — ${err}` }, { status: 500 })
+  }
+
+  const data = await res.json()
+  const raw = data.content?.[0]?.text?.trim() ?? ''
 
   try {
-    const parsed = JSON.parse(raw)
-    return NextResponse.json(parsed)
+    return NextResponse.json(JSON.parse(raw))
   } catch {
     return NextResponse.json({ error: 'Falha ao parsear resposta da IA', raw }, { status: 500 })
   }
