@@ -386,6 +386,24 @@ function WeekGrid({
     return timeBlocks.filter((b) => b.days.includes(dayIdx + 1))
   }
 
+  // Returns {col, totalCols} for each block to avoid visual overlap
+  function layoutBlocks(blocks: TimeBlock[]): Map<string, { col: number; totalCols: number }> {
+    const layout = new Map<string, { col: number; totalCols: number }>()
+    for (let i = 0; i < blocks.length; i++) {
+      const overlapping = [i]
+      for (let j = 0; j < blocks.length; j++) {
+        if (i === j) continue
+        if (blocks[i].startMinutes < blocks[j].endMinutes && blocks[i].endMinutes > blocks[j].startMinutes) {
+          overlapping.push(j)
+        }
+      }
+      overlapping.sort()
+      const col = overlapping.indexOf(i)
+      layout.set(blocks[i].id, { col, totalCols: overlapping.length })
+    }
+    return layout
+  }
+
   function getTasksForDayBlock(dayIdx: number, blockId?: string) {
     return weekTasks
       .filter((wt) => wt.dayOfWeek === dayIdx + 1 && wt.timeBlockId === blockId)
@@ -443,17 +461,23 @@ function WeekGrid({
                   ))}
 
                   {/* Time blocks */}
-                  {dayBlocks.map((block) => {
+                  {(() => {
+                    const blockLayout = layoutBlocks(dayBlocks)
+                    return dayBlocks.map((block) => {
                     const top = minutesToPx(block.startMinutes)
                     const height = minutesToPx(block.endMinutes) - top
                     const blockTasks = getTasksForDayBlock(dayIdx, block.id)
+                    const { col, totalCols } = blockLayout.get(block.id) ?? { col: 0, totalCols: 1 }
+                    const colWidth = `calc((100% - 4px) / ${totalCols})`
+                    const colLeft = `calc(2px + ${col} * (100% - 4px) / ${totalCols})`
 
                     return (
                       <DroppableCell
                         key={block.id}
                         id={`${dayIdx}::${block.id}`}
                         style={{
-                          position: 'absolute', top: `${top}px`, left: '2px', right: '2px',
+                          position: 'absolute', top: `${top}px`,
+                          left: colLeft, width: colWidth,
                           height: `${Math.max(height, 24)}px`,
                           background: `${block.color}18`,
                           borderLeft: `3px solid ${block.color}`,
@@ -462,14 +486,14 @@ function WeekGrid({
                         }}
                       >
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                          <span style={{ fontFamily: fontSans, fontSize: '9px', fontWeight: 400, color: block.color, letterSpacing: '0.05em', textTransform: 'uppercase' }}>
+                          <span style={{ fontFamily: fontSans, fontSize: '9px', fontWeight: 400, color: block.color, letterSpacing: '0.05em', textTransform: 'uppercase', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                             {block.title}
                           </span>
                           <button
-                            onClick={() => setEditBlock(block)}
-                            style={{ color: `${block.color}80`, background: 'none', border: 'none', cursor: 'pointer', padding: '1px', display: 'flex' }}
+                            onClick={(e) => { e.stopPropagation(); setEditBlock(block) }}
+                            style={{ color: block.color, background: 'rgba(255,255,255,0.5)', border: 'none', cursor: 'pointer', padding: '4px 6px', display: 'flex', borderRadius: '4px', flexShrink: 0, zIndex: 10, position: 'relative' }}
                           >
-                            <Pencil size={9} />
+                            <Pencil size={10} />
                           </button>
                         </div>
                         {height >= 36 && (
@@ -482,7 +506,7 @@ function WeekGrid({
                         ))}
                       </DroppableCell>
                     )
-                  })}
+                  })})()}
 
                   {/* Free tasks (no block) */}
                   <DroppableCell
@@ -561,19 +585,31 @@ export default function RotinasPage() {
           <div className="flex gap-2">
             <button
               onClick={() => setShowPlanning(true)}
-              className="btn-minaue"
-              style={{ borderColor: weekTasks.length > 0 ? '#B8A070' : 'rgba(184,160,112,0.4)', color: weekTasks.length > 0 ? '#D4BC8C' : '#5E6E5F', fontSize: '9px', padding: '6px 12px', gap: '5px' }}
+              style={{
+                display: 'flex', alignItems: 'center', gap: '6px',
+                border: `1px solid ${weekTasks.length > 0 ? '#B8A070' : 'rgba(184,160,112,0.5)'}`,
+                color: weekTasks.length > 0 ? '#E8D4A8' : '#A8BCA8',
+                background: weekTasks.length > 0 ? 'rgba(184,160,112,0.15)' : 'rgba(255,255,255,0.06)',
+                borderRadius: '7px', cursor: 'pointer',
+                fontFamily: fontSans, fontSize: '10px', fontWeight: 300, letterSpacing: '0.12em', textTransform: 'uppercase',
+                padding: '7px 14px',
+              }}
             >
-              <ListChecks size={11} />
+              <ListChecks size={12} />
               Planejar
-              {weekTasks.length > 0 && <span style={{ background: '#B8A070', color: '#FAF8F4', borderRadius: '10px', padding: '1px 5px', fontSize: '9px' }}>{weekTasks.length}</span>}
+              {weekTasks.length > 0 && <span style={{ background: '#B8A070', color: '#FAF8F4', borderRadius: '10px', padding: '1px 6px', fontSize: '9px', fontWeight: 400 }}>{weekTasks.length}</span>}
             </button>
             <button
               onClick={() => setCreatingBlock(true)}
-              className="btn-minaue"
-              style={{ borderColor: 'rgba(184,160,112,0.4)', color: '#5E6E5F', fontSize: '9px', padding: '6px 10px' }}
+              style={{
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                width: '34px', height: '34px',
+                border: '1px solid rgba(184,160,112,0.5)',
+                color: '#A8BCA8', background: 'rgba(255,255,255,0.06)',
+                borderRadius: '7px', cursor: 'pointer',
+              }}
             >
-              <Plus size={11} />
+              <Plus size={14} />
             </button>
           </div>
         </div>
