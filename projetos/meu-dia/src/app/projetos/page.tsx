@@ -108,8 +108,9 @@ function ProjectRow({ project, index }: { project: Project; index: number }) {
     >
       {/* Main clickable row */}
       <div className="flex items-center">
+        {/* Nome — sempre navega para o projeto */}
         <button
-          onClick={() => hasChildren ? setExpanded(!expanded) : router.push(`/projetos/${project.id}`)}
+          onClick={() => router.push(`/projetos/${project.id}`)}
           className="flex-1 flex items-center gap-4 text-left min-w-0"
           style={{ padding: '15px 12px 15px 18px' }}
         >
@@ -139,26 +140,35 @@ function ProjectRow({ project, index }: { project: Project; index: number }) {
             </span>
           )}
 
-          {hasChildren ? (
+          <ArrowRight
+            size={15}
+            style={{
+              color: project.color, flexShrink: 0,
+              opacity: hov ? 1 : 0.45,
+              transition: 'opacity 0.2s ease',
+            }}
+          />
+        </button>
+
+        {/* Botão expandir subpastas — só aparece se tiver filhos */}
+        {hasChildren && (
+          <button
+            onClick={(e) => { e.stopPropagation(); setExpanded(!expanded) }}
+            style={{
+              padding: '6px 8px', color: '#A09888', background: 'transparent',
+              border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center',
+            }}
+            title={expanded ? 'Recolher subpastas' : 'Expandir subpastas'}
+          >
             <ChevronRight
               size={16}
               style={{
-                color: '#A09888', flexShrink: 0,
                 transform: expanded ? 'rotate(90deg)' : 'rotate(0deg)',
                 transition: 'transform 0.22s ease',
               }}
             />
-          ) : (
-            <ArrowRight
-              size={15}
-              style={{
-                color: project.color, flexShrink: 0,
-                opacity: hov ? 1 : 0.45,
-                transition: 'opacity 0.2s ease',
-              }}
-            />
-          )}
-        </button>
+          </button>
+        )}
 
         {/* Context menu */}
         <div style={{ paddingRight: '10px' }}>
