@@ -363,6 +363,11 @@ function WeekGrid({
   const [editBlock, setEditBlock]   = useState<TimeBlock | null>(null)
   const { updateTimeBlock, deleteTimeBlock } = useStore()
 
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(TouchSensor, { activationConstraint: { delay: 150, tolerance: 5 } }),
+  )
+
   // Desktop: all 7 days; Mobile: just activeDayIndex
   const isMobileView = typeof window !== 'undefined' && window.innerWidth < 768
   const days = isMobileView ? [activeDayIndex] : [0, 1, 2, 3, 4, 5, 6]
@@ -391,10 +396,7 @@ function WeekGrid({
   return (
     <>
       <DndContext
-        sensors={useSensors(
-          useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
-          useSensor(TouchSensor, { activationConstraint: { delay: 150, tolerance: 5 } }),
-        )}
+        sensors={sensors}
         onDragEnd={handleDragEnd}
       >
         <div style={{ display: 'flex', overflow: 'auto' }}>
