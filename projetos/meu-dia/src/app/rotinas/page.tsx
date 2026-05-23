@@ -4,7 +4,7 @@ import { useState, useRef } from 'react'
 import { useStore } from '@/lib/store'
 import { useShallow } from 'zustand/react/shallow'
 import { TimeBlock, WeekTask, PROJECT_COLORS } from '@/lib/types'
-import { DndContext, DragEndEvent, DragOverlay, DragStartEvent, PointerSensor, TouchSensor, useSensor, useSensors, useDroppable, useDraggable, Active, closestCorners } from '@dnd-kit/core'
+import { DndContext, DragEndEvent, DragOverlay, DragStartEvent, PointerSensor, TouchSensor, useSensor, useSensors, useDroppable, useDraggable, Active, closestCorners, pointerWithin, rectIntersection, CollisionDetection } from '@dnd-kit/core'
 import { CSS } from '@dnd-kit/utilities'
 import { format, startOfWeek, addDays, addWeeks, subWeeks, isSameDay } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
@@ -14,6 +14,14 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 const fontDisplay = 'var(--font-cormorant), "Cormorant Garamond", serif'
 const fontSans    = 'var(--font-jost), Jost, sans-serif'
 
+
+// Blocos têm prioridade sobre zona livre; fora de blocos usa zona livre do dia
+const customCollision: CollisionDetection = (args) => {
+  const hits = pointerWithin(args)
+  if (hits.length === 0) return rectIntersection(args)
+  const blocks = hits.filter((c) => !String(c.id).endsWith('::free'))
+  return blocks.length > 0 ? blocks : hits
+}
 
 const HOUR_START  = 6
 const HOUR_END    = 22
@@ -426,7 +434,7 @@ function WeekGrid({
     <>
       <DndContext
         sensors={sensors}
-        collisionDetection={closestCorners}
+        collisionDetection={customCollision}
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
       >

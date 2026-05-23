@@ -16,7 +16,7 @@ function toDbTimeBlock(b: TimeBlock) {
   return {
     id: b.id, title: b.title, color: b.color, type: b.type,
     project_id: b.projectId ?? null,
-    days: JSON.stringify(b.days),   // stored as jsonb
+    days: b.days,
     start_minutes: b.startMinutes, end_minutes: b.endMinutes,
     created_at: b.createdAt, updated_at: new Date().toISOString(),
   }
