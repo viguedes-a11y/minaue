@@ -14,13 +14,12 @@ function p(
 
 export const SEED_PROJECTS: Project[] = [
   // ── Raiz ──────────────────────────────────────────────────────
-  p('glow-up',      'Glow Up',       '#C4848C', 0),  // rosa apagado
-  p('minaue',       'Minaue',        '#7A9E82', 1),  // sálvia
-  p('planetazen',   'PlanetaZen',    '#9B8EC0', 2),  // lavanda
-  p('agentes-ia',   'Agentes de IA', '#7899B8', 3),  // azul aço
-  p('pessoal',      'Pessoal',       '#B8886A', 4),  // terracota
-  p('casa',         'Casa',          '#8BB09A', 5),  // verde musgo suave
-  p('financas',     'Finanças',      '#B89C5A', 6),  // ocre dourado
+  p('minaue',       'Minaue',        '#7A9E82', 0),  // sálvia
+  p('planetazen',   'PlanetaZen',    '#9B8EC0', 1),  // lavanda
+  p('agentes-ia',   'Agentes de IA', '#7899B8', 2),  // azul aço
+  p('pessoal',      'Pessoal',       '#B8886A', 3),  // terracota
+  p('casa',         'Casa',          '#8BB09A', 4),  // verde musgo suave
+  p('financas',     'Finanças',      '#B89C5A', 5),  // ocre dourado
 
   // ── Minaue ────────────────────────────────────────────────────
   p('minaue-pintar',    'Pintar Mandalas',             '#7A9E82', 0, 'minaue'),

@@ -18,6 +18,7 @@ export interface Task {
   title: string
   description?: string
   estimatedMinutes?: number
+  timeSpent?: number  // segundos acumulados
   priority: TaskPriority
   status: TaskStatus
   deadline?: string

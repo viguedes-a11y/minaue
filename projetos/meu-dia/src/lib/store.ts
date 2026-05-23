@@ -26,6 +26,9 @@ interface AppState {
   toggleTaskStatus: (id: string) => void
   cyclePriority: (id: string) => void
 
+  // Timer
+  addTimeSpent: (taskId: string, seconds: number) => void
+
   // Subtasks
   addSubtask: (taskId: string, title: string) => void
   toggleSubtask: (taskId: string, subtaskId: string) => void
@@ -101,6 +104,14 @@ export const useStore = create<AppState>()(
         get().updateTask(id, { priority: next })
       },
 
+      addTimeSpent: (taskId, seconds) => {
+        set((s) => ({
+          tasks: s.tasks.map((t) =>
+            t.id === taskId ? { ...t, timeSpent: (t.timeSpent ?? 0) + seconds, updatedAt: new Date().toISOString() } : t
+          ),
+        }))
+      },
+
       addSubtask: (taskId, title) => {
         const subtask: Subtask = {
           id: generateId(), taskId, title, completed: false,
@@ -131,7 +142,7 @@ export const useStore = create<AppState>()(
         }))
       },
     }),
-    { name: 'meu-dia-v3' }
+    { name: 'meu-dia-v4' }
   )
 )
 

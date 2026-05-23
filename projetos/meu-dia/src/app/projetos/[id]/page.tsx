@@ -7,8 +7,8 @@ import { useShallow } from 'zustand/react/shallow'
 import { TaskList } from '@/components/tarefas/TaskList'
 import { TaskForm } from '@/components/tarefas/TaskForm'
 import {
-  Sheet, SheetContent, SheetHeader, SheetTitle,
-} from '@/components/ui/sheet'
+  Dialog, DialogContent, DialogHeader, DialogTitle,
+} from '@/components/ui/dialog'
 import { Task } from '@/lib/types'
 import { ArrowLeft, Plus, Trash2, CalendarDays } from 'lucide-react'
 import { format, parseISO } from 'date-fns'
@@ -196,27 +196,21 @@ export default function ProjectDetailPage() {
         <TaskList tasks={tasks} projectColor={project.color} />
       </div>
 
-      {/* Add task sheet */}
-      <Sheet open={addingTask} onOpenChange={setAddingTask}>
-        <SheetContent
-          side="bottom"
-          className="rounded-t-2xl max-h-[90vh] overflow-y-auto"
-          style={{ background: '#FAF8F4' }}
-        >
-          <SheetHeader>
-            <SheetTitle style={{ fontFamily: fontDisplay, fontWeight: 300, fontSize: '22px', color: '#282F29' }}>
+      {/* Add task dialog */}
+      <Dialog open={addingTask} onOpenChange={setAddingTask}>
+        <DialogContent className="max-w-md" style={{ background: '#FAF8F4' }}>
+          <DialogHeader>
+            <DialogTitle style={{ fontFamily: fontDisplay, fontWeight: 300, fontSize: '22px', color: '#282F29' }}>
               Nova tarefa
-            </SheetTitle>
-          </SheetHeader>
-          <div className="mt-4">
-            <TaskForm
-              projectId={id}
-              onSave={handleAddTask}
-              onCancel={() => setAddingTask(false)}
-            />
-          </div>
-        </SheetContent>
-      </Sheet>
+            </DialogTitle>
+          </DialogHeader>
+          <TaskForm
+            projectId={id}
+            onSave={handleAddTask}
+            onCancel={() => setAddingTask(false)}
+          />
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
