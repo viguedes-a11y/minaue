@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next'
 import { Cormorant_Garamond, Jost } from 'next/font/google'
 import './globals.css'
 import { NavBar } from '@/components/NavBar'
+import { DataLoader } from '@/components/DataLoader'
 
 const cormorant = Cormorant_Garamond({
   variable: '--font-cormorant',
@@ -32,6 +33,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="pt-BR" className={`${cormorant.variable} ${jost.variable} h-full`}>
       <body className="min-h-full antialiased" style={{ background: '#EDEAE4', color: '#282F29' }}>
+        <DataLoader />
         <NavBar />
         <main className="pb-20 md:pb-0 md:pl-60">{children}</main>
       </body>

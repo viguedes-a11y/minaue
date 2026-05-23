@@ -5,14 +5,70 @@ import { persist } from 'zustand/middleware'
 import { useShallow } from 'zustand/react/shallow'
 import { Project, Task, Subtask, TaskPriority, TaskStatus } from './types'
 import { SEED_PROJECTS } from './seedData'
+import { supabase } from './supabase'
 
 function generateId() {
   return Math.random().toString(36).slice(2) + Date.now().toString(36)
 }
 
+// ── Conversão DB ↔ App ────────────────────────────────────────────────────
+function toDbProject(p: Project) {
+  return {
+    id: p.id, name: p.name, color: p.color, status: p.status,
+    parent_id: p.parentId ?? null, order_index: p.order,
+    deadline: p.deadline ?? null, emoji: p.emoji ?? null,
+    created_at: p.createdAt, updated_at: new Date().toISOString(),
+  }
+}
+
+function fromDbProject(row: Record<string, unknown>): Project {
+  return {
+    id: row.id as string, name: row.name as string, color: row.color as string,
+    status: row.status as Project['status'],
+    parentId: (row.parent_id as string | null) ?? undefined,
+    order: row.order_index as number,
+    deadline: (row.deadline as string | null) ?? undefined,
+    emoji: (row.emoji as string | null) ?? undefined,
+    createdAt: row.created_at as string, updatedAt: row.updated_at as string,
+  }
+}
+
+function toDbTask(t: Task) {
+  return {
+    id: t.id, project_id: t.projectId, title: t.title,
+    description: t.description ?? null,
+    estimated_minutes: t.estimatedMinutes ?? null,
+    time_spent: t.timeSpent ?? 0,
+    priority: t.priority, status: t.status,
+    deadline: t.deadline ?? null, recurrence: t.recurrence,
+    subtasks: t.subtasks,
+    created_at: t.createdAt, updated_at: new Date().toISOString(),
+  }
+}
+
+function fromDbTask(row: Record<string, unknown>): Task {
+  return {
+    id: row.id as string, projectId: row.project_id as string,
+    title: row.title as string,
+    description: (row.description as string | null) ?? undefined,
+    estimatedMinutes: (row.estimated_minutes as number | null) ?? undefined,
+    timeSpent: (row.time_spent as number) ?? 0,
+    priority: row.priority as Task['priority'], status: row.status as Task['status'],
+    deadline: (row.deadline as string | null) ?? undefined,
+    recurrence: row.recurrence as Task['recurrence'],
+    subtasks: (row.subtasks as Subtask[]) ?? [],
+    createdAt: row.created_at as string, updatedAt: row.updated_at as string,
+  }
+}
+
+// ── State interface ───────────────────────────────────────────────────────
 interface AppState {
   projects: Project[]
   tasks: Task[]
+  isLoaded: boolean
+
+  // Supabase
+  loadFromSupabase: () => Promise<void>
 
   // Projects
   addProject: (data: Omit<Project, 'id' | 'createdAt' | 'updatedAt'>) => Project
@@ -25,8 +81,6 @@ interface AppState {
   deleteTask: (id: string) => void
   toggleTaskStatus: (id: string) => void
   cyclePriority: (id: string) => void
-
-  // Timer
   addTimeSpent: (taskId: string, seconds: number) => void
 
   // Subtasks
@@ -42,48 +96,107 @@ export const useStore = create<AppState>()(
     (set, get) => ({
       projects: SEED_PROJECTS,
       tasks: [],
+      isLoaded: false,
 
+      // ── Supabase sync ────────────────────────────────────────────
+      loadFromSupabase: async () => {
+        const [{ data: dbProjects, error: pe }, { data: dbTasks, error: te }] =
+          await Promise.all([
+            supabase.from('meudia_projects').select('*'),
+            supabase.from('meudia_tasks').select('*'),
+          ])
+
+        if (pe || te) {
+          console.error('Supabase load error:', pe ?? te)
+          set({ isLoaded: true })
+          return
+        }
+
+        if (dbProjects && dbProjects.length > 0) {
+          // Supabase tem dados — é a fonte da verdade
+          set({
+            projects: dbProjects.map(fromDbProject),
+            tasks: (dbTasks ?? []).map(fromDbTask),
+            isLoaded: true,
+          })
+        } else {
+          // Primeira vez — salva dados locais no Supabase
+          const { projects, tasks } = get()
+          const pRows = projects.map(toDbProject)
+          await supabase.from('meudia_projects').upsert(pRows)
+          if (tasks.length > 0) {
+            await supabase.from('meudia_tasks').upsert(tasks.map(toDbTask))
+          }
+          set({ isLoaded: true })
+        }
+      },
+
+      // ── Projects ─────────────────────────────────────────────────
       addProject: (data) => {
         const now = new Date().toISOString()
         const project: Project = { ...data, id: generateId(), createdAt: now, updatedAt: now }
         set((s) => ({ projects: [...s.projects, project] }))
+        supabase.from('meudia_projects').insert(toDbProject(project)).then(({ error }) => {
+          if (error) console.error('Supabase addProject error:', error)
+        })
         return project
       },
 
       updateProject: (id, data) => {
+        const now = new Date().toISOString()
         set((s) => ({
-          projects: s.projects.map((p) =>
-            p.id === id ? { ...p, ...data, updatedAt: new Date().toISOString() } : p
-          ),
+          projects: s.projects.map((p) => p.id === id ? { ...p, ...data, updatedAt: now } : p),
         }))
+        const updated = get().projects.find((p) => p.id === id)
+        if (updated) {
+          supabase.from('meudia_projects').update(toDbProject(updated)).eq('id', id).then(({ error }) => {
+            if (error) console.error('Supabase updateProject error:', error)
+          })
+        }
       },
 
       deleteProject: (id) => {
-        // delete project, all its sub-projects, and all their tasks
         const allIds = [id, ...get().projects.filter((p) => p.parentId === id).map((p) => p.id)]
         set((s) => ({
           projects: s.projects.filter((p) => !allIds.includes(p.id)),
           tasks: s.tasks.filter((t) => !allIds.includes(t.projectId)),
         }))
+        supabase.from('meudia_tasks').delete().in('project_id', allIds).then(() =>
+          supabase.from('meudia_projects').delete().in('id', allIds).then(({ error }) => {
+            if (error) console.error('Supabase deleteProject error:', error)
+          })
+        )
       },
 
+      // ── Tasks ─────────────────────────────────────────────────────
       addTask: (data) => {
         const now = new Date().toISOString()
         const task: Task = { ...data, id: generateId(), subtasks: [], createdAt: now, updatedAt: now }
         set((s) => ({ tasks: [...s.tasks, task] }))
+        supabase.from('meudia_tasks').insert(toDbTask(task)).then(({ error }) => {
+          if (error) console.error('Supabase addTask error:', error)
+        })
         return task
       },
 
       updateTask: (id, data) => {
+        const now = new Date().toISOString()
         set((s) => ({
-          tasks: s.tasks.map((t) =>
-            t.id === id ? { ...t, ...data, updatedAt: new Date().toISOString() } : t
-          ),
+          tasks: s.tasks.map((t) => t.id === id ? { ...t, ...data, updatedAt: now } : t),
         }))
+        const updated = get().tasks.find((t) => t.id === id)
+        if (updated) {
+          supabase.from('meudia_tasks').update(toDbTask(updated)).eq('id', id).then(({ error }) => {
+            if (error) console.error('Supabase updateTask error:', error)
+          })
+        }
       },
 
       deleteTask: (id) => {
         set((s) => ({ tasks: s.tasks.filter((t) => t.id !== id) }))
+        supabase.from('meudia_tasks').delete().eq('id', id).then(({ error }) => {
+          if (error) console.error('Supabase deleteTask error:', error)
+        })
       },
 
       toggleTaskStatus: (id) => {
@@ -105,13 +218,12 @@ export const useStore = create<AppState>()(
       },
 
       addTimeSpent: (taskId, seconds) => {
-        set((s) => ({
-          tasks: s.tasks.map((t) =>
-            t.id === taskId ? { ...t, timeSpent: (t.timeSpent ?? 0) + seconds, updatedAt: new Date().toISOString() } : t
-          ),
-        }))
+        const task = get().tasks.find((t) => t.id === taskId)
+        if (!task) return
+        get().updateTask(taskId, { timeSpent: (task.timeSpent ?? 0) + seconds })
       },
 
+      // ── Subtasks ──────────────────────────────────────────────────
       addSubtask: (taskId, title) => {
         const subtask: Subtask = {
           id: generateId(), taskId, title, completed: false,
@@ -122,6 +234,11 @@ export const useStore = create<AppState>()(
             t.id === taskId ? { ...t, subtasks: [...t.subtasks, subtask] } : t
           ),
         }))
+        const updated = get().tasks.find((t) => t.id === taskId)
+        if (updated) {
+          supabase.from('meudia_tasks').update({ subtasks: updated.subtasks }).eq('id', taskId)
+            .then(({ error }) => { if (error) console.error('Supabase addSubtask error:', error) })
+        }
       },
 
       toggleSubtask: (taskId, subtaskId) => {
@@ -132,6 +249,11 @@ export const useStore = create<AppState>()(
               : t
           ),
         }))
+        const updated = get().tasks.find((t) => t.id === taskId)
+        if (updated) {
+          supabase.from('meudia_tasks').update({ subtasks: updated.subtasks }).eq('id', taskId)
+            .then(({ error }) => { if (error) console.error('Supabase toggleSubtask error:', error) })
+        }
       },
 
       deleteSubtask: (taskId, subtaskId) => {
@@ -140,31 +262,27 @@ export const useStore = create<AppState>()(
             t.id === taskId ? { ...t, subtasks: t.subtasks.filter((st) => st.id !== subtaskId) } : t
           ),
         }))
+        const updated = get().tasks.find((t) => t.id === taskId)
+        if (updated) {
+          supabase.from('meudia_tasks').update({ subtasks: updated.subtasks }).eq('id', taskId)
+            .then(({ error }) => { if (error) console.error('Supabase deleteSubtask error:', error) })
+        }
       },
     }),
     { name: 'meu-dia-v4' }
   )
 )
 
-// ── Hooks helpers ─────────────────────────────────────────────────────────────
-
+// ── Hooks helpers ─────────────────────────────────────────────────────────
 export function useRootProjects() {
   return useStore(
-    useShallow((s) =>
-      s.projects
-        .filter((p) => !p.parentId)
-        .sort((a, b) => a.order - b.order)
-    )
+    useShallow((s) => s.projects.filter((p) => !p.parentId).sort((a, b) => a.order - b.order))
   )
 }
 
 export function useSubProjects(parentId: string) {
   return useStore(
-    useShallow((s) =>
-      s.projects
-        .filter((p) => p.parentId === parentId)
-        .sort((a, b) => a.order - b.order)
-    )
+    useShallow((s) => s.projects.filter((p) => p.parentId === parentId).sort((a, b) => a.order - b.order))
   )
 }
 
