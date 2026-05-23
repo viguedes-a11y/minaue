@@ -43,8 +43,8 @@ export default function ProjectDetailPage() {
     )
   }
 
-  function handleAddTask(data: Omit<Task, 'id' | 'subtasks' | 'createdAt' | 'updatedAt'>) {
-    addTask(data)
+  function handleAddTask(data: Omit<Task, 'id' | 'subtasks' | 'createdAt' | 'updatedAt'>, subtaskTitles?: string[]) {
+    addTask(data, subtaskTitles)
     setAddingTask(false)
   }
 

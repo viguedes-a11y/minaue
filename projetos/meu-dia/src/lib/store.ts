@@ -76,7 +76,7 @@ interface AppState {
   deleteProject: (id: string) => void
 
   // Tasks
-  addTask: (data: Omit<Task, 'id' | 'subtasks' | 'createdAt' | 'updatedAt'>) => Task
+  addTask: (data: Omit<Task, 'id' | 'subtasks' | 'createdAt' | 'updatedAt'>, subtaskTitles?: string[]) => Task
   updateTask: (id: string, data: Partial<Omit<Task, 'id' | 'createdAt'>>) => void
   deleteTask: (id: string) => void
   toggleTaskStatus: (id: string) => void
@@ -169,9 +169,13 @@ export const useStore = create<AppState>()(
       },
 
       // ── Tasks ─────────────────────────────────────────────────────
-      addTask: (data) => {
+      addTask: (data, subtaskTitles = []) => {
         const now = new Date().toISOString()
-        const task: Task = { ...data, id: generateId(), subtasks: [], createdAt: now, updatedAt: now }
+        const id = generateId()
+        const subtasks: Subtask[] = subtaskTitles
+          .filter((t) => t.trim())
+          .map((title) => ({ id: generateId(), taskId: id, title: title.trim(), completed: false, createdAt: now }))
+        const task: Task = { ...data, id, subtasks, createdAt: now, updatedAt: now }
         set((s) => ({ tasks: [...s.tasks, task] }))
         supabase.from('meudia_tasks').insert(toDbTask(task)).then(({ error }) => {
           if (error) console.error('Supabase addTask error:', error)

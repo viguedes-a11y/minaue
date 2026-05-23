@@ -207,18 +207,18 @@ function DaySection({
 }
 
 // ── Smart Inbox ───────────────────────────────────────────────────────────
-function SmartInbox({ projects }: { projects: { id: string; name: string; color: string }[] }) {
+function SmartInbox({ projects }: { projects: { id: string; name: string; color: string; parentId?: string }[] }) {
   const addTask = useStore((s) => s.addTask)
   const [text, setText]       = useState('')
   const [loading, setLoading] = useState(false)
   const [recording, setRecording]   = useState(false)
-  const [preview, setPreview]       = useState<null | {
+  const [preview, setPreview] = useState<null | {
     title: string; projectId: string; priority: string; deadline: string | null; description: string | null
   }>(null)
   const [error, setError]     = useState('')
   const recognitionRef = useRef<SpeechRecognition | null>(null)
 
-  const rootProjects = projects.filter((p) => p.id)
+  const rootProjects = projects.filter((p) => !p.parentId)
 
   function toggleRecording() {
     if (recording) {
@@ -302,7 +302,7 @@ function SmartInbox({ projects }: { projects: { id: string; name: string; color:
     if (!preview) return
     addTask({
       projectId: preview.projectId,
-      title: preview.title,
+      title: preview.title.trim() || 'Nova tarefa',
       description: preview.description ?? undefined,
       priority: (preview.priority as Task['priority']) ?? 'media',
       status: 'pendente',
@@ -312,8 +312,6 @@ function SmartInbox({ projects }: { projects: { id: string; name: string; color:
     setText('')
     setPreview(null)
   }
-
-  const proj = preview ? rootProjects.find((p) => p.id === preview.projectId) : null
 
   return (
     <div
@@ -400,60 +398,115 @@ function SmartInbox({ projects }: { projects: { id: string; name: string; color:
         </div>
       )}
 
-      {/* Preview card */}
+      {/* Preview editável */}
       {preview && (
-        <div
-          style={{
-            margin: '0 12px 12px',
-            borderRadius: '10px',
-            background: proj ? `${proj.color}08` : '#F5F1EA',
-            border: `1px solid ${proj ? proj.color + '30' : '#E5E0D8'}`,
-            borderLeft: `3px solid ${proj?.color ?? '#B8A070'}`,
-            padding: '12px 14px',
-          }}
-        >
-          <p style={{ fontFamily: fontDisplay, fontSize: '15px', fontWeight: 400, color: '#282F29', marginBottom: '6px' }}>
-            {preview.title}
+        <div style={{ margin: '0 12px 12px', borderRadius: '10px', background: '#F5F1EA', border: '1px solid #E5E0D8', padding: '14px' }}>
+          <p style={{ fontFamily: fontSans, fontSize: '9px', letterSpacing: '0.2em', textTransform: 'uppercase', color: '#8B7550', fontWeight: 400, marginBottom: '10px' }}>
+            Confirmar tarefa
           </p>
-          <div className="flex items-center gap-3 flex-wrap">
-            {proj && (
-              <span style={{ fontFamily: fontSans, fontSize: '11px', color: proj.color, fontWeight: 400 }}>
-                {proj.name}
-              </span>
-            )}
-            <span
+
+          {/* Título editável */}
+          <input
+            value={preview.title}
+            onChange={(e) => setPreview({ ...preview, title: e.target.value })}
+            style={{
+              width: '100%', border: 'none', borderBottom: '1px solid #D8D2C8',
+              background: 'transparent', fontFamily: fontDisplay, fontSize: '16px',
+              fontWeight: 400, color: '#282F29', outline: 'none', paddingBottom: '6px', marginBottom: '12px',
+            }}
+          />
+
+          {/* Projeto + subpasta */}
+          <div style={{ marginBottom: '10px' }}>
+            <p style={{ fontFamily: fontSans, fontSize: '9px', letterSpacing: '0.15em', textTransform: 'uppercase', color: '#A09888', fontWeight: 300, marginBottom: '4px' }}>Pasta</p>
+            <select
+              value={preview.projectId}
+              onChange={(e) => setPreview({ ...preview, projectId: e.target.value })}
               style={{
-                fontFamily: fontSans, fontSize: '10px', fontWeight: 300,
-                color: preview.priority === 'alta' ? '#B85050' : preview.priority === 'media' ? '#8B7550' : '#5A7A5E',
-                background: preview.priority === 'alta' ? 'rgba(184,80,80,0.08)' : preview.priority === 'media' ? 'rgba(184,160,112,0.12)' : 'rgba(78,102,82,0.08)',
-                padding: '1px 8px', borderRadius: '20px',
+                width: '100%', padding: '7px 10px', borderRadius: '7px',
+                border: '1px solid #D8D2C8', background: '#FAF8F4',
+                fontFamily: fontSans, fontSize: '13px', color: '#282F29',
+                outline: 'none', cursor: 'pointer',
               }}
             >
-              {preview.priority}
-            </span>
-            {preview.deadline && (
-              <span style={{ fontFamily: fontSans, fontSize: '11px', color: '#A09888', fontWeight: 300 }}>
-                {format(parseISO(preview.deadline), "dd 'de' MMM", { locale: ptBR })}
-              </span>
-            )}
+              {rootProjects.map((root) => {
+                const subs = projects.filter((p) => p.parentId === root.id)
+                return subs.length > 0 ? (
+                  <optgroup key={root.id} label={root.name}>
+                    <option value={root.id}>{root.name} (geral)</option>
+                    {subs.map((sub) => (
+                      <option key={sub.id} value={sub.id}>↳ {sub.name}</option>
+                    ))}
+                  </optgroup>
+                ) : (
+                  <option key={root.id} value={root.id}>{root.name}</option>
+                )
+              })}
+            </select>
           </div>
-          {preview.description && (
-            <p style={{ fontFamily: fontSans, fontSize: '12px', color: '#6B7A6C', fontWeight: 300, marginTop: '6px', lineHeight: 1.5 }}>
-              {preview.description}
-            </p>
-          )}
-          <div className="flex gap-2 mt-10px" style={{ marginTop: '10px' }}>
+
+          <div className="flex gap-3">
+            {/* Prioridade */}
+            <div style={{ flex: 1 }}>
+              <p style={{ fontFamily: fontSans, fontSize: '9px', letterSpacing: '0.15em', textTransform: 'uppercase', color: '#A09888', fontWeight: 300, marginBottom: '4px' }}>Prioridade</p>
+              <select
+                value={preview.priority}
+                onChange={(e) => setPreview({ ...preview, priority: e.target.value })}
+                style={{
+                  width: '100%', padding: '7px 10px', borderRadius: '7px',
+                  border: '1px solid #D8D2C8', background: '#FAF8F4',
+                  fontFamily: fontSans, fontSize: '12px', color: '#282F29', outline: 'none',
+                }}
+              >
+                <option value="alta">Alta</option>
+                <option value="media">Média</option>
+                <option value="baixa">Baixa</option>
+              </select>
+            </div>
+
+            {/* Prazo */}
+            <div style={{ flex: 1 }}>
+              <p style={{ fontFamily: fontSans, fontSize: '9px', letterSpacing: '0.15em', textTransform: 'uppercase', color: '#A09888', fontWeight: 300, marginBottom: '4px' }}>Prazo</p>
+              <input
+                type="date"
+                value={preview.deadline ?? ''}
+                onChange={(e) => setPreview({ ...preview, deadline: e.target.value || null })}
+                style={{
+                  width: '100%', padding: '7px 10px', borderRadius: '7px',
+                  border: '1px solid #D8D2C8', background: '#FAF8F4',
+                  fontFamily: fontSans, fontSize: '12px', color: '#282F29', outline: 'none',
+                }}
+              />
+            </div>
+
+            {/* Estimativa */}
+            <div style={{ flex: 1 }}>
+              <p style={{ fontFamily: fontSans, fontSize: '9px', letterSpacing: '0.15em', textTransform: 'uppercase', color: '#A09888', fontWeight: 300, marginBottom: '4px' }}>Min.</p>
+              <input
+                type="number"
+                min={1}
+                placeholder="—"
+                style={{
+                  width: '100%', padding: '7px 10px', borderRadius: '7px',
+                  border: '1px solid #D8D2C8', background: '#FAF8F4',
+                  fontFamily: fontSans, fontSize: '12px', color: '#282F29', outline: 'none',
+                }}
+              />
+            </div>
+          </div>
+
+          <div className="flex gap-2" style={{ marginTop: '12px' }}>
             <button
               onClick={confirm}
-              className="btn-minaue"
-              style={{ background: '#B8A070', borderColor: '#B8A070', color: '#FAF8F4', fontSize: '10px', padding: '6px 16px' }}
+              className="btn-minaue flex-1 justify-center"
+              style={{ background: '#B8A070', borderColor: '#B8A070', color: '#FAF8F4', fontSize: '10px', padding: '7px 16px' }}
             >
-              <Check size={11} /> Confirmar
+              <Check size={11} /> Salvar tarefa
             </button>
             <button
               onClick={() => setPreview(null)}
               className="btn-minaue"
-              style={{ borderColor: '#D8D2C8', color: '#7A8E7B', fontSize: '10px', padding: '6px 14px' }}
+              style={{ borderColor: '#D8D2C8', color: '#7A8E7B', fontSize: '10px', padding: '7px 14px' }}
             >
               Descartar
             </button>
@@ -534,7 +587,7 @@ export default function HomePage() {
       <div className="flex-1 px-4 py-5 space-y-6">
 
         {/* ── Entrada inteligente ── */}
-        <SmartInbox projects={rootProjects} />
+        <SmartInbox projects={projects} />
 
         {/* ── Tarefas atrasadas ── */}
         {overdue.length > 0 && (

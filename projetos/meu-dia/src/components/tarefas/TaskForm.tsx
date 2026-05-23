@@ -8,15 +8,17 @@ import { Textarea } from '@/components/ui/textarea'
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from '@/components/ui/select'
+import { Plus, X } from 'lucide-react'
 
 interface Props {
   projectId: string
   initial?: Partial<Task>
-  onSave: (data: Omit<Task, 'id' | 'subtasks' | 'createdAt' | 'updatedAt'>) => void
+  onSave: (data: Omit<Task, 'id' | 'subtasks' | 'createdAt' | 'updatedAt'>, subtaskTitles?: string[]) => void
   onCancel: () => void
 }
 
 const fontSans = 'var(--font-jost), Jost, sans-serif'
+const fontDisplay = 'var(--font-cormorant), "Cormorant Garamond", serif'
 
 const labelStyle = {
   fontFamily: fontSans,
@@ -28,27 +30,44 @@ const labelStyle = {
 }
 
 export function TaskForm({ projectId, initial, onSave, onCancel }: Props) {
-  const [title, setTitle]                   = useState(initial?.title ?? '')
-  const [description, setDescription]       = useState(initial?.description ?? '')
-  const [priority, setPriority]             = useState<TaskPriority>(initial?.priority ?? 'media')
-  const [status]                            = useState<TaskStatus>(initial?.status ?? 'pendente')
-  const [estimatedMinutes, setEstMinutes]   = useState(initial?.estimatedMinutes?.toString() ?? '')
-  const [deadline, setDeadline]             = useState(initial?.deadline ?? '')
-  const [recurrence, setRecurrence]         = useState<Recurrence>(initial?.recurrence ?? 'nenhuma')
+  const [title, setTitle]                 = useState(initial?.title ?? '')
+  const [description, setDescription]     = useState(initial?.description ?? '')
+  const [priority, setPriority]           = useState<TaskPriority>(initial?.priority ?? 'media')
+  const [status]                          = useState<TaskStatus>(initial?.status ?? 'pendente')
+  const [estimatedMinutes, setEstMinutes] = useState(initial?.estimatedMinutes?.toString() ?? '')
+  const [deadline, setDeadline]           = useState(initial?.deadline ?? '')
+  const [recurrence, setRecurrence]       = useState<Recurrence>(initial?.recurrence ?? 'nenhuma')
+  const [subtaskInput, setSubtaskInput]   = useState('')
+  const [subtasks, setSubtasks]           = useState<string[]>([])
+
+  const isEditing = !!initial?.title
+
+  function addSubtask() {
+    if (!subtaskInput.trim()) return
+    setSubtasks((prev) => [...prev, subtaskInput.trim()])
+    setSubtaskInput('')
+  }
+
+  function removeSubtask(i: number) {
+    setSubtasks((prev) => prev.filter((_, idx) => idx !== i))
+  }
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     if (!title.trim()) return
-    onSave({
-      projectId,
-      title: title.trim(),
-      description: description.trim() || undefined,
-      priority,
-      status,
-      estimatedMinutes: estimatedMinutes ? parseInt(estimatedMinutes) : undefined,
-      deadline: deadline || undefined,
-      recurrence,
-    })
+    onSave(
+      {
+        projectId,
+        title: title.trim(),
+        description: description.trim() || undefined,
+        priority,
+        status,
+        estimatedMinutes: estimatedMinutes ? parseInt(estimatedMinutes) : undefined,
+        deadline: deadline || undefined,
+        recurrence,
+      },
+      isEditing ? undefined : subtasks,
+    )
   }
 
   return (
@@ -132,6 +151,66 @@ export function TaskForm({ projectId, initial, onSave, onCancel }: Props) {
           </Select>
         </div>
       </div>
+
+      {/* Subtarefas — só na criação */}
+      {!isEditing && (
+        <div className="space-y-2">
+          <Label style={labelStyle}>Subtarefas</Label>
+
+          {subtasks.length > 0 && (
+            <div className="space-y-1">
+              {subtasks.map((s, i) => (
+                <div
+                  key={i}
+                  className="flex items-center gap-2"
+                  style={{
+                    padding: '6px 10px', borderRadius: '8px',
+                    background: '#F5F1EA', border: '1px solid #E5E0D8',
+                  }}
+                >
+                  <div style={{ width: '5px', height: '5px', borderRadius: '50%', background: '#B8A070', flexShrink: 0 }} />
+                  <span style={{ flex: 1, fontFamily: fontDisplay, fontSize: '14px', color: '#282F29', fontWeight: 400 }}>
+                    {s}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => removeSubtask(i)}
+                    style={{ color: '#C8C4BC', background: 'none', border: 'none', cursor: 'pointer', padding: '2px', display: 'flex' }}
+                    onMouseEnter={(e) => (e.currentTarget.style.color = '#B85050')}
+                    onMouseLeave={(e) => (e.currentTarget.style.color = '#C8C4BC')}
+                  >
+                    <X size={12} />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+
+          <div className="flex gap-2">
+            <Input
+              value={subtaskInput}
+              onChange={(e) => setSubtaskInput(e.target.value)}
+              onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addSubtask() } }}
+              placeholder="Adicionar subtarefa..."
+              style={{ fontFamily: fontSans, color: '#282F29', fontSize: '13px' }}
+            />
+            <button
+              type="button"
+              onClick={addSubtask}
+              style={{
+                padding: '0 12px', borderRadius: '6px',
+                border: '1px solid #D8D2C8', background: 'transparent',
+                color: '#A09888', cursor: 'pointer', flexShrink: 0,
+                transition: 'all 0.15s',
+              }}
+              onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#B8A070'; e.currentTarget.style.color = '#B8A070' }}
+              onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#D8D2C8'; e.currentTarget.style.color = '#A09888' }}
+            >
+              <Plus size={14} />
+            </button>
+          </div>
+        </div>
+      )}
 
       <div className="flex gap-2 pt-2">
         <button type="submit" className="btn-minaue flex-1 justify-center">Salvar</button>
