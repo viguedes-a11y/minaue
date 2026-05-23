@@ -352,9 +352,8 @@ function SmartInbox({ projects }: { projects: { id: string; name: string; color:
           rows={2}
           style={{
             flex: 1, resize: 'none', border: 'none', outline: 'none',
-            background: 'transparent', fontFamily: fontSans, fontSize: '13px',
+            background: 'transparent', fontFamily: fontSans, fontSize: '16px',
             color: '#282F29', fontWeight: 300, lineHeight: 1.55,
-            placeholder: '#A09888',
           }}
         />
         <div className="flex gap-1.5 flex-shrink-0">
@@ -411,7 +410,7 @@ function SmartInbox({ projects }: { projects: { id: string; name: string; color:
             onChange={(e) => setPreview({ ...preview, title: e.target.value })}
             style={{
               width: '100%', border: 'none', borderBottom: '1px solid #D8D2C8',
-              background: 'transparent', fontFamily: fontDisplay, fontSize: '16px',
+              background: 'transparent', fontFamily: fontDisplay, fontSize: '16px', touchAction: 'manipulation',
               fontWeight: 400, color: '#282F29', outline: 'none', paddingBottom: '6px', marginBottom: '12px',
             }}
           />
