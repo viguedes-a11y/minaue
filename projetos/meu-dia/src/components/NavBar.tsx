@@ -2,7 +2,8 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { LayoutDashboard, FolderKanban, Timer, Repeat, BarChart2 } from 'lucide-react'
+import { LayoutDashboard, FolderKanban, Timer, Repeat, BarChart2, Download } from 'lucide-react'
+import { useStore } from '@/lib/store'
 
 const NAV = [
   { href: '/',          label: 'Início',    icon: LayoutDashboard },
@@ -14,6 +15,18 @@ const NAV = [
 
 const fontDisplay = 'var(--font-cormorant), "Cormorant Garamond", serif'
 const fontSans    = 'var(--font-jost), Jost, sans-serif'
+
+function exportBackup() {
+  const { projects, tasks } = useStore.getState()
+  const data = JSON.stringify({ projects, tasks, exportedAt: new Date().toISOString() }, null, 2)
+  const blob = new Blob([data], { type: 'application/json' })
+  const url  = URL.createObjectURL(blob)
+  const a    = document.createElement('a')
+  a.href     = url
+  a.download = `meu-dia-backup-${new Date().toISOString().slice(0, 10)}.json`
+  a.click()
+  URL.revokeObjectURL(url)
+}
 
 export function NavBar() {
   const pathname = usePathname()
@@ -67,9 +80,34 @@ export function NavBar() {
         </nav>
 
         {/* Rodapé */}
-        <div className="px-6 py-5 border-t" style={{ borderColor: '#D8D2C8' }}>
-          <div className="h-px mb-3" style={{ background: 'linear-gradient(to right, #B8A070, transparent)' }} />
-          <p className="text-[9px] tracking-[0.3em] uppercase" style={{ color: '#A09888', fontFamily: fontSans, fontWeight: 300 }}>
+        <div className="px-5 py-4 border-t space-y-3" style={{ borderColor: '#D8D2C8' }}>
+          <div className="h-px" style={{ background: 'linear-gradient(to right, #B8A070, transparent)' }} />
+
+          {/* Botão de backup */}
+          <button
+            onClick={exportBackup}
+            className="w-full flex items-center gap-2 px-3 py-2 rounded transition-all"
+            style={{
+              fontFamily: fontSans, fontSize: '11px', fontWeight: 300,
+              color: '#A09888', letterSpacing: '0.08em', background: 'transparent',
+              border: '1px solid transparent',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.color = '#8B7550'
+              e.currentTarget.style.borderColor = 'rgba(184,160,112,0.3)'
+              e.currentTarget.style.background = 'rgba(184,160,112,0.06)'
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.color = '#A09888'
+              e.currentTarget.style.borderColor = 'transparent'
+              e.currentTarget.style.background = 'transparent'
+            }}
+          >
+            <Download size={13} strokeWidth={1.5} />
+            Exportar backup
+          </button>
+
+          <p className="text-[9px] tracking-[0.3em] uppercase px-3" style={{ color: '#C8C4BC', fontFamily: fontSans, fontWeight: 300 }}>
             Mandalas que Florescem
           </p>
         </div>
@@ -91,6 +129,16 @@ export function NavBar() {
             </Link>
           )
         })}
+
+        {/* Backup no mobile — botão pequeno no canto */}
+        <button
+          onClick={exportBackup}
+          className="flex flex-col items-center justify-center py-2.5 gap-1 px-3 transition-colors"
+          style={{ color: '#A09888', fontFamily: fontSans }}
+        >
+          <Download size={18} strokeWidth={1.5} />
+          <span className="text-[9px] font-light tracking-wider uppercase">Backup</span>
+        </button>
       </nav>
     </>
   )
