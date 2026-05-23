@@ -291,7 +291,7 @@ function SmartInbox({ projects }: { projects: { id: string; name: string; color:
       if (data.error) throw new Error(data.error)
       setPreview(data)
     } catch (e) {
-      setError('Erro ao processar com IA. Verifique a chave da API.')
+      setError(e instanceof Error ? e.message : 'Erro desconhecido ao processar.')
       console.error(e)
     } finally {
       setLoading(false)

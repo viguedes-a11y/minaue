@@ -14,6 +14,10 @@ export async function POST(req: NextRequest) {
     .map((p: { id: string; name: string }) => `- id: "${p.id}", nome: "${p.name}"`)
     .join('\n')
 
+  if (!process.env.ANTHROPIC_API_KEY) {
+    return NextResponse.json({ error: 'ANTHROPIC_API_KEY não configurada no servidor' }, { status: 500 })
+  }
+
   const message = await client.messages.create({
     model: 'claude-haiku-4-5-20251001',
     max_tokens: 512,
@@ -47,4 +51,10 @@ Retorne APENAS um JSON válido (sem markdown, sem explicação) com esta estrutu
   } catch {
     return NextResponse.json({ error: 'Falha ao parsear resposta da IA', raw }, { status: 500 })
   }
+}
+
+export async function GET() {
+  const key = process.env.ANTHROPIC_API_KEY
+  if (!key) return NextResponse.json({ ok: false, reason: 'ANTHROPIC_API_KEY não definida' })
+  return NextResponse.json({ ok: true, prefix: key.slice(0, 10) + '...' })
 }
