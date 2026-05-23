@@ -65,6 +65,16 @@ Retorne APENAS um JSON válido (sem markdown, sem explicação) com esta estrutu
 
 export async function GET() {
   const key = process.env.ANTHROPIC_API_KEY
-  if (!key) return NextResponse.json({ ok: false, reason: 'ANTHROPIC_API_KEY não definida' })
-  return NextResponse.json({ ok: true, prefix: key.slice(0, 10) + '...' })
+  const allKeys = Object.keys(process.env).sort()
+  return NextResponse.json({
+    ok: !!key,
+    key: key ? key.slice(0, 12) + '...' : null,
+    totalEnvVars: allKeys.length,
+    hasAnthropicKey: 'ANTHROPIC_API_KEY' in process.env,
+    customVars: allKeys.filter(k =>
+      !['PATH','HOME','USER','SHELL','PWD','LANG','TERM'].includes(k) &&
+      !k.startsWith('npm_') && !k.startsWith('NODE') && !k.startsWith('NEXT') &&
+      !k.startsWith('VERCEL') && !k.startsWith('AWS')
+    ),
+  })
 }
