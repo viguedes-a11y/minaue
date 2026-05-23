@@ -169,19 +169,34 @@ export const useStore = create<AppState>()(
         }
 
         if (dbProjects && dbProjects.length > 0) {
+          const { timeBlocks: localBlocks, weekTasks: localWeekTasks } = get()
+
+          // Se Supabase não tem blocos mas localStorage tem, sobe os dados locais
+          if ((!dbBlocks || dbBlocks.length === 0) && localBlocks.length > 0) {
+            await supabase.from('meudia_time_blocks').upsert(localBlocks.map(toDbTimeBlock))
+          }
+          if ((!dbWeekTasks || dbWeekTasks.length === 0) && localWeekTasks.length > 0) {
+            await supabase.from('meudia_week_tasks').upsert(localWeekTasks.map(toDbWeekTask))
+          }
+
           set({
             projects: dbProjects.map(fromDbProject),
             tasks: (dbTasks ?? []).map(fromDbTask),
-            timeBlocks: (dbBlocks ?? []).map(fromDbTimeBlock),
-            weekTasks: (dbWeekTasks ?? []).map(fromDbWeekTask),
+            timeBlocks: (dbBlocks && dbBlocks.length > 0) ? dbBlocks.map(fromDbTimeBlock) : localBlocks,
+            weekTasks: (dbWeekTasks && dbWeekTasks.length > 0) ? dbWeekTasks.map(fromDbWeekTask) : localWeekTasks,
             isLoaded: true,
           })
         } else {
-          const { projects, tasks } = get()
-          const pRows = projects.map(toDbProject)
-          await supabase.from('meudia_projects').upsert(pRows)
+          const { projects, tasks, timeBlocks, weekTasks } = get()
+          await supabase.from('meudia_projects').upsert(projects.map(toDbProject))
           if (tasks.length > 0) {
             await supabase.from('meudia_tasks').upsert(tasks.map(toDbTask))
+          }
+          if (timeBlocks.length > 0) {
+            await supabase.from('meudia_time_blocks').upsert(timeBlocks.map(toDbTimeBlock))
+          }
+          if (weekTasks.length > 0) {
+            await supabase.from('meudia_week_tasks').upsert(weekTasks.map(toDbWeekTask))
           }
           set({ isLoaded: true })
         }
