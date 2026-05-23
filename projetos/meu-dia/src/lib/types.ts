@@ -1,5 +1,5 @@
 export type ProjectStatus = 'em_andamento' | 'pausado' | 'concluido' | 'arquivado'
-export type TaskPriority = 'alta' | 'media' | 'baixa'
+export type TaskPriority = 'alta' | 'media' | 'baixa' | 'nenhuma'
 export type TaskStatus = 'pendente' | 'em_andamento' | 'concluida'
 export type TaskClassification = 'produtiva' | 'neutra' | 'improdutiva'
 export type Recurrence = 'nenhuma' | 'diaria' | 'semanal' | 'mensal'
@@ -31,22 +31,28 @@ export interface Task {
 export interface Project {
   id: string
   name: string
+  emoji?: string
   color: string
   status: ProjectStatus
+  parentId?: string   // sub-projeto quando preenchido
+  order: number
   deadline?: string
   createdAt: string
   updatedAt: string
 }
 
+// Paleta de cores para novos projetos
 export const PROJECT_COLORS = [
-  '#7C3AED', // roxo
-  '#2563EB', // azul
-  '#059669', // verde
-  '#D97706', // âmbar
-  '#DC2626', // vermelho
-  '#DB2777', // rosa
-  '#0891B2', // ciano
-  '#65A30D', // limão
+  '#4ADE80', // verde
+  '#60A5FA', // azul
+  '#F472B6', // rosa
+  '#FB923C', // laranja
+  '#A78BFA', // violeta
+  '#34D399', // esmeralda
+  '#FBBF24', // âmbar
+  '#38BDF8', // céu
+  '#F87171', // vermelho
+  '#86EFAC', // verde claro
 ]
 
 export const STATUS_LABELS: Record<ProjectStatus, string> = {
@@ -60,12 +66,14 @@ export const PRIORITY_LABELS: Record<TaskPriority, string> = {
   alta: 'Alta',
   media: 'Média',
   baixa: 'Baixa',
+  nenhuma: 'Sem prioridade',
 }
 
 export const PRIORITY_COLORS: Record<TaskPriority, string> = {
-  alta: 'bg-red-100 text-red-700 border-red-200',
-  media: 'bg-yellow-100 text-yellow-700 border-yellow-200',
-  baixa: 'bg-green-100 text-green-700 border-green-200',
+  alta: 'text-red-400 border-red-400/30 bg-red-400/10',
+  media: 'text-amber-400 border-amber-400/30 bg-amber-400/10',
+  baixa: 'text-blue-400 border-blue-400/30 bg-blue-400/10',
+  nenhuma: 'text-zinc-500 border-zinc-700 bg-zinc-800/50',
 }
 
 export const CLASSIFICATION_LABELS: Record<TaskClassification, string> = {
@@ -75,7 +83,7 @@ export const CLASSIFICATION_LABELS: Record<TaskClassification, string> = {
 }
 
 export const RECURRENCE_LABELS: Record<Recurrence, string> = {
-  nenhuma: 'Nenhuma',
+  nenhuma: 'Não repete',
   diaria: 'Diária',
   semanal: 'Semanal',
   mensal: 'Mensal',

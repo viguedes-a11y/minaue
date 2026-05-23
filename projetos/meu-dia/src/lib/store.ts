@@ -2,7 +2,10 @@
 
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
+import { useShallow } from 'zustand/react/shallow'
 import { Project, Task, Subtask, TaskPriority, TaskStatus } from './types'
+import { SEED_PROJECTS } from './seedData'
+
 function generateId() {
   return Math.random().toString(36).slice(2) + Date.now().toString(36)
 }
@@ -27,28 +30,19 @@ interface AppState {
   addSubtask: (taskId: string, title: string) => void
   toggleSubtask: (taskId: string, subtaskId: string) => void
   deleteSubtask: (taskId: string, subtaskId: string) => void
-
-  // Selectors
-  getProjectTasks: (projectId: string) => Task[]
-  getProjectProgress: (projectId: string) => number
 }
 
-const PRIORITY_CYCLE: TaskPriority[] = ['alta', 'media', 'baixa']
+const PRIORITY_CYCLE: TaskPriority[] = ['alta', 'media', 'baixa', 'nenhuma']
 
 export const useStore = create<AppState>()(
   persist(
     (set, get) => ({
-      projects: [],
+      projects: SEED_PROJECTS,
       tasks: [],
 
       addProject: (data) => {
         const now = new Date().toISOString()
-        const project: Project = {
-          ...data,
-          id: generateId(),
-          createdAt: now,
-          updatedAt: now,
-        }
+        const project: Project = { ...data, id: generateId(), createdAt: now, updatedAt: now }
         set((s) => ({ projects: [...s.projects, project] }))
         return project
       },
@@ -62,21 +56,17 @@ export const useStore = create<AppState>()(
       },
 
       deleteProject: (id) => {
+        // delete project, all its sub-projects, and all their tasks
+        const allIds = [id, ...get().projects.filter((p) => p.parentId === id).map((p) => p.id)]
         set((s) => ({
-          projects: s.projects.filter((p) => p.id !== id),
-          tasks: s.tasks.filter((t) => t.projectId !== id),
+          projects: s.projects.filter((p) => !allIds.includes(p.id)),
+          tasks: s.tasks.filter((t) => !allIds.includes(t.projectId)),
         }))
       },
 
       addTask: (data) => {
         const now = new Date().toISOString()
-        const task: Task = {
-          ...data,
-          id: generateId(),
-          subtasks: [],
-          createdAt: now,
-          updatedAt: now,
-        }
+        const task: Task = { ...data, id: generateId(), subtasks: [], createdAt: now, updatedAt: now }
         set((s) => ({ tasks: [...s.tasks, task] }))
         return task
       },
@@ -112,13 +102,9 @@ export const useStore = create<AppState>()(
       },
 
       addSubtask: (taskId, title) => {
-        const now = new Date().toISOString()
         const subtask: Subtask = {
-          id: generateId(),
-          taskId,
-          title,
-          completed: false,
-          createdAt: now,
+          id: generateId(), taskId, title, completed: false,
+          createdAt: new Date().toISOString(),
         }
         set((s) => ({
           tasks: s.tasks.map((t) =>
@@ -131,12 +117,7 @@ export const useStore = create<AppState>()(
         set((s) => ({
           tasks: s.tasks.map((t) =>
             t.id === taskId
-              ? {
-                  ...t,
-                  subtasks: t.subtasks.map((st) =>
-                    st.id === subtaskId ? { ...st, completed: !st.completed } : st
-                  ),
-                }
+              ? { ...t, subtasks: t.subtasks.map((st) => st.id === subtaskId ? { ...st, completed: !st.completed } : st) }
               : t
           ),
         }))
@@ -145,24 +126,45 @@ export const useStore = create<AppState>()(
       deleteSubtask: (taskId, subtaskId) => {
         set((s) => ({
           tasks: s.tasks.map((t) =>
-            t.id === taskId
-              ? { ...t, subtasks: t.subtasks.filter((st) => st.id !== subtaskId) }
-              : t
+            t.id === taskId ? { ...t, subtasks: t.subtasks.filter((st) => st.id !== subtaskId) } : t
           ),
         }))
       },
-
-      getProjectTasks: (projectId) => {
-        return get().tasks.filter((t) => t.projectId === projectId)
-      },
-
-      getProjectProgress: (projectId) => {
-        const tasks = get().tasks.filter((t) => t.projectId === projectId)
-        if (tasks.length === 0) return 0
-        const done = tasks.filter((t) => t.status === 'concluida').length
-        return Math.round((done / tasks.length) * 100)
-      },
     }),
-    { name: 'meu-dia-store' }
+    { name: 'meu-dia-v2' }
   )
 )
+
+// ── Hooks helpers ─────────────────────────────────────────────────────────────
+
+export function useRootProjects() {
+  return useStore(
+    useShallow((s) =>
+      s.projects
+        .filter((p) => !p.parentId)
+        .sort((a, b) => a.order - b.order)
+    )
+  )
+}
+
+export function useSubProjects(parentId: string) {
+  return useStore(
+    useShallow((s) =>
+      s.projects
+        .filter((p) => p.parentId === parentId)
+        .sort((a, b) => a.order - b.order)
+    )
+  )
+}
+
+export function useProjectPendingCount(projectId: string) {
+  return useStore((s) => s.tasks.filter((t) => t.projectId === projectId && t.status !== 'concluida').length)
+}
+
+export function useProjectProgress(projectId: string) {
+  return useStore((s) => {
+    const tasks = s.tasks.filter((t) => t.projectId === projectId)
+    if (tasks.length === 0) return 0
+    return Math.round((tasks.filter((t) => t.status === 'concluida').length / tasks.length) * 100)
+  })
+}
