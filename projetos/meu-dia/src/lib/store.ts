@@ -15,18 +15,23 @@ function generateId() {
 function toDbTimeBlock(b: TimeBlock) {
   return {
     id: b.id, title: b.title, color: b.color, type: b.type,
-    project_id: b.projectId ?? null, days: b.days,
+    project_id: b.projectId ?? null,
+    days: JSON.stringify(b.days),   // stored as jsonb
     start_minutes: b.startMinutes, end_minutes: b.endMinutes,
     created_at: b.createdAt, updated_at: new Date().toISOString(),
   }
 }
 
 function fromDbTimeBlock(row: Record<string, unknown>): TimeBlock {
+  const rawDays = row.days
+  const days: number[] = Array.isArray(rawDays)
+    ? rawDays as number[]
+    : typeof rawDays === 'string' ? JSON.parse(rawDays) : []
   return {
     id: row.id as string, title: row.title as string, color: row.color as string,
     type: row.type as 'fixed' | 'thematic',
     projectId: (row.project_id as string | null) ?? undefined,
-    days: row.days as number[],
+    days,
     startMinutes: row.start_minutes as number, endMinutes: row.end_minutes as number,
     createdAt: row.created_at as string, updatedAt: row.updated_at as string,
   }
