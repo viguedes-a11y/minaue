@@ -162,14 +162,12 @@ function ProjectRow({ project, index }: { project: Project; index: number }) {
         {/* Context menu */}
         <div style={{ paddingRight: '10px' }}>
           <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <button
-                className="w-8 h-8 flex items-center justify-center rounded opacity-0 group-hover:opacity-100 transition-opacity"
-                style={{ color: '#A09888' }}
-                onClick={(e) => e.stopPropagation()}
-              >
-                <MoreHorizontal size={15} />
-              </button>
+            <DropdownMenuTrigger
+              className="w-8 h-8 flex items-center justify-center rounded transition-opacity"
+              style={{ color: '#A09888', background: 'transparent', border: 'none', cursor: 'pointer', opacity: 0.6 }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <MoreHorizontal size={15} />
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-40">
               <DropdownMenuItem
