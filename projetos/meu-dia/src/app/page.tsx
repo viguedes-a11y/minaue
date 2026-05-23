@@ -221,31 +221,59 @@ function SmartInbox({ projects }: { projects: { id: string; name: string; color:
   const rootProjects = projects.filter((p) => p.id)
 
   function toggleRecording() {
-    if (!('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
-      setError('Reconhecimento de voz não suportado neste navegador.')
-      return
-    }
     if (recording) {
       recognitionRef.current?.stop()
       setRecording(false)
       return
     }
-    const SpeechRec = (window as Window & typeof globalThis & { webkitSpeechRecognition?: typeof SpeechRecognition }).webkitSpeechRecognition
-      ?? window.SpeechRecognition
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const SpeechRec = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition
+    if (!SpeechRec) {
+      setError('Reconhecimento de voz não disponível. Use Chrome ou Safari.')
+      return
+    }
+
+    setError('')
     const rec = new SpeechRec()
     rec.lang = 'pt-BR'
     rec.continuous = false
     rec.interimResults = false
+
+    let hasResult = false
+
     rec.onresult = (e: SpeechRecognitionEvent) => {
+      hasResult = true
       const transcript = e.results[0][0].transcript
       setText((prev) => prev ? `${prev} ${transcript}` : transcript)
       setRecording(false)
     }
-    rec.onerror = () => { setRecording(false); setError('Erro no microfone.') }
-    rec.onend   = () => setRecording(false)
+
+    rec.onerror = (e: SpeechRecognitionErrorEvent) => {
+      setRecording(false)
+      if (e.error === 'not-allowed') {
+        setError('Permissão para microfone negada. Libere o acesso nas configurações do navegador.')
+      } else if (e.error === 'network') {
+        setError('Erro de rede no reconhecimento de voz. Verifique sua conexão.')
+      } else if (e.error === 'no-speech') {
+        setError('Nenhuma fala detectada. Tente novamente.')
+      } else {
+        setError(`Erro no microfone (${e.error}). Tente digitar o texto.`)
+      }
+    }
+
+    rec.onend = () => {
+      setRecording(false)
+      if (!hasResult) setError('')
+    }
+
     recognitionRef.current = rec
-    rec.start()
-    setRecording(true)
+    try {
+      rec.start()
+      setRecording(true)
+    } catch {
+      setError('Não foi possível iniciar o microfone. Tente digitar o texto.')
+    }
   }
 
   async function analyze() {
