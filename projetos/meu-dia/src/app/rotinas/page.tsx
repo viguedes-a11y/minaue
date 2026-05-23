@@ -14,12 +14,12 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 const fontDisplay = 'var(--font-cormorant), "Cormorant Garamond", serif'
 const fontSans    = 'var(--font-jost), Jost, sans-serif'
 
-// Primeiro tenta pointer-within (detecta bloco exato onde o cursor está),
-// depois cai para rect-intersection para o dia todo (drop livre)
+// Prefer time-block droppables over free-column droppables when pointer overlaps both
 const collisionDetection: CollisionDetection = (args) => {
   const pointer = pointerWithin(args)
-  if (pointer.length > 0) return pointer
-  return rectIntersection(args)
+  if (pointer.length === 0) return rectIntersection(args)
+  const blockHits = pointer.filter((c) => !String(c.id).endsWith('::free'))
+  return blockHits.length > 0 ? blockHits : pointer
 }
 
 const HOUR_START  = 6
@@ -510,11 +510,11 @@ function WeekGrid({
                           style={{
                             position: 'absolute', top: `${top}px`,
                             left: colLeft, width: colWidth,
-                            height: `${Math.max(height, 24)}px`,
+                            minHeight: `${Math.max(height, 24)}px`,
                             background: `${block.color}18`,
                             borderLeft: `3px solid ${block.color}`,
                             borderRadius: '6px',
-                            padding: '3px 4px', overflow: 'hidden', zIndex: 3,
+                            padding: '3px 4px', zIndex: 3,
                           }}
                         >
                           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
