@@ -832,11 +832,14 @@
             <span id="detail-thumb-placeholder">🌸</span>
             <img id="detail-thumb" src="" style="width:100%;height:100%;object-fit:cover;display:none" alt="">
           </div>
-          <span style="font-size:10px;color:var(--text-muted)">Trocar foto</span>
+          <span class="change-photo-label" style="font-size:10px;color:var(--text-muted)">Trocar foto</span>
         </div>
         <h2 id="detail-mandala-name" style="font-size:18px;font-weight:600"></h2>
       </div>
-      <button id="detail-new-post-btn" class="btn btn-primary" style="font-size:12px;padding:8px 18px;text-transform:none;letter-spacing:0">+ Novo Post</button>
+      <div style="display:flex;gap:8px;align-items:center">
+        <button type="button" onclick="deleteCurrentMandala()" style="background:none;border:1px solid #fca5a5;color:#ef4444;border-radius:8px;padding:7px 12px;font-size:12px;cursor:pointer;font-family:inherit">🗑 Excluir</button>
+        <button id="detail-new-post-btn" class="btn btn-primary" style="font-size:12px;padding:8px 18px;text-transform:none;letter-spacing:0">+ Novo Post</button>
+      </div>
     </div>
     <div id="detail-posts-list"></div>
   </div>
@@ -1096,44 +1099,78 @@
     reader.readAsDataURL(file);
     event.target.value = '';
   }
-  async function changeMandalaPhoto(event) {
-    const file = event.target.files[0];
-    if (!file || !currentDetailMandalaId) return;
-    const reader = new FileReader();
-    reader.onload = async (e) => {
-      const compressed = await compressImage(e.target.result, 400, 0.75);
-      try {
-        const list = getLocalMandalas();
-        let m = list.find(x => x.id === currentDetailMandalaId);
-        if (!m) { // mandala derivada de post, cria entrada no store
-          m = { id: currentDetailMandalaId, name: document.getElementById('detail-mandala-name').textContent, thumb: null, createdAt: new Date().toISOString() };
-          list.unshift(m);
-        }
-        m.thumb = compressed;
-        localStorage.setItem('minaue_mandalas', JSON.stringify(list));
-        document.getElementById('detail-thumb').src = compressed;
-        document.getElementById('detail-thumb').style.display = '';
-        renderMandalas();
-      } catch(e2) {
-        alert('Erro ao salvar foto: ' + (e2 && e2.message ? e2.message : String(e2)));
-      }
-    };
-    reader.readAsDataURL(file);
-    event.target.value = '';
+  async function uploadMandalaPhoto(base64) {
+    try {
+      const compressed = await compressImage(base64, 400, 0.75);
+      const res = await fetch('/api/upload-image', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ base64: compressed })
+      });
+      if (!res.ok) return null;
+      const data = await res.json();
+      return data.url || null;
+    } catch(e) { return null; }
   }
 
-  function saveNewMandala() {
+  async function saveNewMandala() {
     const name = document.getElementById('new-mandala-name-input').value.trim();
     if (!name) { document.getElementById('new-mandala-name-input').focus(); return; }
+    const btn = document.querySelector('#new-mandala-modal .btn-primary');
+    btn.textContent = 'Salvando…'; btn.disabled = true;
     try {
+      let thumb = null;
+      if (newMandalaPhotoBase64) thumb = await uploadMandalaPhoto(newMandalaPhotoBase64);
       const list = getLocalMandalas();
-      list.unshift({ id: uid(), name, thumb: newMandalaPhotoBase64, createdAt: new Date().toISOString() });
+      list.unshift({ id: uid(), name, thumb, createdAt: new Date().toISOString() });
       localStorage.setItem('minaue_mandalas', JSON.stringify(list));
       closeNewMandalaModal();
       renderMandalas();
     } catch(e) {
       alert('Erro ao salvar: ' + (e && e.message ? e.message : String(e)));
+    } finally {
+      btn.textContent = 'Criar'; btn.disabled = false;
     }
+  }
+
+  async function changeMandalaPhoto(event) {
+    const file = event.target.files[0];
+    if (!file || !currentDetailMandalaId) return;
+    const label = document.querySelector('#mandala-detail-view .change-photo-label');
+    if (label) { label.textContent = 'Enviando…'; }
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+      const url = await uploadMandalaPhoto(e.target.result);
+      if (!url) { if (label) label.textContent = 'Trocar foto'; alert('Erro ao enviar foto. Tente novamente.'); return; }
+      try {
+        const list = getLocalMandalas();
+        let m = list.find(x => x.id === currentDetailMandalaId);
+        if (!m) {
+          m = { id: currentDetailMandalaId, name: document.getElementById('detail-mandala-name').textContent, thumb: null, createdAt: new Date().toISOString() };
+          list.unshift(m);
+        }
+        m.thumb = url;
+        localStorage.setItem('minaue_mandalas', JSON.stringify(list));
+        document.getElementById('detail-thumb').src = url;
+        document.getElementById('detail-thumb').style.display = '';
+        document.getElementById('detail-thumb-placeholder').style.display = 'none';
+        renderMandalas();
+      } catch(e2) { alert('Erro: ' + e2.message); }
+      if (label) label.textContent = 'Trocar foto';
+    };
+    reader.readAsDataURL(file);
+    event.target.value = '';
+  }
+
+  function deleteCurrentMandala() {
+    const name = document.getElementById('detail-mandala-name').textContent;
+    if (!confirm('Excluir "' + name + '"? Os posts não serão apagados.')) return;
+    try {
+      const list = getLocalMandalas().filter(m => m.id !== currentDetailMandalaId);
+      localStorage.setItem('minaue_mandalas', JSON.stringify(list));
+    } catch(e) {}
+    closeMandalaDetail();
+    renderMandalas();
   }
 
   document.addEventListener('keydown', (e) => {
