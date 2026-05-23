@@ -1074,10 +1074,15 @@
   function saveNewMandala() {
     const name = document.getElementById('new-mandala-name-input').value.trim();
     if (!name) { document.getElementById('new-mandala-name-input').focus(); return; }
-    const ok = upsertLocalMandala({ id: uid(), name, thumb: newMandalaPhotoBase64, createdAt: new Date().toISOString() });
-    if (!ok) { alert('Não foi possível salvar. Tente novamente.'); return; }
-    closeNewMandalaModal();
-    renderMandalas();
+    try {
+      const list = getLocalMandalas();
+      list.unshift({ id: uid(), name, thumb: newMandalaPhotoBase64, createdAt: new Date().toISOString() });
+      localStorage.setItem('minaue_mandalas', JSON.stringify(list));
+      closeNewMandalaModal();
+      renderMandalas();
+    } catch(e) {
+      alert('Erro ao salvar: ' + (e && e.message ? e.message : String(e)));
+    }
   }
 
   document.addEventListener('keydown', (e) => {
