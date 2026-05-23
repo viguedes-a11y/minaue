@@ -4,7 +4,7 @@ import { useState, useRef } from 'react'
 import { useStore } from '@/lib/store'
 import { useShallow } from 'zustand/react/shallow'
 import { TimeBlock, WeekTask, PROJECT_COLORS } from '@/lib/types'
-import { DndContext, DragEndEvent, DragOverlay, DragStartEvent, PointerSensor, TouchSensor, useSensor, useSensors, useDroppable, useDraggable, Active } from '@dnd-kit/core'
+import { DndContext, DragEndEvent, DragOverlay, DragStartEvent, PointerSensor, TouchSensor, useSensor, useSensors, useDroppable, useDraggable, Active, pointerWithin, rectIntersection, CollisionDetection } from '@dnd-kit/core'
 import { CSS } from '@dnd-kit/utilities'
 import { format, startOfWeek, addDays, addWeeks, subWeeks, isSameDay } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
@@ -13,6 +13,14 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 
 const fontDisplay = 'var(--font-cormorant), "Cormorant Garamond", serif'
 const fontSans    = 'var(--font-jost), Jost, sans-serif'
+
+// Primeiro tenta pointer-within (detecta bloco exato onde o cursor está),
+// depois cai para rect-intersection para o dia todo (drop livre)
+const collisionDetection: CollisionDetection = (args) => {
+  const pointer = pointerWithin(args)
+  if (pointer.length > 0) return pointer
+  return rectIntersection(args)
+}
 
 const HOUR_START  = 6
 const HOUR_END    = 22
@@ -425,6 +433,7 @@ function WeekGrid({
     <>
       <DndContext
         sensors={sensors}
+        collisionDetection={collisionDetection}
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
       >
