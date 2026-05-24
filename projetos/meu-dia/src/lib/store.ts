@@ -11,48 +11,13 @@ function generateId() {
   return Math.random().toString(36).slice(2) + Date.now().toString(36)
 }
 
+// ── Settings helpers (timeBlocks + weekTasks via meudia_settings) ─────────
+async function saveSettings(key: string, value: unknown) {
+  const { error } = await supabase.from('meudia_settings').upsert({ key, value })
+  if (error) console.error(`Supabase saveSettings(${key}) error:`, error)
+}
+
 // ── Conversão DB ↔ App ────────────────────────────────────────────────────
-function toDbTimeBlock(b: TimeBlock) {
-  return {
-    id: b.id, title: b.title, color: b.color, type: b.type,
-    project_id: b.projectId ?? null,
-    days: b.days,
-    start_minutes: b.startMinutes, end_minutes: b.endMinutes,
-    created_at: b.createdAt, updated_at: new Date().toISOString(),
-  }
-}
-
-function fromDbTimeBlock(row: Record<string, unknown>): TimeBlock {
-  const rawDays = row.days
-  const days: number[] = Array.isArray(rawDays)
-    ? rawDays as number[]
-    : typeof rawDays === 'string' ? JSON.parse(rawDays) : []
-  return {
-    id: row.id as string, title: row.title as string, color: row.color as string,
-    type: row.type as 'fixed' | 'thematic',
-    projectId: (row.project_id as string | null) ?? undefined,
-    days,
-    startMinutes: row.start_minutes as number, endMinutes: row.end_minutes as number,
-    createdAt: row.created_at as string, updatedAt: row.updated_at as string,
-  }
-}
-
-function toDbWeekTask(wt: WeekTask) {
-  return {
-    id: wt.id, task_id: wt.taskId, day_of_week: wt.dayOfWeek,
-    time_block_id: wt.timeBlockId ?? null, week_of: wt.weekOf,
-  }
-}
-
-function fromDbWeekTask(row: Record<string, unknown>): WeekTask {
-  return {
-    id: row.id as string, taskId: row.task_id as string,
-    dayOfWeek: row.day_of_week as number,
-    timeBlockId: (row.time_block_id as string | null) ?? undefined,
-    weekOf: row.week_of as string,
-  }
-}
-
 function toDbProject(p: Project) {
   return {
     id: p.id, name: p.name, color: p.color, status: p.status,
@@ -158,13 +123,11 @@ export const useStore = create<AppState>()(
         const [
           { data: dbProjects, error: pe },
           { data: dbTasks, error: te },
-          { data: dbBlocks, error: be },
-          { data: dbWeekTasks, error: we },
+          { data: dbSettings },
         ] = await Promise.all([
           supabase.from('meudia_projects').select('*'),
           supabase.from('meudia_tasks').select('*'),
-          supabase.from('meudia_time_blocks').select('*'),
-          supabase.from('meudia_week_tasks').select('*'),
+          supabase.from('meudia_settings').select('*'),
         ])
 
         if (pe || te) {
@@ -172,39 +135,35 @@ export const useStore = create<AppState>()(
           set({ isLoaded: true })
           return
         }
-        if (be) console.error('Supabase time_blocks error:', be)
-        if (we) console.error('Supabase week_tasks error:', we)
+
+        const settingsMap = Object.fromEntries((dbSettings ?? []).map((r: Record<string,unknown>) => [r.key, r.value]))
+        const remoteBlocks: TimeBlock[] = (settingsMap.time_blocks as TimeBlock[]) ?? []
+        const remoteWeekTasks: WeekTask[] = (settingsMap.week_tasks as WeekTask[]) ?? []
 
         if (dbProjects && dbProjects.length > 0) {
           const { timeBlocks: localBlocks, weekTasks: localWeekTasks } = get()
 
-          // Se Supabase não tem blocos mas localStorage tem, sobe os dados locais
-          if (!be && (!dbBlocks || dbBlocks.length === 0) && localBlocks.length > 0) {
-            await supabase.from('meudia_time_blocks').upsert(localBlocks.map(toDbTimeBlock))
+          // Se Supabase não tem dados mas localStorage tem, sobe os dados locais
+          if (remoteBlocks.length === 0 && localBlocks.length > 0) {
+            await saveSettings('time_blocks', localBlocks)
           }
-          if (!we && (!dbWeekTasks || dbWeekTasks.length === 0) && localWeekTasks.length > 0) {
-            await supabase.from('meudia_week_tasks').upsert(localWeekTasks.map(toDbWeekTask))
+          if (remoteWeekTasks.length === 0 && localWeekTasks.length > 0) {
+            await saveSettings('week_tasks', localWeekTasks)
           }
 
           set({
             projects: dbProjects.map(fromDbProject),
             tasks: (dbTasks ?? []).map(fromDbTask),
-            timeBlocks: (!be && dbBlocks && dbBlocks.length > 0) ? dbBlocks.map(fromDbTimeBlock) : localBlocks,
-            weekTasks: (!we && dbWeekTasks && dbWeekTasks.length > 0) ? dbWeekTasks.map(fromDbWeekTask) : localWeekTasks,
+            timeBlocks: remoteBlocks.length > 0 ? remoteBlocks : localBlocks,
+            weekTasks: remoteWeekTasks.length > 0 ? remoteWeekTasks : localWeekTasks,
             isLoaded: true,
           })
         } else {
           const { projects, tasks, timeBlocks, weekTasks } = get()
           await supabase.from('meudia_projects').upsert(projects.map(toDbProject))
-          if (tasks.length > 0) {
-            await supabase.from('meudia_tasks').upsert(tasks.map(toDbTask))
-          }
-          if (timeBlocks.length > 0) {
-            await supabase.from('meudia_time_blocks').upsert(timeBlocks.map(toDbTimeBlock))
-          }
-          if (weekTasks.length > 0) {
-            await supabase.from('meudia_week_tasks').upsert(weekTasks.map(toDbWeekTask))
-          }
+          if (tasks.length > 0) await supabase.from('meudia_tasks').upsert(tasks.map(toDbTask))
+          if (timeBlocks.length > 0) await saveSettings('time_blocks', timeBlocks)
+          if (weekTasks.length > 0) await saveSettings('week_tasks', weekTasks)
           set({ isLoaded: true })
         }
       },
@@ -356,9 +315,7 @@ export const useStore = create<AppState>()(
         const now = new Date().toISOString()
         const block: TimeBlock = { ...data, id: generateId(), createdAt: now, updatedAt: now }
         set((s) => ({ timeBlocks: [...s.timeBlocks, block] }))
-        supabase.from('meudia_time_blocks').insert(toDbTimeBlock(block)).then(({ error }) => {
-          if (error) console.error('Supabase addTimeBlock error:', error)
-        })
+        saveSettings('time_blocks', get().timeBlocks)
       },
 
       updateTimeBlock: (id, data) => {
@@ -366,12 +323,7 @@ export const useStore = create<AppState>()(
         set((s) => ({
           timeBlocks: s.timeBlocks.map((b) => b.id === id ? { ...b, ...data, updatedAt: now } : b),
         }))
-        const updated = get().timeBlocks.find((b) => b.id === id)
-        if (updated) {
-          supabase.from('meudia_time_blocks').update(toDbTimeBlock(updated)).eq('id', id).then(({ error }) => {
-            if (error) console.error('Supabase updateTimeBlock error:', error)
-          })
-        }
+        saveSettings('time_blocks', get().timeBlocks)
       },
 
       deleteTimeBlock: (id) => {
@@ -379,25 +331,20 @@ export const useStore = create<AppState>()(
           timeBlocks: s.timeBlocks.filter((b) => b.id !== id),
           weekTasks: s.weekTasks.map((wt) => wt.timeBlockId === id ? { ...wt, timeBlockId: undefined } : wt),
         }))
-        supabase.from('meudia_time_blocks').delete().eq('id', id).then(({ error }) => {
-          if (error) console.error('Supabase deleteTimeBlock error:', error)
-        })
+        saveSettings('time_blocks', get().timeBlocks)
+        saveSettings('week_tasks', get().weekTasks)
       },
 
       // ── Week tasks ────────────────────────────────────────────────
       addWeekTask: (data) => {
         const wt: WeekTask = { ...data, id: generateId() }
         set((s) => ({ weekTasks: [...s.weekTasks, wt] }))
-        supabase.from('meudia_week_tasks').insert(toDbWeekTask(wt)).then(({ error }) => {
-          if (error) console.error('Supabase addWeekTask error:', error)
-        })
+        saveSettings('week_tasks', get().weekTasks)
       },
 
       removeWeekTask: (id) => {
         set((s) => ({ weekTasks: s.weekTasks.filter((wt) => wt.id !== id) }))
-        supabase.from('meudia_week_tasks').delete().eq('id', id).then(({ error }) => {
-          if (error) console.error('Supabase removeWeekTask error:', error)
-        })
+        saveSettings('week_tasks', get().weekTasks)
       },
 
       moveWeekTask: (id, dayOfWeek, timeBlockId) => {
@@ -406,9 +353,7 @@ export const useStore = create<AppState>()(
             wt.id === id ? { ...wt, dayOfWeek, timeBlockId } : wt
           ),
         }))
-        supabase.from('meudia_week_tasks').update({ day_of_week: dayOfWeek, time_block_id: timeBlockId ?? null }).eq('id', id).then(({ error }) => {
-          if (error) console.error('Supabase moveWeekTask error:', error)
-        })
+        saveSettings('week_tasks', get().weekTasks)
       },
     }),
     { name: 'meu-dia-v4' }

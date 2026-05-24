@@ -1,14 +1,12 @@
 'use client'
 
-import { useState, useRef, useCallback } from 'react'
+import { useState } from 'react'
 import { useStore } from '@/lib/store'
 import { useShallow } from 'zustand/react/shallow'
 import { TimeBlock, WeekTask, PROJECT_COLORS } from '@/lib/types'
-import { DndContext, DragEndEvent, DragOverlay, DragStartEvent, PointerSensor, TouchSensor, useSensor, useSensors, useDroppable, useDraggable, Active, rectIntersection } from '@dnd-kit/core'
-import { CSS } from '@dnd-kit/utilities'
 import { format, startOfWeek, addDays, addWeeks, subWeeks, isSameDay } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
-import { ChevronLeft, ChevronRight, Plus, X, Pencil, ListChecks, Check } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Plus, X, Pencil, ListChecks, Check, ArrowRightLeft } from 'lucide-react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 
 const fontDisplay = 'var(--font-cormorant), "Cormorant Garamond", serif'
@@ -32,53 +30,125 @@ function getWeekOf(date: Date) {
   return format(startOfWeek(date, { weekStartsOn: 1 }), 'yyyy-MM-dd')
 }
 
-// ── Draggable task chip ─────────────────────────────────────────────────
-function DraggableTask({ id, title, color, done }: { id: string; title: string; color: string; done?: boolean }) {
-  const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({ id })
+// ── Task chip (clicável para mover) ────────────────────────────────────
+function TaskChip({ id, title, color, done, onClick }: {
+  id: string; title: string; color: string; done?: boolean; onClick: () => void
+}) {
   return (
     <div
-      ref={setNodeRef}
-      {...listeners}
-      {...attributes}
+      onClick={onClick}
       style={{
-        transform: CSS.Translate.toString(transform),
-        opacity: isDragging ? 0.4 : 1,
-        padding: '4px 8px',
+        padding: '4px 6px 4px 8px',
         borderRadius: '6px',
         background: done ? '#F0EDE7' : '#FAF8F4',
         border: `1px solid ${color}40`,
         borderLeft: `3px solid ${done ? '#D8D2C8' : color}`,
         fontFamily: fontDisplay, fontSize: '13px', fontWeight: 400,
         color: done ? '#A09888' : '#282F29',
-        cursor: 'grab',
+        cursor: 'pointer',
         textDecoration: done ? 'line-through' : 'none',
-        touchAction: 'none',
-        userSelect: 'none',
         marginBottom: '3px',
         lineHeight: 1.3,
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '4px',
       }}
     >
-      {title}
+      <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{title}</span>
+      <ArrowRightLeft size={10} style={{ color: `${color}80`, flexShrink: 0 }} />
     </div>
   )
 }
 
-// ── Droppable day-block cell ────────────────────────────────────────────
-function DroppableCell({ id, children, style }: { id: string; children: React.ReactNode; style?: React.CSSProperties }) {
-  const { isOver, setNodeRef } = useDroppable({ id })
+// ── Dialog para mover tarefa ────────────────────────────────────────────
+function MoveTaskDialog({ weekTask, weekStart, onClose }: {
+  weekTask: WeekTask; weekStart: Date; onClose: () => void
+}) {
+  const timeBlocks = useStore(useShallow((s) => s.timeBlocks))
+  const { moveWeekTask } = useStore()
+  const [selDay, setSelDay] = useState(weekTask.dayOfWeek)
+  const [selBlock, setSelBlock] = useState<string | undefined>(weekTask.timeBlockId)
+
+  const dayBlocks = timeBlocks.filter((b) => b.days.includes(selDay))
+
+  function handleSave() {
+    moveWeekTask(weekTask.id, selDay, selBlock)
+    onClose()
+  }
+
   return (
-    <div
-      ref={setNodeRef}
-      style={{
-        ...style,
-        outline: isOver ? `2px dashed #B8A070` : '2px dashed transparent',
-        outlineOffset: '-2px',
-        borderRadius: '6px',
-        transition: 'outline 0.15s ease',
-      }}
-    >
-      {children}
-    </div>
+    <Dialog open onOpenChange={onClose}>
+      <DialogContent className="max-w-xs" style={{ background: '#FAF8F4' }}>
+        <DialogHeader>
+          <DialogTitle style={{ fontFamily: fontDisplay, fontWeight: 300, fontSize: '20px', color: '#282F29' }}>
+            Mover tarefa
+          </DialogTitle>
+        </DialogHeader>
+        <div className="space-y-4 pt-1">
+          <div>
+            <p style={{ fontFamily: fontSans, fontSize: '9px', letterSpacing: '0.2em', textTransform: 'uppercase', color: '#7A8E7B', marginBottom: '6px' }}>Dia</p>
+            <div className="flex gap-1">
+              {DAY_LABELS.map((d, i) => {
+                const date = addDays(weekStart, i)
+                const day = i + 1
+                return (
+                  <button key={i} onClick={() => { setSelDay(day); setSelBlock(undefined) }}
+                    style={{
+                      flex: 1, padding: '6px 2px', borderRadius: '6px', cursor: 'pointer',
+                      fontFamily: fontSans, fontSize: '10px', fontWeight: 300,
+                      border: `1px solid ${selDay === day ? '#B8A070' : '#D8D2C8'}`,
+                      background: selDay === day ? 'rgba(184,160,112,0.12)' : 'transparent',
+                      color: selDay === day ? '#8B7550' : '#A09888',
+                      display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1px',
+                    }}
+                  >
+                    <span>{d}</span>
+                    <span style={{ fontSize: '9px' }}>{format(date, 'd')}</span>
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+
+          <div>
+            <p style={{ fontFamily: fontSans, fontSize: '9px', letterSpacing: '0.2em', textTransform: 'uppercase', color: '#7A8E7B', marginBottom: '6px' }}>Bloco de horário</p>
+            <div className="flex flex-col gap-1">
+              <button onClick={() => setSelBlock(undefined)}
+                style={{
+                  padding: '8px 12px', borderRadius: '7px', cursor: 'pointer', textAlign: 'left',
+                  fontFamily: fontSans, fontSize: '12px', fontWeight: 300,
+                  border: `1px solid ${!selBlock ? '#B8A070' : '#D8D2C8'}`,
+                  background: !selBlock ? 'rgba(184,160,112,0.1)' : 'transparent',
+                  color: !selBlock ? '#8B7550' : '#A09888',
+                }}
+              >
+                Livre (sem bloco)
+              </button>
+              {dayBlocks.map((b) => (
+                <button key={b.id} onClick={() => setSelBlock(b.id)}
+                  style={{
+                    padding: '8px 12px', borderRadius: '7px', cursor: 'pointer', textAlign: 'left',
+                    fontFamily: fontSans, fontSize: '12px', fontWeight: 300,
+                    border: `1px solid ${selBlock === b.id ? b.color : '#D8D2C8'}`,
+                    background: selBlock === b.id ? `${b.color}15` : 'transparent',
+                    color: selBlock === b.id ? b.color : '#A09888',
+                    borderLeft: `3px solid ${b.color}`,
+                  }}
+                >
+                  {b.title} <span style={{ fontSize: '10px', opacity: 0.7 }}>{minToTime(b.startMinutes)}–{minToTime(b.endMinutes)}</span>
+                </button>
+              ))}
+              {dayBlocks.length === 0 && (
+                <p style={{ fontFamily: fontSans, fontSize: '11px', color: '#C8C4BC', padding: '4px 0' }}>Nenhum bloco neste dia</p>
+              )}
+            </div>
+          </div>
+
+          <div className="flex gap-2 pt-1">
+            <button onClick={handleSave} className="btn-minaue flex-1 justify-center">Confirmar</button>
+            <button onClick={onClose} className="btn-minaue" style={{ borderColor: '#D8D2C8', color: '#7A8E7B' }}>Cancelar</button>
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
   )
 }
 
@@ -363,48 +433,14 @@ function WeekGrid({
   const { moveWeekTask } = useStore()
 
   const [editBlock, setEditBlock]     = useState<TimeBlock | null>(null)
-  const [activeItem, setActiveItem]   = useState<Active | null>(null)
+  const [movingTask, setMovingTask]   = useState<WeekTask | null>(null)
   const { updateTimeBlock, deleteTimeBlock } = useStore()
-  const gridRef = useRef<HTMLDivElement>(null)
-
-  const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
-    useSensor(TouchSensor, { activationConstraint: { delay: 150, tolerance: 5 } }),
-  )
 
   // Desktop: all 7 days; Mobile: just activeDayIndex
   const isMobileView = typeof window !== 'undefined' && window.innerWidth < 768
   const days = isMobileView ? [activeDayIndex] : [0, 1, 2, 3, 4, 5, 6]
 
   const hours = Array.from({ length: HOUR_END - HOUR_START }, (_, i) => HOUR_START + i)
-
-  function handleDragStart(event: DragStartEvent) {
-    setActiveItem(event.active)
-  }
-
-  function handleDragEnd(event: DragEndEvent) {
-    setActiveItem(null)
-    const { active, over } = event
-    if (!over) return
-
-    const [dayStr] = (over.id as string).split('::')
-    const day = parseInt(dayStr) + 1
-
-    // Calculate which block the task was dropped into based on Y position
-    let targetBlockId: string | undefined
-    const translated = active.rect.current.translated
-    if (gridRef.current && translated) {
-      const gridRect = gridRef.current.getBoundingClientRect()
-      const scrollTop = gridRef.current.scrollTop
-      const dropTopRelative = translated.top - gridRect.top + scrollTop
-      const dropMinutes = HOUR_START * 60 + (dropTopRelative / HOUR_PX) * 60
-      const dayBlocks = timeBlocks.filter((b) => b.days.includes(day))
-      const hit = dayBlocks.find((b) => dropMinutes >= b.startMinutes && dropMinutes < b.endMinutes)
-      targetBlockId = hit?.id
-    }
-
-    moveWeekTask(active.id as string, day, targetBlockId)
-  }
 
   function getBlocksForDay(dayIdx: number) {
     return timeBlocks.filter((b) => b.days.includes(dayIdx + 1))
@@ -435,152 +471,114 @@ function WeekGrid({
       .filter((x) => x.task)
   }
 
-  const activeWeekTask = activeItem ? weekTasks.find((wt) => wt.id === activeItem.id) : null
-  const activeTask = activeWeekTask ? tasks.find((t) => t.id === activeWeekTask.taskId) : null
-  const activeColor = activeTask ? (projects.find((p) => p.id === activeTask.projectId)?.color ?? '#B8A070') : '#B8A070'
-
   return (
     <>
-      <DndContext
-        sensors={sensors}
-        collisionDetection={rectIntersection}
-        onDragStart={handleDragStart}
-        onDragEnd={handleDragEnd}
-      >
-        <div ref={gridRef} style={{ display: 'flex', overflow: 'auto' }}>
-          {/* Time axis */}
-          <div style={{ width: '40px', flexShrink: 0, paddingTop: '32px' }}>
-            {hours.map((h) => (
-              <div key={h} style={{ height: `${HOUR_PX}px`, display: 'flex', alignItems: 'flex-start', paddingTop: '2px' }}>
-                <span style={{ fontFamily: fontSans, fontSize: '9px', color: '#A09888', fontWeight: 300, lineHeight: 1 }}>
-                  {h}h
-                </span>
-              </div>
-            ))}
-          </div>
-
-          {/* Day columns */}
-          {days.map((dayIdx) => {
-            const date   = addDays(weekStart, dayIdx)
-            const isToday = isSameDay(date, new Date())
-            const dayBlocks = getBlocksForDay(dayIdx)
-            const freeTasks = getTasksForDayBlock(dayIdx, undefined)
-
-            return (
-              <div key={dayIdx} style={{ flex: 1, minWidth: 0 }}>
-                {/* Day header */}
-                <div
-                  style={{
-                    height: '32px', display: 'flex', flexDirection: 'column', alignItems: 'center',
-                    justifyContent: 'center', marginBottom: '0',
-                  }}
-                >
-                  <span style={{ fontFamily: fontSans, fontSize: '9px', letterSpacing: '0.12em', textTransform: 'uppercase', color: isToday ? '#B8A070' : '#A09888', fontWeight: isToday ? 400 : 300 }}>
-                    {DAY_LABELS[dayIdx]}
-                  </span>
-                  <span style={{ fontFamily: fontSans, fontSize: '11px', color: isToday ? '#282F29' : '#A09888', fontWeight: isToday ? 400 : 300 }}>
-                    {format(date, 'd')}
-                  </span>
-                </div>
-
-                {/* Grid column — plain div, NOT droppable (avoids nested-droppable conflict) */}
-                <div style={{ position: 'relative', height: `${TOTAL_PX}px`, borderLeft: '1px solid #E5E0D8' }}>
-                  {/* Hour lines */}
-                  {hours.map((h) => (
-                    <div key={h} style={{ position: 'absolute', top: `${(h - HOUR_START) * HOUR_PX}px`, left: 0, right: 0, borderTop: '1px solid #F0EDE7', pointerEvents: 'none' }} />
-                  ))}
-
-                  {/* Free drop zone — sibling to blocks, behind them (zIndex 1) */}
-                  <DroppableCell
-                    id={`${dayIdx}::free`}
-                    style={{ position: 'absolute', inset: 0, zIndex: 1 }}
-                  />
-
-                  {/* Free tasks rendered above the zone (zIndex 2) */}
-                  {freeTasks.length > 0 && (
-                    <div style={{ position: 'absolute', top: '4px', left: '3px', right: '3px', zIndex: 2, pointerEvents: 'none' }}>
-                      {freeTasks.map(({ wt, task }) => task && (
-                        <div key={wt.id} style={{ pointerEvents: 'auto' }}>
-                          <DraggableTask id={wt.id} title={task.title} color={projects.find((p) => p.id === task.projectId)?.color ?? '#B8A070'} done={task.status === 'concluida'} />
-                        </div>
-                      ))}
-                    </div>
-                  )}
-
-                  {/* Time blocks — pure visual, drop position calculated by Y math */}
-                  {(() => {
-                    const blockLayout = layoutBlocks(dayBlocks)
-                    return dayBlocks.map((block) => {
-                      const top = minutesToPx(block.startMinutes)
-                      const height = minutesToPx(block.endMinutes) - top
-                      const blockTasks = getTasksForDayBlock(dayIdx, block.id)
-                      const { col, totalCols } = blockLayout.get(block.id) ?? { col: 0, totalCols: 1 }
-                      const colWidth = `calc((100% - 4px) / ${totalCols})`
-                      const colLeft = `calc(2px + ${col} * (100% - 4px) / ${totalCols})`
-
-                      return (
-                        <div
-                          key={block.id}
-                          style={{
-                            position: 'absolute', top: `${top}px`,
-                            left: colLeft, width: colWidth,
-                            minHeight: `${Math.max(height, 24)}px`,
-                            background: `${block.color}18`,
-                            borderLeft: `3px solid ${block.color}`,
-                            borderRadius: '6px',
-                            padding: '3px 4px', zIndex: 4,
-                          }}
-                        >
-                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                            <span style={{ fontFamily: fontSans, fontSize: '9px', fontWeight: 400, color: block.color, letterSpacing: '0.05em', textTransform: 'uppercase', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                              {block.title}
-                            </span>
-                            <button
-                              onClick={(e) => { e.stopPropagation(); setEditBlock(block) }}
-                              style={{ color: block.color, background: 'rgba(255,255,255,0.5)', border: 'none', cursor: 'pointer', padding: '4px 6px', display: 'flex', borderRadius: '4px', flexShrink: 0, zIndex: 10, position: 'relative' }}
-                            >
-                              <Pencil size={10} />
-                            </button>
-                          </div>
-                          {height >= 36 && (
-                            <span style={{ fontFamily: fontSans, fontSize: '8px', color: `${block.color}90`, fontWeight: 300 }}>
-                              {minToTime(block.startMinutes)}–{minToTime(block.endMinutes)}
-                            </span>
-                          )}
-                          {blockTasks.map(({ wt, task }) => task && (
-                            <DraggableTask key={wt.id} id={wt.id} title={task.title} color={projects.find((p) => p.id === task.projectId)?.color ?? '#B8A070'} done={task.status === 'concluida'} />
-                          ))}
-                        </div>
-                      )
-                    })
-                  })()}
-                </div>
-              </div>
-            )
-          })}
+      <div style={{ display: 'flex', overflow: 'auto' }}>
+        {/* Time axis */}
+        <div style={{ width: '40px', flexShrink: 0, paddingTop: '32px' }}>
+          {hours.map((h) => (
+            <div key={h} style={{ height: `${HOUR_PX}px`, display: 'flex', alignItems: 'flex-start', paddingTop: '2px' }}>
+              <span style={{ fontFamily: fontSans, fontSize: '9px', color: '#A09888', fontWeight: 300, lineHeight: 1 }}>{h}h</span>
+            </div>
+          ))}
         </div>
 
-        <DragOverlay dropAnimation={null}>
-          {activeTask && (
-            <div style={{
-              padding: '5px 9px', borderRadius: '6px',
-              background: '#FAF8F4', border: `1px solid ${activeColor}60`,
-              borderLeft: `3px solid ${activeColor}`,
-              fontFamily: fontDisplay, fontSize: '13px', color: '#282F29',
-              boxShadow: '0 4px 16px rgba(40,47,41,0.18)',
-              pointerEvents: 'none', whiteSpace: 'nowrap',
-            }}>
-              {activeTask.title}
+        {/* Day columns */}
+        {days.map((dayIdx) => {
+          const date     = addDays(weekStart, dayIdx)
+          const isToday  = isSameDay(date, new Date())
+          const dayBlocks = getBlocksForDay(dayIdx)
+          const freeTasks = getTasksForDayBlock(dayIdx, undefined)
+
+          return (
+            <div key={dayIdx} style={{ flex: 1, minWidth: 0 }}>
+              {/* Day header */}
+              <div style={{ height: '32px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+                <span style={{ fontFamily: fontSans, fontSize: '9px', letterSpacing: '0.12em', textTransform: 'uppercase', color: isToday ? '#B8A070' : '#A09888', fontWeight: isToday ? 400 : 300 }}>{DAY_LABELS[dayIdx]}</span>
+                <span style={{ fontFamily: fontSans, fontSize: '11px', color: isToday ? '#282F29' : '#A09888', fontWeight: isToday ? 400 : 300 }}>{format(date, 'd')}</span>
+              </div>
+
+              {/* Grid column */}
+              <div style={{ position: 'relative', height: `${TOTAL_PX}px`, borderLeft: '1px solid #E5E0D8' }}>
+                {hours.map((h) => (
+                  <div key={h} style={{ position: 'absolute', top: `${(h - HOUR_START) * HOUR_PX}px`, left: 0, right: 0, borderTop: '1px solid #F0EDE7', pointerEvents: 'none' }} />
+                ))}
+
+                {/* Free tasks at top */}
+                {freeTasks.length > 0 && (
+                  <div style={{ position: 'absolute', top: '4px', left: '3px', right: '3px', zIndex: 2 }}>
+                    {freeTasks.map(({ wt, task }) => task && (
+                      <TaskChip key={wt.id} id={wt.id} title={task.title}
+                        color={projects.find((p) => p.id === task.projectId)?.color ?? '#B8A070'}
+                        done={task.status === 'concluida'}
+                        onClick={() => setMovingTask(wt)}
+                      />
+                    ))}
+                  </div>
+                )}
+
+                {/* Time blocks */}
+                {(() => {
+                  const blockLayout = layoutBlocks(dayBlocks)
+                  return dayBlocks.map((block) => {
+                    const top = minutesToPx(block.startMinutes)
+                    const height = minutesToPx(block.endMinutes) - top
+                    const blockTasks = getTasksForDayBlock(dayIdx, block.id)
+                    const { col, totalCols } = blockLayout.get(block.id) ?? { col: 0, totalCols: 1 }
+
+                    return (
+                      <div key={block.id} style={{
+                        position: 'absolute', top: `${top}px`,
+                        left: `calc(2px + ${col} * (100% - 4px) / ${totalCols})`,
+                        width: `calc((100% - 4px) / ${totalCols})`,
+                        minHeight: `${Math.max(height, 24)}px`,
+                        background: `${block.color}18`, borderLeft: `3px solid ${block.color}`,
+                        borderRadius: '6px', padding: '3px 4px', zIndex: 3,
+                      }}>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                          <span style={{ fontFamily: fontSans, fontSize: '9px', fontWeight: 400, color: block.color, letterSpacing: '0.05em', textTransform: 'uppercase', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                            {block.title}
+                          </span>
+                          <button onClick={(e) => { e.stopPropagation(); setEditBlock(block) }}
+                            style={{ color: block.color, background: 'rgba(255,255,255,0.5)', border: 'none', cursor: 'pointer', padding: '4px 6px', display: 'flex', borderRadius: '4px', flexShrink: 0 }}>
+                            <Pencil size={10} />
+                          </button>
+                        </div>
+                        {height >= 36 && (
+                          <span style={{ fontFamily: fontSans, fontSize: '8px', color: `${block.color}90`, fontWeight: 300 }}>
+                            {minToTime(block.startMinutes)}–{minToTime(block.endMinutes)}
+                          </span>
+                        )}
+                        {blockTasks.map(({ wt, task }) => task && (
+                          <TaskChip key={wt.id} id={wt.id} title={task.title}
+                            color={projects.find((p) => p.id === task.projectId)?.color ?? '#B8A070'}
+                            done={task.status === 'concluida'}
+                            onClick={() => setMovingTask(wt)}
+                          />
+                        ))}
+                      </div>
+                    )
+                  })
+                })()}
+              </div>
             </div>
-          )}
-        </DragOverlay>
-      </DndContext>
+          )
+        })}
+      </div>
 
       {editBlock && (
         <BlockDialog
           initial={editBlock}
           onSave={(data) => updateTimeBlock(editBlock.id, data)}
           onClose={() => setEditBlock(null)}
+        />
+      )}
+
+      {movingTask && (
+        <MoveTaskDialog
+          weekTask={movingTask}
+          weekStart={weekStart}
+          onClose={() => setMovingTask(null)}
         />
       )}
     </>
