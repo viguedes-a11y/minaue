@@ -2,15 +2,16 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { LayoutDashboard, FolderKanban, Timer, Repeat, BarChart2, Download } from 'lucide-react'
+import { LayoutDashboard, FolderKanban, Timer, Repeat, BarChart2, Download, CalendarDays } from 'lucide-react'
 import { useStore } from '@/lib/store'
 
 const NAV = [
-  { href: '/',          label: 'Início',    icon: LayoutDashboard },
-  { href: '/projetos',  label: 'Projetos',  icon: FolderKanban },
-  { href: '/rotinas',   label: 'Rotinas',   icon: Repeat },
-  { href: '/foco',      label: 'Foco',      icon: Timer },
-  { href: '/relatorio', label: 'Relatório', icon: BarChart2 },
+  { href: '/',            label: 'Início',     icon: LayoutDashboard },
+  { href: '/projetos',    label: 'Projetos',   icon: FolderKanban },
+  { href: '/calendario',  label: 'Calendário', icon: CalendarDays },
+  { href: '/rotinas',     label: 'Rotinas',    icon: Repeat },
+  { href: '/foco',        label: 'Foco',       icon: Timer },
+  { href: '/relatorio',   label: 'Relatório',  icon: BarChart2 },
 ]
 
 const fontDisplay = 'var(--font-cormorant), "Cormorant Garamond", serif'

@@ -76,8 +76,8 @@ export interface TimeBlock {
 export interface WeekTask {
   id: string
   taskId: string
-  dayOfWeek: number       // 1=Seg … 7=Dom
-  timeBlockId?: string    // bloco temático onde foi colocada
+  dayOfWeek?: number      // 1=Seg … 7=Dom; undefined = na semana sem dia definido
+  time?: string           // "HH:MM"
   weekOf: string          // ISO date da segunda-feira da semana
 }
 

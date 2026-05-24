@@ -104,7 +104,7 @@ interface AppState {
   // Week tasks (tarefas planejadas para uma semana)
   addWeekTask: (data: Omit<WeekTask, 'id'>) => void
   removeWeekTask: (id: string) => void
-  moveWeekTask: (id: string, dayOfWeek: number, timeBlockId?: string) => void
+  updateWeekTask: (id: string, data: Partial<Pick<WeekTask, 'dayOfWeek' | 'time'>>) => void
 }
 
 const PRIORITY_CYCLE: TaskPriority[] = ['alta', 'media', 'baixa', 'nenhuma']
@@ -327,12 +327,8 @@ export const useStore = create<AppState>()(
       },
 
       deleteTimeBlock: (id) => {
-        set((s) => ({
-          timeBlocks: s.timeBlocks.filter((b) => b.id !== id),
-          weekTasks: s.weekTasks.map((wt) => wt.timeBlockId === id ? { ...wt, timeBlockId: undefined } : wt),
-        }))
+        set((s) => ({ timeBlocks: s.timeBlocks.filter((b) => b.id !== id) }))
         saveSettings('time_blocks', get().timeBlocks)
-        saveSettings('week_tasks', get().weekTasks)
       },
 
       // ── Week tasks ────────────────────────────────────────────────
@@ -347,11 +343,9 @@ export const useStore = create<AppState>()(
         saveSettings('week_tasks', get().weekTasks)
       },
 
-      moveWeekTask: (id, dayOfWeek, timeBlockId) => {
+      updateWeekTask: (id, data) => {
         set((s) => ({
-          weekTasks: s.weekTasks.map((wt) =>
-            wt.id === id ? { ...wt, dayOfWeek, timeBlockId } : wt
-          ),
+          weekTasks: s.weekTasks.map((wt) => wt.id === id ? { ...wt, ...data } : wt),
         }))
         saveSettings('week_tasks', get().weekTasks)
       },
