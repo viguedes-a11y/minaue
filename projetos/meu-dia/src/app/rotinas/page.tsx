@@ -1,10 +1,10 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useState, useRef, useCallback } from 'react'
 import { useStore } from '@/lib/store'
 import { useShallow } from 'zustand/react/shallow'
 import { TimeBlock, WeekTask, PROJECT_COLORS } from '@/lib/types'
-import { DndContext, DragEndEvent, DragOverlay, DragStartEvent, PointerSensor, TouchSensor, useSensor, useSensors, useDroppable, useDraggable, Active, closestCorners, pointerWithin, rectIntersection, CollisionDetection } from '@dnd-kit/core'
+import { DndContext, DragEndEvent, DragOverlay, DragStartEvent, PointerSensor, TouchSensor, useSensor, useSensors, useDroppable, useDraggable, Active, rectIntersection } from '@dnd-kit/core'
 import { CSS } from '@dnd-kit/utilities'
 import { format, startOfWeek, addDays, addWeeks, subWeeks, isSameDay } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
@@ -15,13 +15,6 @@ const fontDisplay = 'var(--font-cormorant), "Cormorant Garamond", serif'
 const fontSans    = 'var(--font-jost), Jost, sans-serif'
 
 
-// Blocos têm prioridade sobre zona livre; fora de blocos usa zona livre do dia
-const customCollision: CollisionDetection = (args) => {
-  const hits = pointerWithin(args)
-  if (hits.length === 0) return rectIntersection(args)
-  const blocks = hits.filter((c) => !String(c.id).endsWith('::free'))
-  return blocks.length > 0 ? blocks : hits
-}
 
 const HOUR_START  = 6
 const HOUR_END    = 22
@@ -372,6 +365,7 @@ function WeekGrid({
   const [editBlock, setEditBlock]     = useState<TimeBlock | null>(null)
   const [activeItem, setActiveItem]   = useState<Active | null>(null)
   const { updateTimeBlock, deleteTimeBlock } = useStore()
+  const gridRef = useRef<HTMLDivElement>(null)
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
@@ -392,9 +386,24 @@ function WeekGrid({
     setActiveItem(null)
     const { active, over } = event
     if (!over) return
-    const [dayStr, blockStr] = (over.id as string).split('::')
+
+    const [dayStr] = (over.id as string).split('::')
     const day = parseInt(dayStr) + 1
-    moveWeekTask(active.id as string, day, blockStr !== 'free' ? blockStr : undefined)
+
+    // Calculate which block the task was dropped into based on Y position
+    let targetBlockId: string | undefined
+    const translated = active.rect.current.translated
+    if (gridRef.current && translated) {
+      const gridRect = gridRef.current.getBoundingClientRect()
+      const scrollTop = gridRef.current.scrollTop
+      const dropTopRelative = translated.top - gridRect.top + scrollTop
+      const dropMinutes = HOUR_START * 60 + (dropTopRelative / HOUR_PX) * 60
+      const dayBlocks = timeBlocks.filter((b) => b.days.includes(day))
+      const hit = dayBlocks.find((b) => dropMinutes >= b.startMinutes && dropMinutes < b.endMinutes)
+      targetBlockId = hit?.id
+    }
+
+    moveWeekTask(active.id as string, day, targetBlockId)
   }
 
   function getBlocksForDay(dayIdx: number) {
@@ -434,11 +443,11 @@ function WeekGrid({
     <>
       <DndContext
         sensors={sensors}
-        collisionDetection={customCollision}
+        collisionDetection={rectIntersection}
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
       >
-        <div style={{ display: 'flex', overflow: 'auto' }}>
+        <div ref={gridRef} style={{ display: 'flex', overflow: 'auto' }}>
           {/* Time axis */}
           <div style={{ width: '40px', flexShrink: 0, paddingTop: '32px' }}>
             {hours.map((h) => (
@@ -498,7 +507,7 @@ function WeekGrid({
                     </div>
                   )}
 
-                  {/* Time blocks — siblings to free zone, above it (zIndex 4) */}
+                  {/* Time blocks — pure visual, drop position calculated by Y math */}
                   {(() => {
                     const blockLayout = layoutBlocks(dayBlocks)
                     return dayBlocks.map((block) => {
@@ -510,9 +519,8 @@ function WeekGrid({
                       const colLeft = `calc(2px + ${col} * (100% - 4px) / ${totalCols})`
 
                       return (
-                        <DroppableCell
+                        <div
                           key={block.id}
-                          id={`${dayIdx}::${block.id}`}
                           style={{
                             position: 'absolute', top: `${top}px`,
                             left: colLeft, width: colWidth,
@@ -542,7 +550,7 @@ function WeekGrid({
                           {blockTasks.map(({ wt, task }) => task && (
                             <DraggableTask key={wt.id} id={wt.id} title={task.title} color={projects.find((p) => p.id === task.projectId)?.color ?? '#B8A070'} done={task.status === 'concluida'} />
                           ))}
-                        </DroppableCell>
+                        </div>
                       )
                     })
                   })()}
