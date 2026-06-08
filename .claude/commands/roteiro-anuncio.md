@@ -146,6 +146,71 @@ Se a pasta não existir, criar.
 
 ---
 
+## Estrutura de texto: Hook + Virada de chave
+
+O corpo do anúncio tem dois tempos obrigatórios antes do CTA:
+
+**1. Hook (0–3s) — cutuca a dor**
+Para o scroll. Nomeia algo que a persona sente mas não nomeou ainda.
+
+**2. Virada de chave (3–15s) — muda o frame**
+Não é a solução ainda. É uma percepção que a pessoa chega sozinha.
+Planta a ideia de **criar x consumir** sem ofertar nada.
+O produto entra depois, como caminho concreto para o que a virada abriu.
+
+---
+
+## Perfil espiritual do público
+
+O público da Minaue tem tendência espiritual. Isso muda o vocabulário:
+
+- A dor **não é** "você está perdendo tempo" — é "você está se perdendo de si"
+- O celular **não é** o vilão do tempo — é o que te afasta de você mesma
+- Criar com as mãos **não é** passatempo — é reconexão, expansão, presença
+
+**Conceitos que ressoam com esse público:**
+- Expansão x contração: consumir te encolhe, criar te expande
+- Fluxo do criador: criar te coloca no fluxo, consumir te tira de lá
+- Não se perder de si (sempre "de si", não só "não se perder")
+- O corpo também cria — as mãos como ferramenta de reconexão
+
+---
+
+## Viradas de chave aprovadas (referência)
+
+Usar como base ou inspiração:
+
+```
+"Consumir te encolhe. Criar te expande."
+"Quando você consome, você se contrai. Quando você cria, você se expande."
+"Criar te coloca no fluxo do criador. Consumir te afasta dele."
+"O corpo também cria. Só esqueceu como."
+"Criar não é um hobby. É uma forma de não se perder de si."
+"O que você consome some. O que você cria fica."
+"O celular te ocupa. Criar te preenche."
+```
+
+**O que evitar nas viradas:**
+- "De volta em você mesma" — soa vazio
+- "Você se lembra de quem você é" — "se lembra" não tem o peso certo
+- "Suas mãos sabem o caminho" — bonito mas não diz nada
+- Qualquer frase que soe como slogan de coach ou marca genérica
+
+---
+
+## Hooks aprovados (referência)
+
+```
+"A gente passa horas consumindo conteúdo e quase nenhum tempo criando alguma coisa."
+"Você já percebeu que às vezes o celular não te distrai, ele te esgota?"
+"Há quanto tempo você tá rolando a tela do celular?"
+"Não é você que consome o conteúdo. É o conteúdo que te consome."
+"As pessoas pararam de criar. Só consomem."
+"Você não tá só consumindo conteúdo. Você tá se perdendo nele."
+```
+
+---
+
 ## Regras desta skill
 
 - Sempre gerar 3 variações de hook — nunca só 1
