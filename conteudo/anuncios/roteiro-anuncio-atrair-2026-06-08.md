@@ -9,39 +9,38 @@
 
 ## BLOCO 1 — 3 VARIAÇÕES DE HOOK (0–3s)
 
-```
-Hook A: "Passei 6 horas no celular e não criei nada."
-Hook B: "Troquei o scroll pelo pincel. Nunca mais voltei."
-Hook C: "Enquanto todo mundo consome, eu prefiro criar."
-```
+Testar os 3 hooks no mesmo corpo — só os primeiros 3s mudam.
+O Meta otimiza automaticamente qual retém melhor.
 
-> Testar os 3 hooks no mesmo corpo — só os primeiros 3s mudam.
+```
+Hook A: "Você não tá só consumindo conteúdo. Você tá se perdendo nele."
+Hook B: "Não é você que consome o conteúdo. É o conteúdo que te consome."
+Hook C: "Há quanto tempo você tá rolando a tela do celular?"
+```
 
 ---
 
 ## BLOCO 2 — CORPO DO VÍDEO (3–20s)
 
 ```
-[0-3s]  VISUAL: Close na mão da Vivi pegando o pincel, mandala no papel na bancada
+[0-3s]  VISUAL: Mão largando o celular e pegando o pincel — um gesto só
          FALA: [hook escolhido]
 
-[3-10s] VISUAL: Mão pintando — câmera bem próxima, cores fluindo, movimento lento e preciso
-         FALA: "Toda vez que eu pego o pincel, as notificações somem.
-                Não porque eu desativei — porque eu me esqueci delas."
+[3-8s]  VISUAL: Pincel chegando na mandala, câmera bem próxima
+         FALA: "Criar te coloca no fluxo do criador. Consumir te afasta dele."
 
-[10-20s] VISUAL: Câmera abrindo devagar para mostrar a mandala crescendo na folha
-          FALA: "Isso é o Floral Fluido. Uma técnica que você aprende do zero,
-                 e que devolve uma coisa que a tela nunca entrega:
-                 a sensação de ter criado algo real."
+[8-18s] VISUAL: Mão pintando, cores fluindo, movimento lento e preciso
+         FALA: "Quando eu pego o pincel e começo a pintar uma mandala,
+                a cabeça para. O tempo muda. E eu me sinto presente."
 ```
 
 ---
 
-## BLOCO 3 — CTA (20–25s)
+## BLOCO 3 — CTA (18–25s)
 
 ```
-[20-25s] VISUAL: Mandala finalizada — câmera parada por 2s
-          FALA: "O curso tá na bio. Vem aprender."
+[18-25s] VISUAL: Mandala finalizada, câmera parada por 2s
+          FALA: "O curso tá na bio. Vem criar."
           TEXTO NA TELA: "Curso Mandala Floral Fluido — link na bio"
 ```
 
@@ -55,23 +54,19 @@ Duração: 25s
 Formato: 9:16 (Reels/Stories)
 
 CLIPS NECESSÁRIOS:
-- Close na mão pegando o pincel (início, 0–3s)
-- Mão pintando a mandala — câmera bem próxima, foco nas cores e no movimento (3–10s)
-- Câmera abrindo lentamente para mostrar a mandala crescendo na folha (10–20s)
-- Câmera parada mostrando a mandala finalizada (20–25s)
+- Mão largando o celular e pegando o pincel num gesto só (0–3s)
+- Pincel chegando na mandala — câmera bem próxima (3–8s)
+- Mão pintando, foco nas cores e no movimento (8–18s)
+- Mandala finalizada, câmera parada (18–25s)
 
 EDIÇÃO:
 - Corte no ritmo da fala, sem música que cubra a narração
 - Legenda sempre visível (fonte clara, contraste alto)
 - Sem transições elaboradas — foco no material
-- A mandala aberta aparece pela primeira vez entre 10s e 20s
+- Montar 3 versões trocando só os primeiros 3s (hook A, B e C)
 
 TEXTO NA TELA:
 - 0–3s: [hook escolhido — A, B ou C]
-- 3–20s: legenda da fala
-- 20–25s: "Curso Mandala Floral Fluido — link na bio"
-
-OBSERVAÇÃO:
-Montar 3 versões do vídeo trocando só os primeiros 3 segundos.
-O Meta testa os hooks automaticamente e distribui mais para o que retém melhor.
+- 3–18s: legenda da fala
+- 18–25s: "Curso Mandala Floral Fluido — link na bio"
 ```
