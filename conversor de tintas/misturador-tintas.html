@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Misturador de Tintas · Acrilex</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg:#F7F4EF;--surface:#FFF;--s2:#F0EDE8;
+  --border:#E0D9D0;--border2:#CCC5BB;
+  --text:#1A1612;--t2:#7A7068;--t3:#B0A89E;
+  --accent:#2D5A3D;--al:#EAF2EC;
+  --danger:#8B2E2E;--dl:#F5EAEA;
+  --warn:#7A5A1A;--wl:#FDF3DC;
+  --r:12px;--rs:8px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+header{background:var(--surface);border-bottom:1px solid var(--border);padding:0 1.5rem;display:flex;align-items:center;justify-content:space-between;height:58px;position:sticky;top:0;z-index:20;}
+.logo{font-family:'DM Serif Display',serif;font-size:18px;letter-spacing:-.02em;}
+.logo span{color:var(--accent);}
+.nav{display:flex;}
+.ntab{font-size:13px;font-weight:500;padding:8px 14px;border:none;background:none;cursor:pointer;color:var(--t2);border-bottom:2px solid transparent;font-family:'DM Sans',sans-serif;transition:color .15s,border-color .15s;}
+.ntab.active{color:var(--accent);border-bottom-color:var(--accent);}
+main{max-width:900px;margin:0 auto;padding:1.5rem;}
+.pane{display:none;}.pane.active{display:block;}
+.grid{display:grid;grid-template-columns:1fr 310px;gap:1.25rem;align-items:start;}
+@media(max-width:700px){.grid{grid-template-columns:1fr;}}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:1.25rem;}
+.card+.card{margin-top:1.25rem;}
+.clabel{font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:.1em;color:var(--t3);margin-bottom:.85rem;}
+.color-row{display:flex;align-items:center;gap:12px;margin-bottom:1.25rem;}
+.prev{width:64px;height:64px;border-radius:var(--r);border:1px solid var(--border);flex-shrink:0;transition:background .25s;}
+.hexf{font-family:'DM Serif Display',serif;font-size:28px;letter-spacing:.04em;border:none;background:none;outline:none;width:180px;text-transform:uppercase;color:var(--text);}
+.hexf::placeholder{color:var(--t3);}
+input[type=color]{width:40px;height:40px;border-radius:var(--rs);border:1px solid var(--border);cursor:pointer;padding:2px;background:none;}
+.vrow{display:flex;align-items:center;gap:10px;}
+.vrow label{font-size:13px;color:var(--t2);}
+select{font-size:13px;font-family:'DM Sans',sans-serif;padding:7px 10px;border:1px solid var(--border);border-radius:var(--rs);background:var(--bg);color:var(--text);cursor:pointer;outline:none;}
+.hist-wrap{margin-top:1.25rem;padding-top:1.25rem;border-top:1px solid var(--border);}
+.hist-strip{display:flex;gap:7px;flex-wrap:wrap;min-height:40px;align-items:flex-start;}
+.hitem{display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;}
+.hdot{width:30px;height:30px;border-radius:50%;border:2px solid transparent;transition:transform .12s;}
+.hdot:hover{transform:scale(1.12);border-color:var(--accent);}
+.hhex{font-size:9px;color:var(--t3);font-family:monospace;}
+.hempty{font-size:12px;color:var(--t3);}
+.ppanel{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:1.25rem;position:sticky;top:70px;max-height:calc(100vh - 90px);display:flex;flex-direction:column;gap:0;}
+.psearch{width:100%;font-size:13px;font-family:'DM Sans',sans-serif;padding:8px 10px;border:1px solid var(--border);border-radius:var(--rs);background:var(--bg);color:var(--text);outline:none;margin-bottom:4px;flex-shrink:0;}
+.psearch:focus{border-color:var(--accent);}
+.psearch::placeholder{color:var(--t3);}
+.phint{font-size:11px;color:var(--accent);min-height:16px;margin-bottom:5px;font-weight:500;flex-shrink:0;}
+.panel-actions{display:flex;gap:6px;margin-bottom:8px;flex-shrink:0;}
+.pact-btn{font-size:11px;padding:4px 9px;border:1px solid var(--border);border-radius:5px;background:var(--bg);cursor:pointer;color:var(--t2);font-family:'DM Sans',sans-serif;}
+.pact-btn:hover{background:var(--s2);}
+.plist{flex:1;overflow-y:auto;min-height:0;}
+.plist::-webkit-scrollbar{width:3px;}
+.plist::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
+.pgroup-label{font-size:9px;font-weight:500;text-transform:uppercase;letter-spacing:.1em;color:var(--t3);padding:8px 7px 3px;display:flex;align-items:center;justify-content:space-between;}
+.pgroup-toggle{font-size:10px;color:var(--accent);cursor:pointer;padding:2px 5px;border-radius:4px;background:var(--al);}
+.ptog{display:flex;align-items:center;gap:7px;padding:4px 7px;border-radius:6px;cursor:pointer;transition:background .1s;user-select:none;}
+.ptog:hover{background:var(--s2);}
+.ptog input[type=checkbox]{accent-color:var(--accent);width:13px;height:13px;cursor:pointer;flex-shrink:0;}
+.ptdot{width:12px;height:12px;border-radius:50%;flex-shrink:0;border:1px solid rgba(0,0,0,.1);}
+.ptname{font-size:11.5px;flex:1;transition:opacity .15s;}
+.ptog.off .ptname{opacity:.35;}
+.ptnum{font-size:10px;color:var(--t3);font-family:monospace;}
+.pfoot{font-size:11px;color:var(--t3);margin-top:.6rem;line-height:1.5;flex-shrink:0;}
+.avail-info{font-size:11px;color:var(--accent);font-weight:500;margin-bottom:6px;flex-shrink:0;}
+.cstrip{display:flex;gap:10px;margin-bottom:1.25rem;}
+.csw{flex:1;height:82px;border-radius:var(--rs);border:1px solid var(--border);display:flex;align-items:flex-end;padding:8px;}
+.cswl{font-size:10px;color:rgba(0,0,0,.35);font-weight:500;text-transform:uppercase;letter-spacing:.05em;}
+.sbox{background:var(--s2);border-radius:var(--rs);padding:10px 12px;display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:70px;}
+.sn{font-size:21px;font-weight:400;font-family:'DM Serif Display',serif;}
+.sl{font-size:10px;color:var(--t2);text-align:center;}
+.acc-bar-wrap{margin:.75rem 0 1.25rem;}
+.acc-bar-bg{background:var(--s2);border-radius:4px;height:7px;overflow:hidden;}
+.acc-bar-fill{height:100%;border-radius:4px;}
+.acc-labels{display:flex;justify-content:space-between;margin-top:4px;}
+.acc-msg{font-size:12px;font-weight:500;}
+.acc-de{font-size:11px;color:var(--t3);}
+.prow{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);}
+.prow:last-child{border-bottom:none;}
+.pdot{width:20px;height:20px;border-radius:50%;flex-shrink:0;border:1px solid rgba(0,0,0,.1);}
+.pi{flex:1;}
+.pn{font-size:13px;font-weight:500;}
+.pc{font-size:10px;color:var(--t3);font-family:monospace;margin-top:1px;}
+.bw{flex:2;}
+.bbg{background:var(--s2);border-radius:3px;height:6px;overflow:hidden;margin-bottom:3px;}
+.bf{height:100%;border-radius:3px;}
+.bls{display:flex;justify-content:space-between;}
+.bp{font-size:13px;font-weight:500;}
+.bm{font-size:11px;color:var(--t2);font-family:monospace;}
+.trow{display:flex;justify-content:space-between;padding-top:10px;border-top:1px solid var(--border);margin-top:2px;font-size:13px;color:var(--t2);}
+.trow strong{color:var(--text);}
+.alert{border-radius:var(--rs);padding:.75rem 1rem;font-size:13px;line-height:1.6;margin-top:1rem;}
+.ai{background:var(--al);color:var(--accent);}
+.aw{background:var(--wl);color:var(--warn);}
+.ad{background:var(--dl);color:var(--danger);}
+.srow{display:flex;gap:8px;margin-top:1.25rem;padding-top:1.25rem;border-top:1px solid var(--border);}
+.ninp{flex:1;font-size:13px;font-family:'DM Sans',sans-serif;padding:8px 11px;border:1px solid var(--border);border-radius:var(--rs);background:var(--bg);color:var(--text);outline:none;}
+.ninp:focus{border-color:var(--accent);}
+.sbtn{padding:8px 16px;font-size:13px;font-family:'DM Sans',sans-serif;font-weight:500;background:var(--accent);color:#fff;border:none;border-radius:var(--rs);cursor:pointer;white-space:nowrap;}
+.sbtn:disabled{opacity:.5;cursor:default;}
+.shdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;}
+.shdr h2{font-family:'DM Serif Display',serif;font-size:22px;font-weight:400;}
+.sgrid{display:flex;flex-direction:column;gap:10px;}
+.scard{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:1.25rem;cursor:pointer;transition:border-color .15s;}
+.scard:hover{border-color:var(--accent);}
+.sch{display:flex;align-items:center;gap:12px;margin-bottom:.5rem;}
+.scsw{width:42px;height:42px;border-radius:var(--rs);flex-shrink:0;border:1px solid var(--border);}
+.scname{font-size:14px;font-weight:500;}
+.scsub{font-size:11px;color:var(--t3);font-family:monospace;margin-top:2px;}
+.scpigs{font-size:12px;color:var(--t2);line-height:1.6;}
+.scact{display:flex;gap:8px;margin-top:.75rem;}
+.scbtn{font-size:12px;font-family:'DM Sans',sans-serif;padding:4px 11px;border-radius:6px;cursor:pointer;border:1px solid var(--border);background:var(--bg);color:var(--text);}
+.scbtn:hover{background:var(--s2);}
+.scdel{color:var(--danger);border-color:var(--dl);background:var(--dl);}
+.empty{text-align:center;padding:3rem 2rem;color:var(--t3);font-size:14px;line-height:1.8;}
+.bbtn{font-size:13px;font-family:'DM Sans',sans-serif;padding:6px 13px;border:1px solid var(--border);border-radius:var(--rs);background:none;cursor:pointer;margin-bottom:1.25rem;color:var(--t2);}
+.dhdr{display:flex;align-items:center;gap:14px;margin-bottom:1.25rem;padding-bottom:1.25rem;border-bottom:1px solid var(--border);}
+.dsw{width:56px;height:56px;border-radius:var(--r);border:1px solid var(--border);flex-shrink:0;}
+.dname{font-family:'DM Serif Display',serif;font-size:21px;}
+.dsub{font-size:11px;color:var(--t3);font-family:monospace;margin-top:3px;}
+.spin{display:inline-block;width:14px;height:14px;border:2px solid var(--border2);border-top-color:var(--accent);border-radius:50%;animation:sp .65s linear infinite;vertical-align:middle;margin-right:6px;}
+@keyframes sp{to{transform:rotate(360deg)}}
+.calcing{font-size:13px;color:var(--t2);padding:2.5rem;text-align:center;}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">mistura<span>.</span>cor</div>
+  <div class="nav">
+    <button class="ntab active" onclick="showTab('mixer')">Calculadora</button>
+    <button class="ntab" id="tab-sv" onclick="showTab('saved')">Receitas</button>
+  </div>
+</header>
+<main>
+<div class="pane active" id="pane-mixer">
+  <div class="grid">
+    <div>
+      <div class="card">
+        <div class="clabel">Código da cor</div>
+        <div class="color-row">
+          <div class="prev" id="prev" style="background:#4CB97B"></div>
+          <input class="hexf" id="hex" type="text" value="#4CB97B" maxlength="7" spellcheck="false" placeholder="#000000"/>
+          <input type="color" id="picker" value="#4cb97b"/>
+        </div>
+        <div class="vrow">
+          <label>Volume:</label>
+          <select id="vol">
+            <option value="5">5 ml</option><option value="10">10 ml</option>
+            <option value="30" selected>30 ml</option><option value="60">60 ml</option>
+            <option value="100">100 ml</option><option value="250">250 ml</option>
+          </select>
+        </div>
+        <div class="hist-wrap">
+          <div class="clabel">Histórico de misturas</div>
+          <div class="hist-strip" id="hstrip"><span class="hempty">As cores calculadas aparecem aqui</span></div>
+        </div>
+      </div>
+      <div class="card" id="rcard"><div class="calcing"><span class="spin"></span>Calculando...</div></div>
+    </div>
+
+    <div class="ppanel">
+      <div class="clabel">Pigmentos disponíveis</div>
+      <div class="avail-info" id="avail-info"></div>
+      <input class="psearch" id="psearch" type="text" placeholder='Buscar ou "sem azul cobalto"…'/>
+      <div class="phint" id="phint"></div>
+      <div class="panel-actions">
+        <button class="pact-btn" onclick="setAll(true)">Todos</button>
+        <button class="pact-btn" onclick="setAll(false)">Nenhum</button>
+      </div>
+      <div class="plist" id="plist"></div>
+      <p class="pfoot">Marque só as cores que você tem. Mais pigmentos disponíveis = maior precisão.</p>
+    </div>
+  </div>
+</div>
+
+<div class="pane" id="pane-saved">
+  <div id="svlist">
+    <div class="shdr"><h2>Receitas salvas</h2><span id="svcount" style="font-size:13px;color:var(--t2)"></span></div>
+    <div class="sgrid" id="sgrid"></div>
+  </div>
+  <div id="svdetail" style="display:none">
+    <button class="bbtn" onclick="backList()">← Voltar</button>
+    <div class="card" id="dcard"></div>
+  </div>
+</div>
+</main>
+
+<script>
+// ═══════════════════════════════════════════════════════
+// KUBELKA-MUNK SINGLE-CONSTANT — ANALYTICAL EXACT SOLVER
+//
+// Key insight: K/S mixing is LINEAR in concentrations.
+// This allows an EXACT analytical solution for 2 and 3 pigments
+// via least-squares in K/S space (no gradient descent needed).
+//
+// For 2 pigments: 1D closed-form solution
+// For 3 pigments: 2x2 linear system (Cramer's rule)
+//
+// We test ALL combinations of 1, 2, and 3 pigments and pick
+// the one with minimum perceptual error. Fast and exact.
+// ═══════════════════════════════════════════════════════
+
+// sRGB ↔ linear (IEC 61966-2-1)
+function slin(v){ return v<=0.04045?v/12.92:Math.pow((v+0.055)/1.055,2.4); }
+function lins(v){ return Math.max(0,Math.min(1,v<=0.0031308?12.92*v:1.055*Math.pow(v,1/2.4)-0.055)); }
+
+function hex2lin(h){
+  h=h.replace('#','');
+  if(h.length===3)h=h.split('').map(c=>c+c).join('');
+  const n=parseInt(h,16);
+  return [slin((n>>16&255)/255), slin((n>>8&255)/255), slin((n&255)/255)];
+}
+function lin2hex(l){
+  return '#'+l.map(v=>Math.round(lins(v)*255).toString(16).padStart(2,'0')).join('');
+}
+
+// Kubelka-Munk conversions
+function r2ks(r){ const v=Math.max(r,0.001); return (1-v)*(1-v)/(2*v); }
+function ks2r(k){ k=Math.max(k,0); return 1+k-Math.sqrt(k*k+2*k); }
+
+// ── PIGMENT CATALOG (full Acrilex) ─────────────────────
+const GROUPS = [
+  {label:"Brancos / Pretos / Neutros", pigs:[
+    {num:"319",name:"Branco de Titânio",hex:"#F2F0EB"},
+    {num:"320",name:"Preto",hex:"#141414"},
+    {num:"311",name:"Gris Neutro",hex:"#A8A8A8"},
+    {num:"399",name:"Gris de Payne",hex:"#485060"},
+  ]},
+  {label:"Amarelos / Ocres", pigs:[
+    {num:"323",name:"Amarelo Limão",hex:"#EEE800"},
+    {num:"340",name:"Amarelo Cádmio Claro",hex:"#FFD820"},
+    {num:"324",name:"Amarelo Cádmio",hex:"#FFC000"},
+    {num:"341",name:"Amarelo Cádmio Escuro",hex:"#D08000"},
+    {num:"302",name:"Amarelo Escuro",hex:"#C49000"},
+    {num:"339",name:"Amarelo Indiano",hex:"#C08010"},
+    {num:"342",name:"Amarelo Nápoles",hex:"#F5D070"},
+    {num:"304",name:"Amarelo Nápoles Carne",hex:"#ECC898"},
+    {num:"326",name:"Amarelo Pele",hex:"#EDB87A"},
+    {num:"360",name:"Amarelo Ocre",hex:"#C49228"},
+  ]},
+  {label:"Laranjas", pigs:[
+    {num:"325",name:"Laranja de Cádmio",hex:"#F26000"},
+  ]},
+  {label:"Rosas / Vermelhos", pigs:[
+    {num:"310",name:"Cor de Carne Clara",hex:"#F5C8A0"},
+    {num:"335",name:"Laca Orquídea",hex:"#E87AA8"},
+    {num:"316",name:"Rosa Escuro",hex:"#E05070"},
+    {num:"343",name:"Vermelho Cádmio Claro",hex:"#E84040"},
+    {num:"350",name:"Vermelho Claro",hex:"#E83030"},
+    {num:"328",name:"Laca Gerânio",hex:"#E02020"},
+    {num:"366",name:"Vermelho Veneza",hex:"#C02828"},
+    {num:"312",name:"Vermelho de Cádmio",hex:"#D02020"},
+    {num:"344",name:"Vermelho Cádmio Escuro",hex:"#A01010"},
+    {num:"315",name:"Magenta",hex:"#C80060"},
+    {num:"379",name:"Carmim",hex:"#980038"},
+    {num:"346",name:"Alizarin Crimson",hex:"#7D1830"},
+  ]},
+  {label:"Violetas", pigs:[
+    {num:"321",name:"Violeta Cobalto",hex:"#783898"},
+    {num:"330",name:"Violeta Perm. Escuro",hex:"#4A1870"},
+  ]},
+  {label:"Azuis", pigs:[
+    {num:"306",name:"Azul Hortênsia",hex:"#8098C8"},
+    {num:"363",name:"Azul Turquesa",hex:"#00A0C0"},
+    {num:"347",name:"Azul Cerúleo",hex:"#4488C8"},
+    {num:"308",name:"Azul Cobalto",hex:"#184898"},
+    {num:"348",name:"Ultramar Claro",hex:"#2848B0"},
+    {num:"305",name:"Azul Ftalocianina",hex:"#0068A0"},
+    {num:"331",name:"Azul da Prússia",hex:"#003060"},
+  ]},
+  {label:"Verdes", pigs:[
+    {num:"364",name:"Verde Inglês nº5",hex:"#308050"},
+    {num:"322",name:"Verde Musgo",hex:"#587530"},
+    {num:"332",name:"Verde Perm. Escuro",hex:"#186838"},
+    {num:"365",name:"Verde de Hooker",hex:"#2A5030"},
+    {num:"334",name:"Verde Oliva",hex:"#6B7C35"},
+    {num:"354",name:"Terra Verde",hex:"#5A6840"},
+    {num:"353",name:"Verde Vessie",hex:"#2E4428"},
+  ]},
+  {label:"Terras / Marrons", pigs:[
+    {num:"336",name:"Terra de Siena Natural",hex:"#9C4E28"},
+    {num:"357",name:"Terra de Siena Queimada",hex:"#7A3018"},
+    {num:"355",name:"Sombra Natural",hex:"#6B4A28"},
+    {num:"337",name:"Marrom Van Dyck",hex:"#3A2015"},
+    {num:"356",name:"Sombra Queimada",hex:"#583010"},
+    {num:"396",name:"Sépia",hex:"#4A2010"},
+  ]},
+];
+
+const P = GROUPS.flatMap(g=>g.pigs);
+// Pre-compute linear reflectance and K/S
+P.forEach(p=>{ p.lin=hex2lin(p.hex); p.ks=p.lin.map(r2ks); });
+
+const avail = new Array(P.length).fill(true);
+
+// ── MATH UTILITIES ─────────────────────────────────────
+
+// Mix pigments in K/S space (linear)
+function mixKS(idxs, ws){
+  return [0,1,2].map(ch=>idxs.reduce((s,i,j)=>s+P[i].ks[ch]*ws[j],0));
+}
+
+// Fast squared KS distance (for comparison during search)
+function ksSq(a,b){
+  return (a[0]-b[0])**2+(a[1]-b[1])**2+(a[2]-b[2])**2;
+}
+
+// Perceptual ΔE (redmean approximation in sRGB, 0-255 scale)
+function deltaE(linA, linB){
+  const sA=linA.map(lins), sB=linB.map(lins);
+  const dr=sA[0]-sB[0], dg=sA[1]-sB[1], db=sA[2]-sB[2], rm=(sA[0]+sB[0])/2;
+  return Math.sqrt((2+rm)*dr*dr+4*dg*dg+(3-rm)*db*db)*255;
+}
+
+// ── ANALYTICAL SOLVERS ─────────────────────────────────
+
+// 2-pigment: exact 1D least-squares in K/S space
+// Minimise ||w·KS[i] + (1-w)·KS[j] - KS_t||²
+// Closed form: w = Σ(KS_t - KS[j])·(KS[i]-KS[j]) / Σ(KS[i]-KS[j])²
+function optim2(i, j, tKS){
+  let num=0, den=0;
+  for(let ch=0;ch<3;ch++){
+    const d=P[i].ks[ch]-P[j].ks[ch];
+    num+=(tKS[ch]-P[j].ks[ch])*d;
+    den+=d*d;
+  }
+  return den<1e-12 ? 0.5 : Math.max(0,Math.min(1,num/den));
+}
+
+// 3-pigment: exact 2x2 linear system (substitute w3=1-w1-w2)
+// Returns [w1,w2,w3] projected onto simplex, or null if degenerate
+function optim3(i, j, k, tKS){
+  let AA=0,AB=0,BB=0,AC=0,BC=0;
+  for(let ch=0;ch<3;ch++){
+    const A=P[i].ks[ch]-P[k].ks[ch];
+    const B=P[j].ks[ch]-P[k].ks[ch];
+    const C=tKS[ch]-P[k].ks[ch];
+    AA+=A*A; AB+=A*B; BB+=B*B; AC+=A*C; BC+=B*C;
+  }
+  const det=AA*BB-AB*AB;
+  if(Math.abs(det)<1e-12) return null;
+  let w1=(AC*BB-BC*AB)/det;
+  let w2=(BC*AA-AC*AB)/det;
+  let w3=1-w1-w2;
+  // Project to non-negative simplex
+  const ws=[w1,w2,w3];
+  for(let iter=0;iter<6;iter++){
+    let neg=false;
+    for(let x=0;x<3;x++) if(ws[x]<0){neg=true;const v=-ws[x];ws[x]=0;const ot=ws.filter((_,y)=>y!==x);const s=ot.reduce((a,b)=>a+b,0)||1;for(let y=0;y<3;y++)if(y!==x)ws[y]+=v*(ws[y]/s);}
+    if(!neg)break;
+  }
+  const s=ws.reduce((a,b)=>a+b,0)||1;
+  return ws.map(v=>v/s);
+}
+
+// ── MAIN SOLVER ───────────────────────────────────────
+// Tests ALL combinations of 1, 2, 3 pigments analytically.
+// Returns the minimum-pigment solution that achieves good accuracy.
+function solve(targetHex){
+  const tLin=hex2lin(targetHex);
+  const tKS=tLin.map(r2ks);
+  const act=P.map((_,idx)=>idx).filter(i=>avail[i]);
+  const n=act.length;
+  if(!n) return null;
+
+  const MIN_W=0.04;      // minimum pigment contribution (4%)
+  const EXCELLENT=0.0005; // squared KS threshold — stops early if perfect
+
+  let bestSq=Infinity, bestIdxs=null, bestWs=null;
+
+  // ── 1 pigment ──
+  for(const i of act){
+    const sq=ksSq(P[i].ks,tKS);
+    if(sq<bestSq){bestSq=sq;bestIdxs=[i];bestWs=[1];}
+  }
+  if(bestSq<=EXCELLENT) return finalize(bestIdxs,bestWs,tKS,tLin);
+
+  // ── 2 pigments ──
+  for(let a=0;a<n;a++){
+    for(let b=a+1;b<n;b++){
+      const i=act[a], j=act[b];
+      const w=optim2(i,j,tKS);
+      if(w<MIN_W||w>1-MIN_W) continue;
+      const ws=[w,1-w];
+      const sq=ksSq(mixKS([i,j],ws),tKS);
+      if(sq<bestSq){bestSq=sq;bestIdxs=[i,j];bestWs=ws;}
+    }
+  }
+  if(bestSq<=EXCELLENT) return finalize(bestIdxs,bestWs,tKS,tLin);
+
+  // ── 3 pigments ──
+  for(let a=0;a<n;a++){
+    for(let b=a+1;b<n;b++){
+      for(let c=b+1;c<n;c++){
+        const i=act[a], j=act[b], k=act[c];
+        const ws=optim3(i,j,k,tKS);
+        if(!ws||ws[0]<MIN_W||ws[1]<MIN_W||ws[2]<MIN_W) continue;
+        const sq=ksSq(mixKS([i,j,k],ws),tKS);
+        if(sq<bestSq){bestSq=sq;bestIdxs=[i,j,k];bestWs=ws;}
+      }
+    }
+  }
+
+  return finalize(bestIdxs,bestWs,tKS,tLin);
+}
+
+function finalize(idxs,ws,tKS,tLin){
+  if(!idxs) return null;
+  const ksm=mixKS(idxs,ws);
+  const lin_f=ksm.map(ks2r);
+  const mhex=lin2hex(lin_f);
+  const dE=deltaE(tLin,lin_f);
+  const acc=Math.max(0,Math.min(100,Math.round(100-dE/3)));
+  const pairs=idxs.map((idx,i)=>({idx,w:ws[i]})).sort((a,b)=>b.w-a.w);
+  return{pairs,mhex,acc,dE};
+}
+
+// ── RENDER ────────────────────────────────────────────
+let currentRecipe=null, debTimer=null;
+
+function render(){
+  let v=document.getElementById('hex').value.trim();
+  if(!v.startsWith('#')) v='#'+v;
+  if(!/^#[0-9A-Fa-f]{6}$/.test(v)) return;
+  const vol=+document.getElementById('vol').value;
+  const rc=document.getElementById('rcard');
+  rc.innerHTML='<div class="calcing"><span class="spin"></span>Calculando...</div>';
+  clearTimeout(debTimer);
+  debTimer=setTimeout(()=>{
+    try{
+      const res=solve(v);
+      if(!res){rc.innerHTML='<div class="alert ad">Habilite pigmentos no painel.</div>';return;}
+      const{pairs,mhex,acc,dE}=res;
+      currentRecipe={hex:v,mhex,acc,ingredients:pairs.map(x=>({pidx:x.idx,w:x.w}))};
+      const ac=acc>=85?'var(--accent)':acc>=70?'var(--warn)':'var(--danger)';
+      const am=acc>=85?'Excelente':acc>=70?'Boa':acc>=55?'Aproximação':' Difícil reprodução';
+
+      let h=`<div class="cstrip">
+        <div class="csw" style="background:${v}"><span class="cswl">desejada</span></div>
+        <div class="csw" style="background:${mhex}"><span class="cswl">resultado</span></div>
+        <div class="sbox"><span class="sn" style="color:${ac}">${acc}%</span><span class="sl">precisão</span></div>
+        <div class="sbox"><span class="sn">${pairs.length}</span><span class="sl">pigmentos</span></div>
+      </div>
+      <div class="acc-bar-wrap">
+        <div class="acc-bar-bg"><div class="acc-bar-fill" style="width:${acc}%;background:${ac}"></div></div>
+        <div class="acc-labels"><span class="acc-msg" style="color:${ac}">${am}</span><span class="acc-de">ΔE ${dE.toFixed(1)}</span></div>
+      </div>
+      <div class="clabel" style="margin-bottom:.75rem">Receita</div>`;
+
+      pairs.forEach(({idx,w:pw})=>{
+        const p=P[idx],pct=Math.round(pw*100),ml=(pw*vol).toFixed(1);
+        h+=`<div class="prow">
+          <div class="pdot" style="background:${p.hex}"></div>
+          <div class="pi"><div class="pn">${p.name}</div><div class="pc">Nº ${p.num}</div></div>
+          <div class="bw">
+            <div class="bbg"><div class="bf" style="width:${pct}%;background:${p.hex}"></div></div>
+            <div class="bls"><span class="bp">${pct}%</span><span class="bm">${ml} ml</span></div>
+          </div>
+        </div>`;
+      });
+      h+=`<div class="trow"><span>Total</span><strong>${vol} ml</strong></div>`;
+      h+=`<div class="alert ai">Misture do mais claro para o mais escuro. Adicione cores escuras aos poucos — dominam rapidamente.</div>`;
+      if(acc<70) h+=`<div class="alert aw">Precisão parcial. Para melhorar: habilite mais pigmentos no painel — especialmente os mais próximos da cor desejada.</div>`;
+      h+=`<div class="srow">
+        <input class="ninp" id="rname" type="text" placeholder="Nome (ex: verde mandala série 3)"/>
+        <button class="sbtn" id="sbtn" onclick="saveRecipe()">Salvar</button>
+      </div>`;
+      rc.innerHTML=h;
+      addHistory(v);
+    }catch(e){rc.innerHTML=`<div class="alert ad">Erro: ${e.message}</div>`;}
+  },120);
+}
+
+function setColor(hex){
+  document.getElementById('hex').value=hex.toUpperCase();
+  document.getElementById('picker').value=hex;
+  document.getElementById('prev').style.background=hex;
+  render();
+}
+function update(){
+  let v=document.getElementById('hex').value.trim();
+  if(!v.startsWith('#')) v='#'+v;
+  if(/^#[0-9A-Fa-f]{6}$/.test(v)){document.getElementById('prev').style.background=v;document.getElementById('picker').value=v;render();}
+}
+document.getElementById('hex').addEventListener('input',update);
+document.getElementById('vol').addEventListener('change',render);
+document.getElementById('picker').addEventListener('input',function(){document.getElementById('hex').value=this.value.toUpperCase();update();});
+
+// ── PIGMENT PANEL ─────────────────────────────────────
+function buildList(filter=''){
+  const fl=filter.toLowerCase();
+  let html='';
+  GROUPS.forEach(g=>{
+    const vis=g.pigs.filter(p=>!fl||p.name.toLowerCase().includes(fl)||p.num.includes(fl));
+    if(!vis.length) return;
+    const gIdxs=g.pigs.map(p=>P.findIndex(q=>q.num===p.num));
+    const allOn=gIdxs.every(i=>avail[i]);
+    html+=`<div class="pgroup-label">${g.label}<span class="pgroup-toggle" onclick="toggleGroup('${g.label}',${!allOn})">${allOn?'desmarcar':'marcar'}</span></div>`;
+    vis.forEach(p=>{
+      const i=P.findIndex(q=>q.num===p.num);
+      html+=`<label class="ptog${avail[i]?'':' off'}">
+        <input type="checkbox" ${avail[i]?'checked':''} onchange="toggleP(${i},this.checked)"/>
+        <div class="ptdot" style="background:${p.hex}"></div>
+        <span class="ptname">${p.name}</span><span class="ptnum">${p.num}</span>
+      </label>`;
+    });
+  });
+  document.getElementById('plist').innerHTML=html;
+  const n=avail.filter(Boolean).length;
+  document.getElementById('avail-info').textContent=`${n} de ${P.length} pigmentos marcados`;
+}
+function toggleP(i,v){avail[i]=v;buildList(document.getElementById('psearch').value);render();}
+function toggleGroup(lbl,v){GROUPS.find(g=>g.label===lbl)?.pigs.forEach(p=>{const i=P.findIndex(q=>q.num===p.num);if(i>=0)avail[i]=v;});buildList(document.getElementById('psearch').value);render();}
+function setAll(v){avail.fill(v);buildList(document.getElementById('psearch').value);render();}
+
+let pendingCmd=null;
+document.getElementById('psearch').addEventListener('input',function(){
+  const lo=this.value.toLowerCase(),hint=document.getElementById('phint');
+  pendingCmd=null;
+  const tryP=(pats,action)=>{
+    for(const pat of pats){const m=lo.match(pat);if(m){const term=m[1].trim();const idx=P.findIndex(p=>p.name.toLowerCase().includes(term)||p.num===term.replace(/\D/g,''));if(idx>=0){pendingCmd={idx,action};hint.textContent=`↵ Enter para ${action==='off'?'desabilitar':'habilitar'}: ${P[idx].name}`;return true;}}}
+    return false;
+  };
+  if(!tryP([/(?:sem|tirar|excluir|remover|não tenho|nao tenho)\s+(?:o |a )?(.+)/i],'off'))
+     tryP([/(?:habilitar|adicionar|com|tenho)\s+(?:o |a )?(.+)/i],'on');
+  if(!pendingCmd){hint.textContent='';buildList(this.value);}
+});
+document.getElementById('psearch').addEventListener('keydown',function(e){
+  if(e.key!=='Enter'||!pendingCmd)return;
+  avail[pendingCmd.idx]=(pendingCmd.action==='on');
+  pendingCmd=null;this.value='';document.getElementById('phint').textContent='';buildList('');render();
+});
+buildList();
+
+// ── HISTORY ───────────────────────────────────────────
+function getHist(){try{return JSON.parse(localStorage.getItem('mc-h')||'[]');}catch{return[];}}
+function addHistory(hex){
+  let h=getHist().filter(x=>x!==hex);h.unshift(hex);
+  localStorage.setItem('mc-h',JSON.stringify(h.slice(0,24)));renderHist();
+}
+function renderHist(){
+  const strip=document.getElementById('hstrip'),h=getHist();
+  if(!h.length){strip.innerHTML='<span class="hempty">As cores calculadas aparecem aqui</span>';return;}
+  strip.innerHTML=h.map(hex=>`<div class="hitem" onclick="setColor('${hex}')" title="${hex}">
+    <div class="hdot" style="background:${hex};${hex==='#FFFFFF'?'border:2px solid #ccc':''}"></div>
+    <span class="hhex">${hex}</span>
+  </div>`).join('');
+}
+renderHist();
+
+// ── RECIPES ───────────────────────────────────────────
+function getRec(){try{return JSON.parse(localStorage.getItem('mc-r')||'[]');}catch{return[];}}
+function putRec(l){localStorage.setItem('mc-r',JSON.stringify(l));}
+function saveRecipe(){
+  if(!currentRecipe)return;
+  const name=document.getElementById('rname').value.trim()||currentRecipe.hex;
+  const list=getRec();list.unshift({id:Date.now(),name,date:new Date().toLocaleDateString('pt-BR'),...currentRecipe});
+  putRec(list);updateBadge();
+  const b=document.getElementById('sbtn');b.textContent='Salvo ✓';b.disabled=true;
+  setTimeout(()=>{b.textContent='Salvar';b.disabled=false;},2000);
+}
+function updateBadge(){const n=getRec().length;document.getElementById('tab-sv').textContent=n>0?`Receitas (${n})`:'Receitas';}
+function recHTML(ings,vol){
+  let h='';
+  [...ings].sort((a,b)=>b.w-a.w).forEach(({pidx,w:pw})=>{
+    const p=P[pidx],pct=Math.round(pw*100),ml=(pw*vol).toFixed(1);
+    h+=`<div class="prow"><div class="pdot" style="background:${p.hex}"></div>
+      <div class="pi"><div class="pn">${p.name}</div><div class="pc">Nº ${p.num}</div></div>
+      <div class="bw"><div class="bbg"><div class="bf" style="width:${pct}%;background:${p.hex}"></div></div>
+      <div class="bls"><span class="bp">${pct}%</span><span class="bm">${ml} ml</span></div></div></div>`;
+  });
+  h+=`<div class="trow"><span>Total</span><strong>${vol} ml</strong></div>`;
+  return h;
+}
+
+// ── TABS ──────────────────────────────────────────────
+function showTab(t){
+  document.querySelectorAll('.ntab').forEach((el,i)=>el.classList.toggle('active',['mixer','saved'][i]===t));
+  document.querySelectorAll('.pane').forEach(el=>el.classList.remove('active'));
+  document.getElementById('pane-'+t).classList.add('active');
+  if(t==='saved')renderSaved();
+}
+function renderSaved(){
+  document.getElementById('svlist').style.display='block';document.getElementById('svdetail').style.display='none';
+  const list=getRec(),n=list.length;
+  document.getElementById('svcount').textContent=n===0?'':n===1?'1 receita':`${n} receitas`;
+  const g=document.getElementById('sgrid');
+  if(!n){g.innerHTML='<div class="empty">🎨<br><br>Nenhuma receita salva ainda.<br>Calcule uma cor e clique em <strong>Salvar</strong>.</div>';return;}
+  g.innerHTML=list.map(rec=>{
+    const pigs=[...rec.ingredients].sort((a,b)=>b.w-a.w).map(({pidx,w})=>`${P[pidx].name} ${Math.round(w*100)}%`).join(' · ');
+    return`<div class="scard" onclick="showDet(${rec.id})">
+      <div class="sch"><div class="scsw" style="background:${rec.hex}"></div>
+        <div><div class="scname">${rec.name}</div><div class="scsub">${rec.hex} · ${rec.date} · ${rec.acc}%</div></div></div>
+      <div class="scpigs">${pigs}</div>
+      <div class="scact" onclick="event.stopPropagation()">
+        <button class="scbtn" onclick="loadMixer('${rec.hex}')">↩ Abrir na calculadora</button>
+        <button class="scbtn scdel" onclick="delRec(${rec.id})">Excluir</button>
+      </div></div>`;
+  }).join('');
+}
+function showDet(id){
+  const rec=getRec().find(r=>r.id===id);if(!rec)return;
+  document.getElementById('svlist').style.display='none';document.getElementById('svdetail').style.display='block';
+  const vopts=[5,10,30,60,100,250].map(v=>`<option value="${v}"${v===30?' selected':''}>${v} ml</option>`).join('');
+  let h=`<div class="dhdr"><div class="dsw" style="background:${rec.hex}"></div>
+    <div><div class="dname">${rec.name}</div><div class="dsub">${rec.hex} · ${rec.date} · ${rec.acc}% precisão</div></div></div>`;
+  h+=`<div style="display:flex;align-items:center;gap:10px;margin-bottom:1.25rem"><label style="font-size:13px;color:var(--t2)">Volume:</label>
+    <select onchange="refDet(${rec.id},+this.value)">${vopts}</select></div>`;
+  h+=`<div id="drec">${recHTML(rec.ingredients,30)}</div>`;
+  h+=`<div class="alert ai" style="margin-top:1rem">Misture do mais claro para o mais escuro. Adicione cores escuras aos poucos.</div>`;
+  document.getElementById('dcard').innerHTML=h;
+}
+function refDet(id,vol){const rec=getRec().find(r=>r.id===id);if(rec)document.getElementById('drec').innerHTML=recHTML(rec.ingredients,vol);}
+function backList(){document.getElementById('svlist').style.display='block';document.getElementById('svdetail').style.display='none';}
+function delRec(id){if(!confirm('Excluir esta receita?'))return;putRec(getRec().filter(r=>r.id!==id));updateBadge();renderSaved();}
+function loadMixer(hex){setColor(hex);showTab('mixer');}
+
+updateBadge();
+render();
+</script>
+</body>
+</html>
