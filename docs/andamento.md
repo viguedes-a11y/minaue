@@ -22,15 +22,21 @@
 
 ## O que já foi feito
 - Diagnóstico completo (disco, inicialização, processos, RAM, programas, caches, Downloads).
-- (As remoções estão sendo executadas nesta sessão; registrar aqui conforme concluir.)
+- Removidos 11 apps da Loja: Skype, Your Phone, Get Help, Mapas, Clima (Bing), 3D Viewer, Mixed Reality, Feedback Hub, Zune Music, Zune Video, Copilot.
+- Desinstalados: VS Code, Obsidian, Lenovo Service Bridge, Office 2019, Java 8, Avast AntiTrack.
+- Google Drive removido por completo (sistema + pasta Program Files + restos LocalAppData\Google\DriveFS).
+- Tirados do início do Windows: Notion, TickTick, auto-abrir do Edge, GoogleDriveFS.
+- Caches Chrome/Edge limpos. 32 instaladores do Downloads apagados (~2,6 GB). Lixeira já estava vazia.
+- O Claude fechou 1x no meio (RAM no limite, 0,2-0,4 GB livre); retomado e conferido o estado real.
+- ChatGPT fechado para liberar memória (conversas ficam salvas na conta dela).
 
 ## O que falta
-1. Remover apps da Loja aprovados.
-2. Tirar do início do Windows: Notion, TickTick, auto-abrir do Edge, Google Drive.
-3. Desinstalar VS Code, Obsidian, Office 2019, Google Drive, Java 8, Lenovo Service Bridge.
-4. Trocar Avast (Free + AntiTrack) pelo Defender do Windows.
-5. Limpar cache Chrome/Edge, Lixeira (343 MB) e instaladores velhos do Downloads (~3 GB).
-6. Conferir e relatar o que foi feito.
+1. AVAST FREE: resistiu ao comando (se atualizou em vez de sair, mostrou tela "Atualizamos o seu Avast" no boot). Remover pela janela dele via `auroq computer` (controle de tela, visible pointer) — Windows Settings > Apps > Avast > Desinstalar > reiniciar. (EM ANDAMENTO)
+2. AUROQ: remover com backup. A aluna confirmou que roda o terminal pelo Claude, não pelo Auroq, então pode sair. Fica em C:\Users\Viviane\.auroq-os (skills do workshop + memória de negócio do Auroq). O projeto Minaue e suas skills ficam em pasta separada (NÃO tocar). Atenção: tem ganchos no .claude/settings.json e o include @~/.auroq-os/companion/COMPANION.md no CLAUDE.md global — neutralizar para não dar erro. Fazer backup (renomear a pasta) antes.
+3. Conferir e relatar tudo.
+
+## Observação de velocidade (importante)
+O gargalo real é RAM (3,9 GB total, quase nada livre). As remoções liberam disco e um pouco de RAM (Avast ajuda), mas o conserto de verdade é aumentar a RAM (4 → 8 GB), que é peça/dinheiro. Disco está folgado (C: 292 GB livres).
 
 ## Entregue só na conversa
 
